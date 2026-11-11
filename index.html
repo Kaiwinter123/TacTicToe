@@ -358,10 +358,10 @@ const FORMATIONS = {
   "5-3-2":[["GK",50,90],["DEF",10,70],["DEF",30,76],["DEF",50,78],["DEF",70,76],["DEF",90,70],["MID",28,52],["MID",50,54],["MID",72,52],["FWD",38,24],["FWD",62,24]]
 };
 const PACKS = [
-  {id:"bronze",name:"Terrace",price:8,count:4,lo:80,hi:83,guar:null,foil:"f-bronze",desc:["4 Premier League players, all 80–83","No elites — squad depth"]},
-  {id:"silver",name:"Matchday",price:16,count:4,lo:80,hi:85,guar:82,foil:"f-silver",desc:["4 players, 80–85","One guaranteed 82+"]},
+  {id:"bronze",name:"Bronze",price:8,count:4,lo:80,hi:83,guar:null,foil:"f-bronze",desc:["4 Premier League players, all 80–83","Squad depth — no elites"]},
+  {id:"silver",name:"Silver",price:16,count:4,lo:80,hi:85,guar:82,foil:"f-silver",desc:["4 players, 80–85","One guaranteed 82+"]},
   {id:"gold",name:"Gold",price:30,count:5,lo:80,hi:87,guar:83,foil:"f-gold",desc:["5 players, 80–87","One guaranteed 83+ · elites are rare"]},
-  {id:"elite",name:"Floodlight",price:70,count:4,lo:82,hi:91,guar:85,foil:"f-elite",desc:["4 players, 82–91","One guaranteed 85+ (your best shot at an elite)"]}
+  {id:"elite",name:"Elite",price:70,count:5,lo:82,hi:91,guar:86,foil:"f-elite",desc:["5 players, 82–91","One guaranteed elite (86+)"]}
 ];
 const SWATCHES = ["#e63946","#f4c84b","#2a9d8f","#3a86ff","#8338ec","#ff7b00","#111111","#f5f5f5","#0b6e4f","#7a263a","#00b4d8","#c0c0c0"];
 const MAX_SQUAD = 36;
@@ -605,7 +605,7 @@ function shirt(c1,c2){
 }
 const surname = n => n.includes(" ") ? n.slice(n.indexOf(" ")+1) : n;
 function mix(a,b,t){const h=x=>{x=x.replace("#","");if(x.length===3)x=x.split("").map(c=>c+c).join("");return [0,2,4].map(i=>parseInt(x.slice(i,i+2),16))};const A=h(a),B=h(b);return "#"+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,"0")).join("")}
-const RLABEL={bronze:"Bronze",silver:"Silver",gold:"Gold",elite:"Floodlight"};
+const RLABEL={bronze:"Bronze",silver:"Silver",gold:"Gold",elite:"Elite"};
 function card(p,opts={}){
   const r=rarity(p.ovr), c=clubOf(p);
   const k1 = c?c[2]:S?S.club.c1:"#888", k2 = c?c[3]:S?S.club.c2:"#444";
