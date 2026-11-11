@@ -1,9 +1,7 @@
 <!doctype html>
 <!--
   TacTicToe  |  (c) 2026 Kai Winterbottom. All Rights Reserved.
-  This source may be viewed to play the game only. Copying, modifying,
-  redistributing, or hosting your own copy is prohibited without written
-  permission. See the LICENSE file in this repository.
+  See the LICENSE file in this repository.
 -->
 <html lang="en">
 <head>
@@ -176,6 +174,15 @@ main{padding-block:22px 60px}
 .pbar{width:min(560px,100%);height:6px;background:var(--line);border-radius:3px;overflow:hidden}
 .pbar i{display:block;height:100%;background:var(--flood);width:0}
 
+/* momentum */
+.momrow{display:flex;align-items:center;gap:10px;width:min(560px,100%)}
+.momrow .marr{font-size:18px;color:var(--chalk);transition:opacity .3s,transform .3s;transform-origin:center}
+.momrow .marr.big{transform:scale(1.5)}
+.mbar{position:relative;flex:1;height:10px;background:var(--line);border-radius:5px;overflow:visible}
+.mbar .mcenter{position:absolute;left:50%;top:-3px;width:2px;height:16px;background:rgba(255,255,255,.4);transform:translateX(-50%)}
+.mbar i{position:absolute;top:50%;width:16px;height:16px;border-radius:50%;border:2px solid #05080e;transform:translate(-50%,-50%);transition:left .35s ease,background .35s;box-shadow:0 2px 6px rgba(0,0,0,.5)}
+.momcap{display:flex;justify-content:space-between;width:min(560px,100%);font-family:var(--num);font-weight:700;font-size:12px;letter-spacing:.06em;color:var(--muted)}
+.momcap #momtxt{color:var(--chalk)}
 /* pitch */
 .pitchpanel{position:sticky;top:calc(env(safe-area-inset-top,0px) + 132px);align-self:start}
 @media (max-width:760px){.pitchpanel{position:static}}
@@ -262,6 +269,18 @@ tr.rel td:first-child{box-shadow:inset 3px 0 0 var(--loss)}
 .calstat{min-width:56px;text-align:right}
 .cal-now{font-family:var(--num);font-weight:700;font-size:12px;letter-spacing:.1em;color:var(--flood)}
 @media (max-width:460px){.cal-next{font-size:20px}}
+/* how-to */
+.howto{background:var(--stand);border:1px solid var(--line);border-radius:12px;padding:4px 16px;margin-bottom:18px}
+.howto[open]{border-color:var(--flood)}
+.howto summary{display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer;padding:12px 0;list-style:none;font-family:var(--display);text-transform:uppercase;font-size:20px}
+.howto summary::-webkit-details-marker{display:none}
+.howto summary::after{content:"+";font-family:var(--num);font-size:24px;color:var(--flood)}
+.howto[open] summary::after{content:"–"}
+.howto summary .muted{font-family:var(--body);font-size:12px;text-transform:none;font-weight:400;margin-left:auto;margin-right:8px}
+.howbody{padding:0 0 14px;max-width:70ch}
+.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:4px}
+.steps li b{color:var(--flood)}
 /* onboarding */
 .gate{min-height:100vh;display:grid;place-items:center;padding-block:40px}
 .gate .box{width:min(560px,100%);display:flex;flex-direction:column;gap:20px}
@@ -340,9 +359,9 @@ const FORMATIONS = {
 };
 const PACKS = [
   {id:"bronze",name:"Terrace",price:8,count:4,lo:80,hi:83,guar:null,foil:"f-bronze",desc:["4 Premier League players, all 80–83","No elites — squad depth"]},
-  {id:"silver",name:"Matchday",price:16,count:4,lo:80,hi:85,guar:83,foil:"f-silver",desc:["4 players, 80–85","One guaranteed 83+"]},
-  {id:"gold",name:"Gold",price:30,count:5,lo:81,hi:88,guar:84,foil:"f-gold",desc:["5 players, 81–88","One guaranteed 84+ · elites possible"]},
-  {id:"elite",name:"Floodlight",price:70,count:4,lo:83,hi:91,guar:86,foil:"f-elite",desc:["4 players, 83–91","One guaranteed elite (86+)"]}
+  {id:"silver",name:"Matchday",price:16,count:4,lo:80,hi:85,guar:82,foil:"f-silver",desc:["4 players, 80–85","One guaranteed 82+"]},
+  {id:"gold",name:"Gold",price:30,count:5,lo:80,hi:87,guar:83,foil:"f-gold",desc:["5 players, 80–87","One guaranteed 83+ · elites are rare"]},
+  {id:"elite",name:"Floodlight",price:70,count:4,lo:82,hi:91,guar:85,foil:"f-elite",desc:["4 players, 82–91","One guaranteed 85+ (your best shot at an elite)"]}
 ];
 const SWATCHES = ["#e63946","#f4c84b","#2a9d8f","#3a86ff","#8338ec","#ff7b00","#111111","#f5f5f5","#0b6e4f","#7a263a","#00b4d8","#c0c0c0"];
 const MAX_SQUAD = 36;
@@ -406,7 +425,7 @@ function gapPos(){
 }
 function clubOf(p){ return p.club!=null ? CLUBS[p.club] : null }
 function rollOvr(lo,hi){ // skewed toward the low end
-  const t = Math.pow(Math.random(),3.3);
+  const t = Math.pow(Math.random(),4.6);
   return Math.round(lo + t*(hi-lo));
 }
 
@@ -637,7 +656,8 @@ function vClub(tbl,pos){
   const {m}=myFixture(S.round), home=m[0]==="you", opp=teamInfo(home?m[1]:m[0]), O=ratingsFor(home?m[1]:m[0]);
   const me=tbl.find(r=>r.id==="you"), filled=S.xi.filter(Boolean).length;
   const last=S.last;
-  return `<div class="grid2">
+  const newish = S.round<=1 && S.packs<2;
+  return `${howTo(newish)}<div class="grid2">
     <section class="panel stack" aria-labelledby="nm">
       <div class="row" style="justify-content:space-between"><span class="eyebrow" id="nm">Next match · Matchday ${S.round+1}</span><span class="eyebrow">${home?"Home":"Away"}</span></div>
       <div class="fixture">
@@ -693,6 +713,21 @@ function upcoming(){
 function miniTable(tbl){
   const i=tbl.findIndex(r=>r.id==="you"), a=clamp(i-2,0,tbl.length-5);
   return tbl.slice(a,a+5).map((r,k)=>{const t=teamInfo(r.id);return `<div class="mini ${r.id==="you"?"me":""}"><span class="num muted">${a+k+1}</span>${crest(t.c1,t.c2,t.short,16)}<span class="grow">${esc(t.name)}</span><b class="num">${r.pts}</b></div>`}).join("");
+}
+function howTo(open){
+  return `<details class="howto" ${open?"open":""}>
+    <summary><b>How to play TacTicToe</b><span class="muted">${open?"":"tap to open"}</span></summary>
+    <div class="howbody">
+      <p style="margin:0 0 10px">Build a football club from nothing: open packs of real Premier League players, pick your team, and manage them through a full season against all 20 clubs. Do well and you climb the table and win prize money to buy even better players.</p>
+      <ol class="steps">
+        <li><b>Open packs</b> — go to <b>Packs</b>. You start with £200m. Each pack gives you real players (all rated 80+) to add to your squad. Keep opening until you have at least 11.</li>
+        <li><b>Pick your team</b> — go to <b>Squad</b>. Choose a formation, then tap a player on the pitch and tap a substitute to swap them. Green means the right position, red means out of position.</li>
+        <li><b>Play matches</b> — go to <b>Calendar</b> and hit <b>Advance</b> (or <b>Kick off</b> here). Watch it play out, with momentum arrows showing who's on top.</li>
+        <li><b>Earn & improve</b> — win matches for prize money, spend it on more packs, and climb the <b>Table</b> across a 40-game season.</li>
+      </ol>
+      <p class="muted" style="margin:10px 0 0;font-size:12px">Your progress saves automatically. Tip: a full, well-picked squad finishes mid-table to top six; neglect it and you'll scrap near the bottom.</p>
+    </div>
+  </details>`;
 }
 function seasonEnd(tbl,pos){
   const prize = prizeFor(pos);
@@ -1040,21 +1075,40 @@ function playMatch(){
   const ov=document.createElement("div"); ov.className="overlay"; ov.setAttribute("role","dialog"); ov.setAttribute("aria-label","Match");
   ov.innerHTML=`<span class="eyebrow">Matchday ${r+1}</span>
     <div class="board"><div class="tm">${crest(H.c1,H.c2,H.short,48)}${esc(H.name)}</div><div><div class="sc" id="sc">0–0</div><div class="clk" id="clk">0'</div></div><div class="tm">${crest(A.c1,A.c2,A.short,48)}${esc(A.name)}</div></div>
+    <div class="momrow"><span class="marr" id="marrL">◀</span><div class="mbar"><span class="mcenter"></span><i id="mom"></i></div><span class="marr" id="marrR">▶</span></div>
+    <div class="momcap"><span>${esc(H.short)}</span><span id="momtxt">Momentum</span><span>${esc(A.short)}</span></div>
     <div class="pbar"><i id="pb"></i></div>
     <div class="feed" id="feed" aria-live="polite"></div>
     <div class="row"><button class="btn" id="skip">Skip to full time</button></div>`;
   document.body.appendChild(ov);
   const feed=ov.querySelector("#feed"), sc=ov.querySelector("#sc"), clk=ov.querySelector("#clk"), pb=ov.querySelector("#pb");
-  let minute=0, s=[0,0], ei=0, timer;
+  const momEl=ov.querySelector("#mom"), marrL=ov.querySelector("#marrL"), marrR=ov.querySelector("#marrR"), momtxt=ov.querySelector("#momtxt");
+  // momentum: +1 means home is on top, -1 means away. Home is index 0.
+  let minute=0, s=[0,0], ei=0, timer, mom=0;
+  const base=(lh-la)*0.05; // the stronger side drifts on top
+  const drawMom=()=>{
+    const pct=50-clamp(mom,-1,1)*46; // home (mom>0) is the left label, so lean left
+    momEl.style.left=pct+"%";
+    momEl.style.background = mom>0?esc(H.c1):mom<0?esc(A.c1):"var(--chalk)";
+    const strong=Math.abs(mom)>0.12;
+    marrL.style.opacity = (mom>0.12)?1:0.2; marrR.style.opacity=(mom<-0.12)?1:0.2;
+    marrL.className="marr"+(mom>0.35?" big":""); marrR.className="marr"+(mom<-0.35?" big":"");
+    momtxt.textContent = !strong ? "Even" : (mom>0?esc(H.short):esc(A.short))+" on top";
+  };
+  drawMom();
   const step=()=>{
     minute++;
+    // momentum eases back to the baseline, with a little life
+    mom = clamp(mom*0.9 + base*0.1 + (Math.random()-0.5)*0.05, -1, 1);
     while(ei<events.length && events[ei].min<=minute){
-      const e=events[ei++], tn=teamInfo(e.team), us=e.team==="you";
-      if(e.goal){ s[e.team===h?0:1]++; sc.textContent=s[0]+"–"+s[1] }
+      const e=events[ei++], tn=teamInfo(e.team), us=e.team==="you", homeSide=e.team===h;
+      if(e.goal){ s[homeSide?0:1]++; sc.textContent=s[0]+"–"+s[1]; mom=clamp(mom+(homeSide?0.6:-0.6),-1,1); }
+      else { mom=clamp(mom+(homeSide?0.28:-0.28),-1,1); }
       const d=document.createElement("div"); d.className="ev"+(e.goal?" goal"+(us?"":" them"):"");
       d.innerHTML=`<span class="m">${e.min}'</span><span>${e.goal?`<b>GOAL!</b> ${esc(e.who)} scores for ${esc(tn.name)}.`:`${esc(tn.short)} ${e.txt}.`}</span>`;
       feed.prepend(d);
     }
+    drawMom();
     clk.textContent=minute+"'"; pb.style.width=(minute/90*100)+"%";
     if(minute===45){const d=document.createElement("div");d.className="ev";d.innerHTML=`<span class="m">HT</span><span>Half time: ${s[0]}–${s[1]}</span>`;feed.prepend(d)}
     if(minute>=90) finish();
@@ -1071,7 +1125,7 @@ function playMatch(){
   };
   ov.querySelector("#skip").addEventListener("click",()=>{minute=89;step()});
   const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if(reduce){minute=89;step()} else timer=setInterval(step,85);
+  if(reduce){minute=89;step()} else timer=setInterval(step,150);
 }
 
 /* ---------- the 5-minute check-in (the thumbs-down runs away) ---------- */
