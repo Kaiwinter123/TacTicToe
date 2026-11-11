@@ -1,4 +1,10 @@
 <!doctype html>
+<!--
+  TacTicToe  |  (c) 2026 Kai Winterbottom. All Rights Reserved.
+  This source may be viewed to play the game only. Copying, modifying,
+  redistributing, or hosting your own copy is prohibited without written
+  permission. See the LICENSE file in this repository.
+-->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -620,7 +626,7 @@ function render(){
     ${[["club","Club"],["packs","Packs"],["squad","Squad"],["table","Table"],["calendar","Calendar"]].concat(isAdmin?[["admin","Admin"]]:[]).map(([k,l])=>`<button class="tab ${k==="admin"?"owner":""}" data-view="${k}" ${view===k?'aria-current="page"':""}>${l}</button>`).join("")}
   </div></nav></header>
   <main class="wrap">${(({club:vClub,packs:vPacks,squad:vSquad,table:vTable,calendar:vCalendar,admin:vAdmin})[view]||vClub)(tbl,pos)}
-  <p class="muted" style="margin:32px 0 0;font-size:12px">Unofficial fan game, not affiliated with the Premier League or its clubs. Player ratings are this game's own estimates.</p></main>`;
+  <p class="muted" style="margin:32px 0 0;font-size:12px">© 2026 Kai Winterbottom. All rights reserved. Unofficial fan game, not affiliated with the Premier League or its clubs. Player ratings are this game's own estimates.</p></main>`;
   bind();
 }
 function ordinal(n){const s=["th","st","nd","rd"],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0])}
