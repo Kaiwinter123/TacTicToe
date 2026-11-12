@@ -300,6 +300,33 @@ tr.rel td:first-child{box-shadow:inset 3px 0 0 var(--loss)}
 .enjoy-no{position:fixed;left:0;top:0;font-size:38px;background:var(--stand2);border:1px solid var(--line);border-radius:14px;width:64px;height:64px;cursor:pointer;z-index:61;line-height:1;transition:left .12s ease,top .12s ease}
 @keyframes efade{from{opacity:0}}
 @media (prefers-reduced-motion:reduce){.enjoy-no{transition:none}}
+/* calendar grid */
+.vtag.cup{background:var(--elite);color:#fff}
+.calhead.cuphead{border-color:var(--elite)}
+.callegend{display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--muted);font-family:var(--num);letter-spacing:.06em}
+.callegend .lg{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.callegend .lg.league{background:var(--flood)} .callegend .lg.cup{background:var(--elite)}
+.calmonths{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.cmonth{background:var(--stand);border:1px solid var(--line);border-radius:12px;padding:12px}
+.cmhead{font-family:var(--display);text-transform:uppercase;font-size:20px;margin-bottom:8px}
+.cgh{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px}
+.cgh span{font-family:var(--num);font-size:10px;color:var(--muted);text-align:center;letter-spacing:.04em}
+.cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cday{aspect-ratio:1;border-radius:6px;background:var(--night);border:1px solid transparent;display:flex;flex-direction:column;padding:3px;min-width:0;position:relative}
+.cday.empty{background:transparent}
+.cday .cdn{font-family:var(--num);font-size:10px;color:var(--muted);line-height:1}
+.cday.match{background:var(--stand2);border-color:var(--flood)}
+.cday.match.cup{border-color:var(--elite)}
+.cday.match.next{box-shadow:0 0 0 2px var(--flood);border-color:var(--flood)}
+.cday.match.cup.next{box-shadow:0 0 0 2px var(--elite)}
+.cday.match.rW{background:rgba(67,195,131,.18)} .cday.match.rL{background:rgba(232,99,79,.18)} .cday.match.rD{background:rgba(210,172,74,.16)}
+.cday .cmx{display:flex;align-items:center;gap:2px;margin-top:1px;min-width:0}
+.cday .cmx svg{flex:none}
+.cday .cop{font-family:var(--num);font-weight:700;font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cday .cha{font-family:var(--num);font-size:8px;color:var(--muted);margin-left:auto}
+.cday .cres{font-family:var(--num);font-weight:700;font-size:10px;margin-top:auto;color:var(--flood)}
+.cday.match.cup .cres{color:var(--elite)}
+@media (max-width:460px){.calmonths{grid-template-columns:1fr}.cday .cop{font-size:8px}.cday .cmx svg{width:12px;height:14px}}
 /* calendar */
 .calhead{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:var(--stand);border:1px solid var(--flood);border-radius:12px;padding:16px 18px}
 .calhead.done{border-color:var(--line)}
@@ -545,6 +572,7 @@ function newGame(form){
     budget:START_BUDGET, season:1, round:0, squad, formation:"4-3-3", xi:[],
     teams:newSeasonTeams(), fixtures:null, results:[], history:[], packs:0, trophies:0, last:null, ended:false};
   S.fixtures = makeFixtures(["you"].concat(S.teams.map(t=>t.id)));
+  S.cup = makeCup(4);
   autoPick();
   advanceByes();
   save();
@@ -733,20 +761,25 @@ function ordinal(n){const s=["th","st","nd","rd"],v=n%100;return n+(s[(v-20)%10]
 
 function vClub(tbl,pos){
   const R=teamRatings();
-  if(S.round>=S.fixtures.length) return seasonEnd(tbl,pos);
-  const {m}=myFixture(S.round), home=m[0]==="you", oppId=home?m[1]:m[0], opp=teamInfo(oppId), O=ratingsFor(oppId);
+  const ne=nextEvent();
+  if(!ne) return seasonEnd(tbl,pos);
+  const isCup = ne.type==="cup", cupRound = isCup?ne.tie.name:"";
+  let home, oppId, compLabel, roundLabel;
+  if(isCup){ const t=ne.tie; oppId=t.opp; home=(t.name==="Final")?true:t.home; compLabel="League Cup"; roundLabel=t.name; }
+  else { const mm=myFixture(S.round).m; home=mm[0]==="you"; oppId=home?mm[1]:mm[0]; compLabel="Premier League"; roundLabel="Matchday "+(S.round+1); }
+  const opp=teamInfo(oppId), O=ratingsFor(oppId);
   const me=tbl.find(r=>r.id==="you"), filled=S.xi.filter(Boolean).length;
   const last=S.last;
   const newish = S.round<=1 && S.packs<2;
   return `${howTo(newish)}<div class="grid2">
     <section class="panel stack" aria-labelledby="nm">
-      <div class="row" style="justify-content:space-between"><span class="eyebrow" id="nm">Next match · Matchday ${S.round+1}</span><span class="eyebrow">${home?"Home":"Away"}</span></div>
+      <div class="row" style="justify-content:space-between"><span class="eyebrow" id="nm">Next up · <b style="color:${isCup?"var(--elite)":"var(--flood)"}">${esc(compLabel)}</b> · ${esc(roundLabel)}</span><span class="eyebrow">${isCup&&cupRound==="Final"?"Neutral":home?"Home":"Away"}</span></div>
       <div class="fixture">
         <div class="side">${crest(home?S.club.c1:opp.c1,home?S.club.c2:opp.c2,home?S.club.short:opp.short,64)}<b>${esc(home?S.club.name:opp.name)}</b></div>
         <div class="vs">V</div>
         <div class="side">${crest(home?opp.c1:S.club.c1,home?opp.c2:S.club.c2,home?opp.short:S.club.short,64)}<b>${esc(home?opp.name:S.club.name)}</b></div>
       </div>
-      <div class="venue">${home?`<span class="vtag home">HOME</span> At ${esc(S.club.stadium)}`:`<span class="vtag away">AWAY</span> At ${esc(stadiumFor(opp.short)||opp.name)}`}</div>
+      <div class="venue">${isCup&&cupRound==="Final"?`<span class="vtag cup">CUP FINAL</span> At Wembley Stadium`:home?`<span class="vtag home">HOME</span> At ${esc(S.club.stadium)}`:`<span class="vtag away">AWAY</span> At ${esc(stadiumFor(opp.short)||opp.name)}`}</div>
       <div class="strength">
         <span class="muted">You</span><div class="meter"><i style="width:${clamp((R.ovr-40)/55*100,2,100)}%"></i></div><b class="num">${R.ovr.toFixed(0)}</b>
         <span class="muted">${esc(opp.short)}</span><div class="meter"><i style="width:${clamp((O.ovr-40)/55*100,2,100)}%;background:var(--muted)"></i></div><b class="num">${O.ovr}</b>
@@ -921,42 +954,68 @@ function vTable(tbl){
 const CAL_WD=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], CAL_MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 function seasonStart(){ const y=2025+S.season; let d=Date.UTC(y,7,15); while(new Date(d).getUTCDay()!==6) d+=864e5; return d; } // first Saturday on/after 15 Aug
 function mDate(round){ const d=mDateObj(round); return {wd:CAL_WD[d.getUTCDay()],day:d.getUTCDate(),mo:CAL_MO[d.getUTCMonth()],yr:d.getUTCFullYear()}; }
-function vCalendar(tbl){
-  const over = S.round>=S.fixtures.length;
-  // advance header
-  let head;
-  if(over){
-    const pos=tbl.findIndex(r=>r.id==="you")+1;
-    head=`<div class="calhead done"><div><span class="eyebrow">Season ${S.season} finished</span><div class="cal-next">${pos===1?"Champions of England":ordinal(pos)+" in the league"}</div></div><button class="btn primary" data-act="next-season">Start season ${S.season+1}</button></div>`;
-  }else{
-    const {m}=myFixture(S.round), home=m[0]==="you", opp=teamInfo(home?m[1]:m[0]), dt=mDate(S.round), filled=S.xi.filter(Boolean).length;
-    head=`<div class="calhead"><div style="min-width:0"><span class="eyebrow">Next up · ${dt.wd} ${dt.day} ${dt.mo}</span>
-      <div class="cal-next">${crest(opp.c1,opp.c2,opp.short,26)}<span>${esc(opp.name)}</span><span class="muted" style="font-weight:400">${home?"Home":"Away"} · MD${S.round+1}</span></div>
-      ${filled<11?`<span class="muted" style="font-size:13px">${11-filled} empty slot${filled===10?"":"s"} — a youth player fills in until you sign one.</span>`:""}</div>
-      <button class="btn primary" data-act="play">Advance ▶</button></div>`;
-  }
-  // month-grouped schedule
-  let rows="", month=null, prevD=null;
-  for(let r=0;r<S.fixtures.length;r++){
-    const {m}=myFixture(r); if(m.includes("bye")) continue;
-    const dt=mDate(r), dObj=mDateObj(r), mk=dt.mo+" "+dt.yr;
-    if(mk!==month){ month=mk; rows+=`<div class="calmonth">${mk}</div>`; prevD=null; }
-    if(prevD){ const gap=Math.round((dObj-prevD)/864e5)-1; if(gap>0) rows+=`<div class="restrow"><span>${gap} rest day${gap>1?"s":""}</span></div>`; }
-    const home=m[0]==="you", opp=teamInfo(home?m[1]:m[0]);
+function dkey(d){ return d.getUTCFullYear()+"-"+d.getUTCMonth()+"-"+d.getUTCDate(); }
+function calEvents(){
+  const ev={}, ne=nextEvent();
+  for(let r=0;r<S.fixtures.length;r++){ const {m}=myFixture(r); if(m.includes("bye")) continue;
+    const d=mDateObj(r), home=m[0]==="you", oppId=home?m[1]:m[0];
     const i=S.fixtures[r].findIndex(x=>x.includes("you")), sc=S.results[r]&&S.results[r][i];
-    let status, cls="";
-    if(sc){ const mine=home?sc[0]:sc[1], th=home?sc[1]:sc[0], k=mine>th?"W":mine<th?"L":"D"; status=`<span class="res ${k}">${sc[0]}–${sc[1]}</span>`; cls="played"; }
-    else if(r===S.round){ status='<span class="cal-now">NEXT</span>'; cls="now"; }
-    else status='<span class="muted num">—</span>';
-    rows+=`<div class="calrow ${cls}"><span class="caldate"><b class="num">${dt.day}</b><span>${dt.wd} ${dt.mo}</span></span>
-      <span class="calopp">${crest(opp.c1,opp.c2,opp.short,18)}<span class="grow">${esc(opp.name)}</span><span class="ha">${home?"H":"A"}</span></span>
-      <span class="calstat">${status}</span></div>`;
-    prevD=dObj;
+    let result=null,k=null; if(sc){ const mine=home?sc[0]:sc[1],th=home?sc[1]:sc[0]; result=[sc[0],sc[1]]; k=mine>th?"W":mine<th?"L":"D"; }
+    ev[dkey(d)]={comp:"league",oppId,home,result,k,isNext:(ne&&ne.type==="league"&&r===S.round)};
   }
+  if(S.cup){ S.cup.rounds.forEach((t,idx)=>{
+    const show = t.played || (idx===S.cup.idx && !S.cup.out && !S.cup.won);
+    if(!show) return;
+    let result=null,k=null; if(t.played){ result=t.score; k=t.won?"W":"L"; }
+    ev[dkey(new Date(cupDate(t.week)))]={comp:"cup",oppId:t.opp,home:(t.name==="Final"?null:t.home),result,k,round:t.name,isNext:(ne&&ne.type==="cup"&&idx===S.cup.idx)};
+  }); }
+  return ev;
+}
+function monthGrid(y,mo,ev){
+  const MN=["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const WD=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  const lead=(new Date(Date.UTC(y,mo,1)).getUTCDay()+6)%7, days=new Date(Date.UTC(y,mo+1,0)).getUTCDate();
+  let cells="";
+  for(let i=0;i<lead;i++) cells+=`<div class="cday empty"></div>`;
+  for(let dn=1;dn<=days;dn++){ const e=ev[y+"-"+mo+"-"+dn];
+    if(!e){ cells+=`<div class="cday"><span class="cdn">${dn}</span></div>`; continue; }
+    const t=teamInfo(e.oppId), ha=e.home==null?"N":e.home?"H":"A";
+    cells+=`<div class="cday match ${e.comp}${e.isNext?" next":""}${e.k?" r"+e.k:""}" title="${esc(t.name)} (${e.comp==="cup"?"League Cup":"League"})">
+      <span class="cdn">${dn}</span>
+      <span class="cmx">${crest(t.c1,t.c2,t.short,15)}<span class="cop">${esc(t.short)}</span><span class="cha">${ha}</span></span>
+      <span class="cres">${e.result?e.result[0]+"\u2013"+e.result[1]:(e.isNext?"NEXT":e.comp==="cup"?"CUP":"")}</span>
+    </div>`;
+  }
+  return `<div class="cmonth"><div class="cmhead">${MN[mo]} ${y}</div><div class="cgh">${WD.map(w=>`<span>${w}</span>`).join("")}</div><div class="cgrid">${cells}</div></div>`;
+}
+function vCalendar(tbl){
+  const ne=nextEvent();
+  let head;
+  if(!ne){ const pos=tbl.findIndex(r=>r.id==="you")+1;
+    head=`<div class="calhead done"><div><span class="eyebrow">Season ${S.season} finished</span><div class="cal-next">${pos===1?"Champions of England":ordinal(pos)+" in the league"}</div></div><button class="btn primary" data-act="next-season">Start season ${S.season+1}</button></div>`;
+  } else {
+    const isCup=ne.type==="cup", t=isCup?ne.tie:null;
+    const home=isCup?(t.name==="Final"?true:t.home):(myFixture(S.round).m[0]==="you");
+    const oppId=isCup?t.opp:(home?myFixture(S.round).m[1]:myFixture(S.round).m[0]);
+    const opp=teamInfo(oppId), d=isCup?new Date(cupDate(t.week)):mDateObj(S.round);
+    const comp=isCup?("League Cup \u00b7 "+t.name):("Matchday "+(S.round+1));
+    const filled=S.xi.filter(Boolean).length;
+    head=`<div class="calhead ${isCup?"cuphead":""}"><div style="min-width:0"><span class="eyebrow">Next up \u00b7 ${CAL_WD[d.getUTCDay()]} ${d.getUTCDate()} ${CAL_MO[d.getUTCMonth()]} \u00b7 <b style="color:${isCup?"var(--elite)":"var(--flood)"}">${esc(comp)}</b></span>
+      <div class="cal-next">${crest(opp.c1,opp.c2,opp.short,26)}<span>${esc(opp.name)}</span><span class="muted" style="font-weight:400">${isCup&&t.name==="Final"?"Neutral":home?"Home":"Away"}</span></div>
+      ${filled<11?`<span class="muted" style="font-size:13px">${11-filled} empty slot${filled===10?"":"s"} \u2014 a youth player fills in.</span>`:""}</div>
+      <button class="btn primary" data-act="play">Advance \u25b6</button></div>`;
+  }
+  const ev=calEvents();
+  const startD=new Date(seasonStart()), lastD=new Date(seasonStart()+(S.fixtures.length-1)*7*864e5);
+  let grids="";
+  for(let d=new Date(Date.UTC(startD.getUTCFullYear(),startD.getUTCMonth(),1)); d<=lastD; d=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,1)))
+    grids+=monthGrid(d.getUTCFullYear(),d.getUTCMonth(),ev);
+  const cup=S.cup, cupLine = cup? (cup.won?"\ud83c\udfc6 League Cup WINNERS":cup.out?"League Cup \u00b7 knocked out ("+cup.rounds[cup.idx].name+")":"League Cup \u00b7 "+cup.rounds[cup.idx].name) : "";
   return `<section class="stack">
-    <div class="row" style="justify-content:space-between"><h2 style="font-size:36px">Calendar</h2><span class="muted">Season ${S.season} · ${2025+S.season}/${String(26+S.season).padStart(2,"0")}</span></div>
+    <div class="row" style="justify-content:space-between"><h2 style="font-size:36px">Calendar</h2><span class="muted">Season ${S.season} \u00b7 ${2025+S.season}/${String(26+S.season).padStart(2,"0")}</span></div>
     ${head}
-    <div class="calgrid">${rows}</div>
+    <div class="callegend"><span><i class="lg league"></i>League</span><span><i class="lg cup"></i>League Cup</span><span>${esc(cupLine)}</span></div>
+    <div class="calmonths">${grids}</div>
   </section>`;
 }
 function vFixtures(){
@@ -1025,7 +1084,7 @@ function bind(){
 }
 function handle(act,el){
   switch(act){
-    case "play": playMatch(); break;
+    case "play": advance(); break;
     case "buy": openPack(PACKS.find(p=>p.id===el.dataset.pack)); break;
     case "auto": autoPick(); ui.slot=null; save(); render(); toast("Best XI selected"); break;
     case "slot": {
@@ -1089,6 +1148,7 @@ function nextSeason(){
   S.budget+=prize; S.season++; S.round=0; S.results=[]; S.last=null; S.januaryDone=false; S.lastStar=null;
   S.teams=newSeasonTeams(S.teams);
   S.fixtures=makeFixtures(["you"].concat(S.teams.map(t=>t.id)));
+  S.cup=makeCup(4);
   advanceByes(); save(); render(); toast(`${money(prize)} prize money added. Season ${S.season} begins.`);
 }
 
@@ -1202,6 +1262,7 @@ function showSocial(ctx, onDone){
   const ctxLines=[];
   if(S.lastStar) ctxLines.push("BREAKING 📝 {club} have signed {star}! Proper statement of intent from {manager}.");
   if(ctx.january) ctxLines.push("💰 {club} hand {manager} a £70m January war chest. Spend it well, gaffer!");
+  if(ctx.cup){ ctxLines.unshift(ctx.cup.won ? (ctx.cup.final?"WE'VE WON THE CUP \ud83c\udfc6\ud83c\udfc6 {manager} is a LEGEND. Get it in the cabinet!!":"Into the next round of the Cup \ud83c\udfc6 {club} march on. {manager} rotating like a pro.") : "OUT of the Cup to {opp} \ud83d\ude29 {manager} says we focus on the league now."); }
   if(meRow.p>5 && pos<=4) ctxLines.push(pos===1?"TOP OF THE LEAGUE 🏆 pinch me. {manager} is building something special at {club}.":"{club} in the TOP FOUR 🌟 {manager} has us dreaming of Europe.");
   else if(meRow.p>5 && pos>=N-2) ctxLines.push("{club} in the drop zone 😬 {manager}, it's squeaky-bum time.");
   if(streak>=3 && sv==="W") ctxLines.push(streak+" wins on the spin!! {club} are UNREAL right now 🔥 {manager} magic.");
@@ -1277,8 +1338,8 @@ function scorer(team){
   for(const [p,k] of w){x-=k;if(x<=0)return p.n}
   return "Own goal";
 }
-function playMatch(){
-  const r=S.round, {i,m}=myFixture(r), [h,a]=m;
+// ---- shared match engine ----
+function simMatch(h,a){
   const [lh,la]=lambdas(h,a), gh=poisson(lh), ga=poisson(la);
   const events=[];
   for(let k=0;k<gh;k++) events.push({min:ri(1,90),team:h,goal:true});
@@ -1287,13 +1348,74 @@ function playMatch(){
   for(let k=0;k<ri(3,6);k++) events.push({min:ri(1,90),team:Math.random()<lh/(lh+la)?h:a,goal:false,txt:pick(chances)});
   events.sort((x,y)=>x.min-y.min);
   events.forEach(e=>{ if(e.goal) e.who=scorer(e.team) });
+  return {lh,la,gh,ga,events};
+}
+function showMatchOverlay(o, onDone){
+  const H=teamInfo(o.h), A=teamInfo(o.a), events=o.events, gh=o.gh, ga=o.ga;
+  const ov=document.createElement("div"); ov.className="overlay"; ov.setAttribute("role","dialog"); ov.setAttribute("aria-label","Match");
+  ov.innerHTML=`<span class="eyebrow">${esc(o.title)}</span>
+    <div class="board"><div class="tm">${crest(H.c1,H.c2,H.short,48)}${esc(H.name)}</div><div><div class="sc" id="sc">0\u20130</div><div class="clk" id="clk">0'</div></div><div class="tm">${crest(A.c1,A.c2,A.short,48)}${esc(A.name)}</div></div>
+    <div class="momrow"><span class="marr" id="marrL">\u25c0</span><div class="mbar"><span class="mcenter"></span><i id="mom"></i></div><span class="marr" id="marrR">\u25b6</span></div>
+    <div class="momcap"><span>${esc(H.short)}</span><span id="momtxt">Momentum</span><span>${esc(A.short)}</span></div>
+    <div class="pbar"><i id="pb"></i></div>
+    <div class="feed" id="feed" aria-live="polite"></div>
+    <div class="row"><button class="btn" id="skip">Skip to full time</button></div>`;
+  document.body.appendChild(ov);
+  const feed=ov.querySelector("#feed"), sc=ov.querySelector("#sc"), clk=ov.querySelector("#clk"), pb=ov.querySelector("#pb");
+  const momEl=ov.querySelector("#mom"), marrL=ov.querySelector("#marrL"), marrR=ov.querySelector("#marrR"), momtxt=ov.querySelector("#momtxt");
+  let minute=0, s=[0,0], ei=0, timer, mom=0;
+  const base=(o.lh-o.la)*0.05;
+  const drawMom=()=>{
+    const pct=50-clamp(mom,-1,1)*46;
+    momEl.style.left=pct+"%";
+    momEl.style.background = mom>0?esc(H.c1):mom<0?esc(A.c1):"var(--chalk)";
+    const strong=Math.abs(mom)>0.12;
+    marrL.style.opacity=(mom>0.12)?1:0.2; marrR.style.opacity=(mom<-0.12)?1:0.2;
+    marrL.className="marr"+(mom>0.35?" big":""); marrR.className="marr"+(mom<-0.35?" big":"");
+    momtxt.textContent = !strong ? "Even" : (mom>0?esc(H.short):esc(A.short))+" on top";
+  };
+  drawMom();
+  const step=()=>{
+    minute++;
+    mom = clamp(mom*0.9 + base*0.1 + (Math.random()-0.5)*0.05, -1, 1);
+    while(ei<events.length && events[ei].min<=minute){
+      const e=events[ei++], tn=teamInfo(e.team), us=e.team==="you", homeSide=e.team===o.h;
+      if(e.goal){ s[homeSide?0:1]++; sc.textContent=s[0]+"\u2013"+s[1]; mom=clamp(mom+(homeSide?0.6:-0.6),-1,1); }
+      else { mom=clamp(mom+(homeSide?0.28:-0.28),-1,1); }
+      const d=document.createElement("div"); d.className="ev"+(e.goal?" goal"+(us?"":" them"):"");
+      d.innerHTML=`<span class="m">${e.min}'</span><span>${e.goal?`<b>GOAL!</b> ${esc(e.who)} scores for ${esc(tn.name)}.`:`${esc(tn.short)} ${esc(e.txt)}.`}</span>`;
+      feed.prepend(d);
+    }
+    drawMom();
+    clk.textContent=minute+"'"; pb.style.width=(minute/90*100)+"%";
+    if(minute===45){const d=document.createElement("div");d.className="ev";d.innerHTML=`<span class="m">HT</span><span>Half time: ${s[0]}\u2013${s[1]}</span>`;feed.prepend(d)}
+    if(minute>=90) finish();
+  };
+  const finish=()=>{
+    clearInterval(timer);
+    while(ei<events.length){minute=90;step()}
+    sc.textContent=gh+"\u2013"+ga; clk.textContent="FT";
+    const row=ov.querySelector(".row");
+    row.innerHTML=`<span style="font-family:var(--display);font-size:26px;text-transform:uppercase;color:${o.color}">${esc(o.word)}</span><span class="muted">${esc(o.note)}</span><button class="btn primary" id="cont">${o.social?"See the reaction \ud83d\udcac":"Continue \u25b6"}</button>`;
+    ov.querySelector("#cont").addEventListener("click",()=>{
+      if(o.social) showSocial(o.social, ()=>{ ov.remove(); onDone(); });
+      else { ov.remove(); onDone(); }
+    });
+    ov.querySelector("#cont").focus();
+  };
+  ov.querySelector("#skip").addEventListener("click",()=>{minute=89;step()});
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(reduce){minute=89;step()} else timer=setInterval(step,150);
+}
 
-  // results for the round
+function playMatch(){
+  const r=S.round, {i,m}=myFixture(r), [h,a]=m;
+  const sim=simMatch(h,a); const {gh,ga,events,lh,la}=sim;
   const res=simRound(r,i); res[i]=[gh,ga];
   const mine=h==="you"?gh:ga, theirs=h==="you"?ga:gh;
   const earn=(mine>theirs?4:mine===theirs?2:1)+mine*.5;
   S.results[r]=res; S.round++; S.budget+=earn; S.last={h,a,sc:[gh,ga],earn};
-  const oppId = h==="you"?a:h;
+  const oppId=h==="you"?a:h;
   if(!S.h2h) S.h2h={};
   const rec = S.h2h[oppId] || (S.h2h[oppId]={w:0,d:0,l:0,log:[]});
   if(mine>theirs) rec.w++; else if(mine<theirs) rec.l++; else rec.d++;
@@ -1303,67 +1425,55 @@ function playMatch(){
   if(!S.januaryDone && mDateObj(r).getUTCMonth()===0){ S.budget+=70; S.januaryDone=true; januaryBoost=true; }
   const byes=advanceByes();
   save();
-  if(januaryBoost) toast("January transfer window — £70m added to your budget! 💰");
-
-  const H=teamInfo(h), A=teamInfo(a);
-  const kickoff=()=>{
-  const ov=document.createElement("div"); ov.className="overlay"; ov.setAttribute("role","dialog"); ov.setAttribute("aria-label","Match");
-  ov.innerHTML=`<span class="eyebrow">Matchday ${r+1} · ${h==="you"?"Home · "+esc(S.club.stadium):"Away · "+esc(stadiumFor(teamInfo(h).short)||teamInfo(h).name)}</span>
-    <div class="board"><div class="tm">${crest(H.c1,H.c2,H.short,48)}${esc(H.name)}</div><div><div class="sc" id="sc">0–0</div><div class="clk" id="clk">0'</div></div><div class="tm">${crest(A.c1,A.c2,A.short,48)}${esc(A.name)}</div></div>
-    <div class="momrow"><span class="marr" id="marrL">◀</span><div class="mbar"><span class="mcenter"></span><i id="mom"></i></div><span class="marr" id="marrR">▶</span></div>
-    <div class="momcap"><span>${esc(H.short)}</span><span id="momtxt">Momentum</span><span>${esc(A.short)}</span></div>
-    <div class="pbar"><i id="pb"></i></div>
-    <div class="feed" id="feed" aria-live="polite"></div>
-    <div class="row"><button class="btn" id="skip">Skip to full time</button></div>`;
-  document.body.appendChild(ov);
-  const feed=ov.querySelector("#feed"), sc=ov.querySelector("#sc"), clk=ov.querySelector("#clk"), pb=ov.querySelector("#pb");
-  const momEl=ov.querySelector("#mom"), marrL=ov.querySelector("#marrL"), marrR=ov.querySelector("#marrR"), momtxt=ov.querySelector("#momtxt");
-  // momentum: +1 means home is on top, -1 means away. Home is index 0.
-  let minute=0, s=[0,0], ei=0, timer, mom=0;
-  const base=(lh-la)*0.05; // the stronger side drifts on top
-  const drawMom=()=>{
-    const pct=50-clamp(mom,-1,1)*46; // home (mom>0) is the left label, so lean left
-    momEl.style.left=pct+"%";
-    momEl.style.background = mom>0?esc(H.c1):mom<0?esc(A.c1):"var(--chalk)";
-    const strong=Math.abs(mom)>0.12;
-    marrL.style.opacity = (mom>0.12)?1:0.2; marrR.style.opacity=(mom<-0.12)?1:0.2;
-    marrL.className="marr"+(mom>0.35?" big":""); marrR.className="marr"+(mom<-0.35?" big":"");
-    momtxt.textContent = !strong ? "Even" : (mom>0?esc(H.short):esc(A.short))+" on top";
-  };
-  drawMom();
-  const step=()=>{
-    minute++;
-    // momentum eases back to the baseline, with a little life
-    mom = clamp(mom*0.9 + base*0.1 + (Math.random()-0.5)*0.05, -1, 1);
-    while(ei<events.length && events[ei].min<=minute){
-      const e=events[ei++], tn=teamInfo(e.team), us=e.team==="you", homeSide=e.team===h;
-      if(e.goal){ s[homeSide?0:1]++; sc.textContent=s[0]+"–"+s[1]; mom=clamp(mom+(homeSide?0.6:-0.6),-1,1); }
-      else { mom=clamp(mom+(homeSide?0.28:-0.28),-1,1); }
-      const d=document.createElement("div"); d.className="ev"+(e.goal?" goal"+(us?"":" them"):"");
-      d.innerHTML=`<span class="m">${e.min}'</span><span>${e.goal?`<b>GOAL!</b> ${esc(e.who)} scores for ${esc(tn.name)}.`:`${esc(tn.short)} ${e.txt}.`}</span>`;
-      feed.prepend(d);
-    }
-    drawMom();
-    clk.textContent=minute+"'"; pb.style.width=(minute/90*100)+"%";
-    if(minute===45){const d=document.createElement("div");d.className="ev";d.innerHTML=`<span class="m">HT</span><span>Half time: ${s[0]}–${s[1]}</span>`;feed.prepend(d)}
-    if(minute>=90) finish();
-  };
-  const finish=()=>{
-    clearInterval(timer);
-    while(ei<events.length){minute=90;step()}
-    sc.textContent=gh+"–"+ga; clk.textContent="FT";
-    const k=mine>theirs?"Win":mine<theirs?"Defeat":"Draw";
-    const row=ov.querySelector(".row");
-    row.innerHTML=`<span style="font-family:var(--display);font-size:28px;text-transform:uppercase;color:${mine>theirs?"var(--win)":mine<theirs?"var(--loss)":"var(--draw)"}">${k}</span><span class="muted">+${money(earn)}</span><button class="btn primary" id="cont">See the reaction 💬</button>`;
-    ov.querySelector("#cont").addEventListener("click",()=>{ showSocial({win:mine>theirs?1:mine<theirs?-1:0, score:gh+"–"+ga, scorers:events.filter(e=>e.goal&&e.team==="you").map(e=>e.who), opp:(h==="you"?A:H).name, oppShort:(h==="you"?A:H).short, january:januaryBoost}, ()=>{ov.remove();render();if(byes)toast("Your club had no fixture on the next matchday. Those results are in the table.");}); });
-    ov.querySelector("#cont").focus();
-  };
-  ov.querySelector("#skip").addEventListener("click",()=>{minute=89;step()});
-  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if(reduce){minute=89;step()} else timer=setInterval(step,150);
-  };
-  runDays(r,h,a,kickoff);
+  if(januaryBoost) toast("January transfer window \u2014 \u00a370m added to your budget! \ud83d\udcb0");
+  const venue = h==="you" ? "Home \u00b7 "+S.club.stadium : "Away \u00b7 "+(stadiumFor(teamInfo(h).short)||teamInfo(h).name);
+  const title = "Premier League \u00b7 Matchday "+(r+1)+" \u00b7 "+venue;
+  const word = mine>theirs?"Win":mine<theirs?"Defeat":"Draw";
+  const color = mine>theirs?"var(--win)":mine<theirs?"var(--loss)":"var(--draw)";
+  const social = {win:mine>theirs?1:mine<theirs?-1:0, score:gh+"\u2013"+ga, scorers:events.filter(e=>e.goal&&e.team==="you").map(e=>e.who), opp:teamInfo(oppId).name, oppShort:teamInfo(oppId).short, january:januaryBoost};
+  runDays(r,h,a, ()=> showMatchOverlay({h,a,lh,la,events,gh,ga,title,word,color,note:"+"+money(earn),social}, ()=>{ render(); if(byes) toast("Your club had no fixture on that matchday. Those results are in the table."); }));
 }
+
+function makeCup(base){
+  const names=["Second Round","Third Round","Fourth Round","Semi-final","Final"], offs=[0,4,9,15,25];
+  const used=new Set(["you"]);
+  const rounds=names.map((n,i)=>{ let opp; do{ opp="c"+ri(0,CLUBS.length-1); }while(used.has(opp)); used.add(opp);
+    return {name:n, week:base+offs[i], opp, home:(n==="Final")?true:Math.random()<0.5, played:false, score:null, won:null, pens:null}; });
+  return {rounds, idx:0, out:false, won:false};
+}
+function cupTie(){ const c=S.cup; if(!c||c.out||c.won||c.idx>=c.rounds.length) return null; const t=c.rounds[c.idx]; return t.played?null:t; }
+function cupDate(week){ return seasonStart()+(week*7+3)*864e5; }
+function playCup(){
+  const c=S.cup, tie=c.rounds[c.idx], isFinal=tie.name==="Final";
+  const h=tie.home?"you":tie.opp, a=tie.home?tie.opp:"you";
+  const sim=simMatch(h,a); const {gh,ga,events,lh,la}=sim;
+  const mine=h==="you"?gh:ga, theirs=h==="you"?ga:gh;
+  let won=mine>theirs, pens=null;
+  if(mine===theirs){ const Rm=teamRatings().ovr, Ro=ratingsFor(tie.opp).ovr; won=Math.random()<Rm/(Rm+Ro);
+    pens=won?[ri(4,5),ri(2,4)]:[ri(2,4),ri(4,5)]; if(pens[0]===pens[1]) pens[won?0:1]++; }
+  const earn=3+(c.idx+1)*2+(won?(c.idx+1)*3:0);
+  tie.played=true; tie.score=[gh,ga]; tie.won=won; tie.pens=pens; tie.pshome=(h==="you");
+  S.budget+=earn;
+  if(won){ if(isFinal){ c.won=true; S.budget+=30; } else c.idx++; } else c.out=true;
+  save();
+  const venue = isFinal ? "Wembley Stadium (neutral)" : (tie.home?"Home \u00b7 "+S.club.stadium:"Away \u00b7 "+(stadiumFor(teamInfo(tie.opp).short)||teamInfo(tie.opp).name));
+  const title = "League Cup \u00b7 "+tie.name+" \u00b7 "+venue;
+  const word = won ? (isFinal?"CUP WINNERS \ud83c\udfc6":"Through \u2714") : "Knocked out";
+  const color = won?"var(--win)":"var(--loss)";
+  const pensTxt = pens ? (won?"Won "+pens[0]+"\u2013"+pens[1]+" on pens \u00b7 ":"Lost "+pens[1]+"\u2013"+pens[0]+" on pens \u00b7 ") : "";
+  const social = {win:won?1:-1, score:gh+"\u2013"+ga, scorers:events.filter(e=>e.goal&&e.team==="you").map(e=>e.who), opp:teamInfo(tie.opp).name, oppShort:teamInfo(tie.opp).short, cup:{won, final:isFinal, round:tie.name}};
+  showMatchOverlay({h,a,lh,la,events,gh,ga,title,word,color,note:pensTxt+"+"+money(earn),social}, ()=> render());
+}
+function nextEvent(){
+  const leagueOver = S.round>=S.fixtures.length;
+  const tie=cupTie();
+  const leagueDate = leagueOver?Infinity:mDateObj(S.round).getTime();
+  const cupD = tie?cupDate(tie.week):Infinity;
+  if(cupD<leagueDate) return {type:"cup", tie};
+  if(!leagueOver) return {type:"league"};
+  return null;
+}
+function advance(){ const ev=nextEvent(); if(!ev) return; if(ev.type==="cup") playCup(); else playMatch(); }
 
 /* ---------- the 5-minute check-in (the thumbs-down runs away) ---------- */
 let enjoyArmed=false;
@@ -1422,7 +1532,7 @@ function start(data){
 let loaded=false;
 async function finishLoad(){
   if(loaded) return; loaded=true;
-  try{ const saved=await load(); if(saved && saved.v===2){ if(!saved.h2h) saved.h2h={}; if(saved.januaryDone===undefined) saved.januaryDone=false; saved.squad.forEach(p=>{ if(!p.a||Object.keys(p.a).length<6) p.a=attrsFor(p.ovr,p.pos,p.rid) }); }
+  try{ const saved=await load(); if(saved && saved.v===2){ if(!saved.h2h) saved.h2h={}; if(saved.januaryDone===undefined) saved.januaryDone=false; if(!saved.cup) saved.cup=makeCup(Math.max(4, saved.round+2)); saved.squad.forEach(p=>{ if(!p.a||Object.keys(p.a).length<6) p.a=attrsFor(p.ovr,p.pos,p.rid) }); }
     if(saved && saved.v===2){ if(!saved.club.stadium) saved.club.stadium=saved.club.name+" Stadium"; }
     if(saved && saved.v===2 && (!S || (saved.round+saved.season*100)>=(S.round+S.season*100))) S=saved; }
   catch(e){ toast("Couldn't load your saved club. Try reloading the page.") }
