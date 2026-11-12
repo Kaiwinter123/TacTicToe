@@ -431,6 +431,11 @@ tr.rel td:first-child{box-shadow:inset 3px 0 0 var(--loss)}
 .fan .card:nth-child(3){transform:translate(15%,-46%) rotate(12deg)}
 @media (max-width:900px){.gatecols{grid-template-columns:1fr}.fan{height:270px;order:-1}.fan .card{width:140px}}
 .gate h1{font-size:clamp(54px,14vw,96px);line-height:.85}
+.intro{font-size:15px}
+.introlist{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:9px}
+.introlist li{position:relative;padding-left:26px;line-height:1.4;color:var(--chalk)}
+.introlist li::before{content:"\26bd ";position:absolute;left:0;top:1px;font-size:14px}
+.introlist li b{color:var(--flood)}
 .gate h1 em{font-style:normal;color:var(--flood)}
 label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:var(--muted)}
 input[type=text]{background:var(--night);border:1px solid var(--line);border-radius:8px;padding:11px 12px;color:var(--chalk);font:inherit;font-size:16px}
@@ -1150,7 +1155,18 @@ function gate(){
     <div><span class="eyebrow">Premier League 2026/27 · pack-and-season game</span><h1>Tac<em>Tic</em>Toe</h1></div>
     ${store.kind==="db"&&who?`<div class="who"><img src="${esc(who.avatarUrl)}" alt=""><span>Signed in${who.name?" as <b>"+esc(who.name)+"</b>":""}. Your club saves to your account.</span></div>`
       :`<p class="muted" style="margin:0">${store.kind==="local"?"You're not signed in to claude.ai, so your club saves in this browser only.":"Connecting to your account…"}</p>`}
-    <p style="margin:0">Create your club, then build it from scratch. You begin with an empty squad and ${money(START_BUDGET)} \u2014 enough for a solid-but-modest squad. Build it up, and in January the board hands you \u00a370m to push for honours. Play all 20 clubs home and away, plus the League Cup.</p>
+    <div class="intro">
+      <p style="margin:0 0 10px">TacTicToe is a football manager where you build a club from nothing and chase glory over many seasons. Here's how it works:</p>
+      <ul class="introlist">
+        <li><b>Found your club</b> \u2014 name it, pick your colours, badge animal and stadium.</li>
+        <li><b>Open packs</b> to sign <b>real Premier League players</b>. You start with ${money(START_BUDGET)} for a modest squad.</li>
+        <li><b>Pick your team</b> \u2014 choose a formation, set your XI, make subs and sell players you don't need.</li>
+        <li><b>Play the season</b> \u2014 all 20 clubs home and away, watched live with momentum and fan reactions.</li>
+        <li><b>Win the League Cup</b> too \u2014 midweek knockout ties on the way to Wembley.</li>
+        <li><b>Earn & grow</b> \u2014 prize money for every finish, plus a <b>\u00a370m board investment</b> each January to push for honours.</li>
+        <li><b>Build a legacy</b> \u2014 it takes a few seasons to challenge for the title. Track your trophies and records in History.</li>
+      </ul>
+    </div>
     <form id="create" class="stack" novalidate>
       <label for="mgr">Your name (manager)<input type="text" id="mgr" maxlength="24" value="${esc(draft.manager||(who&&who.name)||"")}" required></label>
       <div class="formrow">
