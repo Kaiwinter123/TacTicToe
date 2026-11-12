@@ -207,6 +207,13 @@ main{padding-block:22px 60px}
 .collitem .cpos{font-family:var(--num);font-size:9px;color:var(--muted);margin-left:auto}
 .collitem .ctick{color:var(--win);font-weight:900;font-size:13px;flex:none}
 .collitem .clock{color:var(--muted);font-size:12px;flex:none}
+/* club reputation */
+.stats .v.rep{color:var(--c-purple)}
+.repbox{border:1px solid color-mix(in srgb,var(--c-purple) 30%,var(--line))}
+.reptier{font-family:var(--display);text-transform:uppercase;font-size:18px;color:var(--c-purple);line-height:1;text-align:right}
+.repbar{position:relative;height:18px;background:var(--line);border-radius:9px;overflow:hidden}
+.repbar i{display:block;height:100%;min-width:3px;background:linear-gradient(90deg,#7a3cff,#ff5c8a 55%,#f4c84b);border-radius:9px;transition:width .6s cubic-bezier(.2,.8,.2,1);box-shadow:0 0 14px rgba(165,121,255,.5)}
+.repbar .reppct{position:absolute;right:9px;top:50%;transform:translateY(-50%);font-family:var(--num);font-weight:700;font-size:11px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.7)}
 @media (prefers-reduced-motion:reduce){.card.prospect::after{animation:none}}
 .card.ucl{--rim:var(--c-blue);color:#eaf3ff;box-shadow:0 0 0 2px var(--c-blue),0 0 24px rgba(58,160,255,.55),0 10px 30px rgba(0,0,0,.5);
   background:

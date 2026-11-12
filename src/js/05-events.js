@@ -75,6 +75,9 @@ async function resetClub(){
 }
 function recordWin(mine,theirs,oppId,comp){
   if(mine<=theirs) return;
+  // reputation: a win, worth more against a stronger team and by a bigger margin
+  const oppStr=(ratingsFor(oppId).ovr)||75;
+  addRep(1.4 + Math.max(0,oppStr-76)*0.8 + Math.max(0,(mine-theirs)-1)*0.35 + (comp==="League Cup"?0.6:0));
   if(!S.records) S.records={bestWin:null};
   const margin=mine-theirs, bw=S.records.bestWin;
   if(!bw || margin>bw.margin || (margin===bw.margin && mine>bw.me))
@@ -84,6 +87,8 @@ function nextSeason(){
   const tbl=table(), pos=tbl.findIndex(r=>r.id==="you")+1, prize=prizeFor(pos);
   const cup=S.cup, cupRes = cup? (cup.won?"Cup winners":cup.out?"Cup: out in "+cup.rounds[cup.idx].name:"Cup: reached "+cup.rounds[cup.idx].name) : "";
   S.history.push({season:S.season,pos,pts:tbl[pos-1].pts,cup:cupRes,title:pos===1});
+  // reputation: how you finished the season is the biggest driver of stature
+  addRep(pos===1?50 : pos<=4?24 : pos<=Math.ceil(tbl.length/2)?10 : 3);
   if(pos===1) S.trophies++;
   const summer=50; S.budget+=prize+summer; S.season++; S.round=0; S.results=[]; S.last=null; S.januaryDone=false; S.lastStar=null;
   S.squad.forEach(p=>{ if(p.inj) delete p.inj; if(p.prospect && p.ovr<PROSPECT_CAP){ p.ovr=Math.min(PROSPECT_CAP,p.ovr+1); p.a=attrsFor(p.ovr,p.pos,p.rid); } });
@@ -110,7 +115,7 @@ function openPack(pk){
     if(uc){ const idx=pk.guar?ri(1,got.length-1):ri(0,got.length-1); const si=S.squad.indexOf(got[idx]); if(si>=0) S.squad.splice(si,1); got[idx]=uc; S.squad.push(uc); } }
   got.sort((a,b)=>a.ovr-b.ovr);
   if(!S.collected) S.collected=[];
-  got.forEach(p=>{ if(p.rid && !S.collected.includes(p.rid)) S.collected.push(p.rid); });
+  got.forEach(p=>{ if(p.rid && !S.collected.includes(p.rid)) S.collected.push(p.rid); addRep(Math.max(0,(p.ovr-80))*0.6); });
   const topPull=got[got.length-1]; if(topPull && topPull.ovr>=86) S.lastStar=topPull.n;
   save();
 

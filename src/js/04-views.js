@@ -12,6 +12,7 @@ function render(){
       <div class="stat"><div class="eyebrow">Budget</div><div class="v money">${money(S.budget)}</div></div>
       <div class="stat"><div class="eyebrow">Position</div><div class="v pos">${S.round?ordinal(pos):"–"}</div></div>
       <div class="stat"><div class="eyebrow">Matchday</div><div class="v md">${Math.min(S.round+1,S.fixtures.length)}/${S.fixtures.length}</div></div>
+      <div class="stat"><div class="eyebrow">Reputation</div><div class="v rep">${Math.round(clubRep().pct)}</div></div>
     </div>
   </div>
   <nav class="tabs" aria-label="Sections"><div class="wrap">
@@ -70,6 +71,7 @@ function vClub(tbl,pos){
         </div>
         <div class="form">${me.form.slice(-6).map(f=>`<span class="${f}">${f}</span>`).join("")||'<span class="muted" style="width:auto;font-family:var(--body);font-weight:400">No matches yet</span>'}</div>
       </div>
+      ${(()=>{const r=clubRep();return `<div class="panel stack repbox"><div class="row" style="justify-content:space-between"><span class="eyebrow">Club reputation</span><b class="reptier">${esc(r.tier.name)}</b></div><div class="repbar"><i style="width:${r.pct.toFixed(1)}%"></i><span class="reppct">${Math.round(r.pct)}</span></div><p class="muted" style="margin:0;font-size:12px">${esc(r.tier.note)} Grows with marquee signings, wins over strong teams, league finishes and trophies.</p></div>`;})()}
       ${last?`<div class="panel stack"><span class="eyebrow">Last result</span><div class="row" style="justify-content:space-between"><b>${esc(teamInfo(last.h).short)} <span class="num" style="font-size:22px;color:var(--flood)">${last.sc[0]}–${last.sc[1]}</span> ${esc(teamInfo(last.a).short)}</b><span class="muted">+${money(last.earn)}</span></div></div>`:""}
       <div class="panel stack">
         <span class="eyebrow">Earnings</span>
@@ -262,7 +264,10 @@ function vAdmin(){
 }
 function ordinalPos(n){ return n>0?ordinal(n):"\u2014"; }
 const CHANGELOG = [
-  {tag:"NEW", accent:"var(--c-money)", date:"Latest", title:"Card collection",
+  {tag:"NEW", accent:"var(--c-purple)", date:"Latest", title:"Club reputation",
+   body:"A reputation bar that charts your club’s rise from nobody to continental giant.",
+   items:["Starts near zero and climbs through six tiers — Unknown, Up-and-coming, Established, Big club, Elite, Continental giant.","Grows from marquee signings, wins (worth far more against strong teams), high league finishes and — above all — titles.","Shown as a bar on the Club screen and a live figure in the header; it takes seasons of success to reach the top."]},
+  {tag:"NEW", accent:"var(--c-money)", date:"Recent", title:"Card collection",
    body:"A collector’s page that tracks every card in the game.",
    items:["All 374 cards — every Premier League player, all 8 Future Prospects and all 45 Europe’s Finest.","A ✓ marks each card you’ve packed; once collected it stays ticked even if you sell the player.","Filter by Collected or Missing and watch your completion percentage climb."]},
   {tag:"NEW", accent:"var(--c-blue)", date:"Recent", title:"News tab",

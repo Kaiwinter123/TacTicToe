@@ -22,6 +22,21 @@ function bestFitFor(pos){
   const inXI=new Set(S.xi.filter(Boolean));
   return S.squad.filter(p=>!inXI.has(p.id)&&!isInjured(p)).sort((a,b)=>effective(b,pos)-effective(a,pos))[0]||null;
 }
+// ---------- club reputation ----------
+const REP_TIERS=[
+  {min:0,  name:"Unknown",          note:"Nobody’s heard of you yet — start winning to get noticed."},
+  {min:14, name:"Up-and-coming",    note:"People are starting to take notice of your club."},
+  {min:30, name:"Established",       note:"A respected name in the division now."},
+  {min:48, name:"Big club",         note:"One of the sides everyone circles on the calendar."},
+  {min:68, name:"Elite",            note:"Among the very best in the country."},
+  {min:85, name:"Continental giant",note:"A global superclub, feared right across Europe."}
+];
+function addRep(n){ if(!n||n<0) return; S.repPts=(S.repPts||0)+n; }
+function clubRep(){
+  const pts=S.repPts||0, pct=clamp(100*(1-Math.exp(-pts/190)),0,100);
+  let tier=REP_TIERS[0]; for(const t of REP_TIERS) if(pct>=t.min) tier=t;
+  return {pct, tier};
+}
 function teamRatings(){
   const g={GK:[],DEF:[],MID:[],FWD:[]};
   slots().forEach(([pos],i)=>{ const p=byId(S.xi[i]); g[pos].push(p?Math.max(CARE-4,effective(p,pos)):CARE) });

@@ -142,7 +142,7 @@ function realisticVenues(fx){
 function newGame(form){
   const squad=[];
   S = {v:2, manager:form.manager, club:{name:form.name,short:form.short,stadium:form.stadium,c1:form.c1,c2:form.c2}, h2h:{}, januaryDone:false, lastStar:null, records:{bestWin:null}, cupTrophies:0, schedFixed:true,
-    budget:START_BUDGET, season:1, round:0, squad, formation:"4-3-3", xi:[], collected:[],
+    budget:START_BUDGET, season:1, round:0, squad, formation:"4-3-3", xi:[], collected:[], repPts:0,
     teams:newSeasonTeams(), fixtures:null, results:[], history:[], packs:0, trophies:0, last:null, ended:false};
   S.fixtures = makeFixtures(["you"].concat(S.teams.map(t=>t.id)));
   S.cup = makeCup(4);

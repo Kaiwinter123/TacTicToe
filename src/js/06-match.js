@@ -452,7 +452,7 @@ function playCup(){
     const earn=3+(c.idx+1)*2+(won?(c.idx+1)*3:0);
     tie.played=true; tie.score=[gh,ga]; tie.won=won; tie.pens=pens; tie.pshome=home;
     S.budget+=earn;
-    if(won){ if(isFinal){ c.won=true; S.cupTrophies=(S.cupTrophies||0)+1; S.budget+=30; } else c.idx++; } else c.out=true;
+    if(won){ if(isFinal){ c.won=true; S.cupTrophies=(S.cupTrophies||0)+1; S.budget+=30; addRep(20); } else c.idx++; } else c.out=true;
     recordWin(mine,theirs,oppId,"League Cup");
     const injRes=processInjuries(sim);
     save();
