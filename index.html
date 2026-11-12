@@ -185,6 +185,24 @@ main{padding-block:22px 60px}
 .pbar{width:min(560px,100%);height:6px;background:var(--line);border-radius:3px;overflow:hidden}
 .pbar i{display:block;height:100%;background:var(--flood);width:0}
 
+/* day countdown + rest days */
+.dayov{gap:16px}
+.daycard{background:var(--stand);border:2px solid var(--line);border-radius:18px;padding:20px 36px;text-align:center;min-width:220px;box-shadow:0 18px 50px rgba(0,0,0,.5)}
+.daycard.match{border-color:var(--flood);box-shadow:0 0 0 2px var(--flood),0 18px 50px rgba(244,200,75,.25)}
+.daycard.flip{animation:dflip .22s ease}
+@keyframes dflip{from{transform:perspective(600px) rotateX(50deg);opacity:.25}to{transform:none;opacity:1}}
+.dayweek{font-family:var(--num);font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-size:14px}
+.daybig{font-family:var(--display);font-weight:900;font-size:76px;line-height:.9;color:var(--chalk)}
+.daycard.match .daybig{color:var(--flood)}
+.daymon{font-family:var(--num);font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-size:15px}
+.daylabel{font-family:var(--num);font-weight:600;font-size:18px;letter-spacing:.04em;color:var(--chalk);min-height:24px;text-align:center}
+.daylabel .md{font-family:var(--display);font-size:24px;color:var(--flood);letter-spacing:.06em}
+.daydots{display:flex;gap:6px}
+.daydots .dot2{width:8px;height:8px;border-radius:50%;background:var(--line);transition:background .2s}
+.daydots .dot2.on{background:var(--flood)}
+.restrow{display:flex;align-items:center;gap:10px;padding:1px 14px;color:var(--muted);font-size:11px;font-family:var(--num);letter-spacing:.1em;text-transform:uppercase}
+.restrow::before,.restrow::after{content:"";height:1px;background:var(--line);flex:1}
+@media (prefers-reduced-motion:reduce){.daycard.flip{animation:none}}
 /* momentum */
 .momrow{display:flex;align-items:center;gap:10px;width:min(560px,100%)}
 .momrow .marr{font-size:18px;color:var(--chalk);transition:opacity .3s,transform .3s;transform-origin:center}
@@ -458,7 +476,6 @@ function newSeasonTeams(prev){
   });
 }
 function makeFixtures(ids){
-  // keep the player's club at the pivot so its home/away alternates each round
   const a = [ids[0]].concat(ids.slice(1).sort(()=>Math.random()-.5)); if(a.length%2) a.push("bye");
   const n=a.length, rounds=[];
   for(let r=0;r<n-1;r++){
@@ -471,7 +488,37 @@ function makeFixtures(ids){
     rounds.push(m);
     a.splice(1,0,a.pop());
   }
-  return rounds.concat(rounds.map(m=>m.map(([h,w])=>[w,h])));
+  const fx = rounds.concat(rounds.map(m=>m.map(([h,w])=>[w,h])));
+  realisticVenues(fx);
+  return fx;
+}
+// Shape the player's home/away like a real schedule: never more than two
+// in a row, with some natural back-to-back home or away runs. Each opponent
+// is still met once home and once away.
+function realisticVenues(fx){
+  const games=[];
+  fx.forEach((rd,rr)=>{ const i=rd.findIndex(mm=>mm.includes("you")); if(i<0) return; const [h,w]=rd[i]; if(h==="bye"||w==="bye") return; games.push({r:rr,i,opp:(h==="you"?w:h)}); });
+  const firstV={}, seen={}; let last=null, run=0;
+  for(const g of games){
+    let v;
+    if(seen[g.opp]){ v = firstV[g.opp]==="H"?"A":"H"; }
+    else {
+      if(run>=2) v = last==="H"?"A":"H";
+      else if(last===null) v = Math.random()<0.5?"H":"A";
+      else v = Math.random()<0.4 ? last : (last==="H"?"A":"H");
+      firstV[g.opp]=v; seen[g.opp]=true;
+    }
+    g.v=v; if(v===last) run++; else { run=1; last=v; }
+  }
+  // repair any run of three by flipping an opponent's two meetings
+  for(let pass=0; pass<80; pass++){
+    let bad=-1;
+    for(let k=2;k<games.length;k++){ if(games[k].v===games[k-1].v && games[k].v===games[k-2].v){ bad=k; break; } }
+    if(bad<0) break;
+    firstV[games[bad].opp]=firstV[games[bad].opp]==="H"?"A":"H";
+    const sn={}; for(const g of games){ if(sn[g.opp]){ g.v=firstV[g.opp]==="H"?"A":"H"; } else { g.v=firstV[g.opp]; sn[g.opp]=true; } }
+  }
+  for(const g of games){ fx[g.r][g.i] = g.v==="H" ? ["you",g.opp] : [g.opp,"you"]; }
 }
 function newGame(form){
   const squad=[];
@@ -869,11 +916,12 @@ function vCalendar(tbl){
       <button class="btn primary" data-act="play">Advance ▶</button></div>`;
   }
   // month-grouped schedule
-  let rows="", month=null;
+  let rows="", month=null, prevD=null;
   for(let r=0;r<S.fixtures.length;r++){
     const {m}=myFixture(r); if(m.includes("bye")) continue;
-    const dt=mDate(r), mk=dt.mo+" "+dt.yr;
-    if(mk!==month){ month=mk; rows+=`<div class="calmonth">${mk}</div>`; }
+    const dt=mDate(r), dObj=mDateObj(r), mk=dt.mo+" "+dt.yr;
+    if(mk!==month){ month=mk; rows+=`<div class="calmonth">${mk}</div>`; prevD=null; }
+    if(prevD){ const gap=Math.round((dObj-prevD)/864e5)-1; if(gap>0) rows+=`<div class="restrow"><span>${gap} rest day${gap>1?"s":""}</span></div>`; }
     const home=m[0]==="you", opp=teamInfo(home?m[1]:m[0]);
     const i=S.fixtures[r].findIndex(x=>x.includes("you")), sc=S.results[r]&&S.results[r][i];
     let status, cls="";
@@ -883,6 +931,7 @@ function vCalendar(tbl){
     rows+=`<div class="calrow ${cls}"><span class="caldate"><b class="num">${dt.day}</b><span>${dt.wd} ${dt.mo}</span></span>
       <span class="calopp">${crest(opp.c1,opp.c2,opp.short,18)}<span class="grow">${esc(opp.name)}</span><span class="ha">${home?"H":"A"}</span></span>
       <span class="calstat">${status}</span></div>`;
+    prevD=dObj;
   }
   return `<section class="stack">
     <div class="row" style="justify-content:space-between"><h2 style="font-size:36px">Calendar</h2><span class="muted">Season ${S.season} · ${2025+S.season}/${String(26+S.season).padStart(2,"0")}</span></div>
@@ -1068,6 +1117,41 @@ function autoPickIfBetter(){
 }
 
 /* ---------- match ---------- */
+function mDateObj(round){ const start=Date.UTC(2025+S.season,7,8); return new Date(start+Math.round(round*6.95)*864e5); }
+// Tick through the calendar days leading up to a match, then kick off.
+function runDays(r,h,a,done){
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const home=h==="you", opp=teamInfo(home?a:h), toD=mDateObj(r);
+  let pp=-1; for(let q=r-1;q>=0;q--){ if(!myFixture(q).m.includes("bye")){ pp=q; break; } }
+  const fromD = pp>=0 ? new Date(mDateObj(pp).getTime()+864e5) : new Date(toD.getTime()-5*864e5);
+  let days=[]; for(let t=fromD.getTime(); t<toD.getTime(); t+=864e5) days.push(new Date(t));
+  if(days.length>6) days=days.slice(-6);
+  days.push(new Date(toD));
+  if(reduce){ done(); return; }
+  const flavor=["Training session","Recovery & gym","Rest day","Tactics meeting","Light session","Set-piece drills","Travel & scouting"];
+  const ov=document.createElement("div"); ov.className="overlay dayov"; ov.setAttribute("role","dialog"); ov.setAttribute("aria-label","Countdown to the match");
+  ov.innerHTML=`<span class="eyebrow">Matchday ${r+1} · ${home?"Home":"Away at "+esc(stadiumFor(opp.short)||opp.name)}</span>
+    <div class="daycard" id="dc"><div class="dayweek" id="dw"></div><div class="daybig" id="db"></div><div class="daymon" id="dm"></div></div>
+    <div class="daylabel" id="dl"></div>
+    <div class="daydots" id="dd"></div>
+    <div class="row"><button class="btn" id="dskip">Skip to kick off ▶</button></div>`;
+  document.body.appendChild(ov);
+  const dw=ov.querySelector("#dw"),db=ov.querySelector("#db"),dm=ov.querySelector("#dm"),dl=ov.querySelector("#dl"),dc=ov.querySelector("#dc"),dd=ov.querySelector("#dd");
+  dd.innerHTML=days.map(()=>'<span class="dot2"></span>').join(""); const dots=[...dd.children];
+  let idx=0, timer=null, over=false;
+  const finishUp=()=>{ if(over) return; over=true; if(timer) clearInterval(timer); ov.remove(); done(); };
+  const show=()=>{
+    const d=days[idx], last=idx===days.length-1;
+    dw.textContent=CAL_WD[d.getUTCDay()]; db.textContent=d.getUTCDate(); dm.textContent=CAL_MO[d.getUTCMonth()]+" "+d.getUTCFullYear();
+    dl.innerHTML = last ? `<b class="md">MATCHDAY</b> · ${home?"vs "+esc(opp.name):"away at "+esc(stadiumFor(opp.short)||opp.name)}` : esc(flavor[idx%flavor.length]);
+    dc.classList.toggle("match",last); dots.forEach((x,k)=>x.classList.toggle("on",k<=idx));
+    dc.classList.remove("flip"); void dc.offsetWidth; dc.classList.add("flip");
+  };
+  ov.querySelector("#dskip").addEventListener("click",finishUp);
+  show();
+  if(days.length===1){ setTimeout(finishUp,1000); return; }
+  timer=setInterval(()=>{ idx++; show(); if(idx>=days.length-1){ clearInterval(timer); timer=null; setTimeout(finishUp,1050); } },240);
+}
 function scorer(team){
   if(team==="you"){
     const w=[];slots().forEach(([pos],i)=>{const p=byId(S.xi[i]);if(p)w.push([p,pos==="FWD"?6:pos==="MID"?3:pos==="DEF"?1:0])});
@@ -1105,6 +1189,7 @@ function playMatch(){
   save();
 
   const H=teamInfo(h), A=teamInfo(a);
+  const kickoff=()=>{
   const ov=document.createElement("div"); ov.className="overlay"; ov.setAttribute("role","dialog"); ov.setAttribute("aria-label","Match");
   ov.innerHTML=`<span class="eyebrow">Matchday ${r+1} · ${h==="you"?"Home":"Away · "+esc(stadiumFor(teamInfo(h).short)||teamInfo(h).name)}</span>
     <div class="board"><div class="tm">${crest(H.c1,H.c2,H.short,48)}${esc(H.name)}</div><div><div class="sc" id="sc">0–0</div><div class="clk" id="clk">0'</div></div><div class="tm">${crest(A.c1,A.c2,A.short,48)}${esc(A.name)}</div></div>
@@ -1159,6 +1244,8 @@ function playMatch(){
   ov.querySelector("#skip").addEventListener("click",()=>{minute=89;step()});
   const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
   if(reduce){minute=89;step()} else timer=setInterval(step,150);
+  };
+  runDays(r,h,a,kickoff);
 }
 
 /* ---------- the 5-minute check-in (the thumbs-down runs away) ---------- */
