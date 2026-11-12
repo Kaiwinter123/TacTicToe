@@ -82,6 +82,14 @@ main{padding-block:22px 60px}
 .W{background:var(--win)}.D{background:var(--draw)}.L{background:var(--loss)}
 
 .rule{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
+.h2h{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:12px}
+.h2hrec{font-family:var(--num);font-weight:700;font-size:14px}
+.h2hrec .hw{color:var(--win)} .h2hrec .hd{color:var(--draw)} .h2hrec .hl{color:var(--loss)}
+.h2hlist{display:flex;flex-direction:column;gap:4px}
+.h2hrow{display:grid;grid-template-columns:1fr auto auto 26px;gap:10px;align-items:center;font-size:13px;padding:5px 8px;background:var(--stand2);border-radius:6px}
+.h2hrow .res2{text-align:right;color:var(--flood)}
+.rp{width:22px;height:22px;border-radius:4px;display:grid;place-items:center;font-family:var(--num);font-weight:700;font-size:12px;color:#0c1320}
+.rp.W{background:var(--win)} .rp.D{background:var(--draw)} .rp.L{background:var(--loss);color:#fff}
 .split{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 @media (max-width:560px){.split{grid-template-columns:1fr}}
 .mini{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;font-size:14px;background:var(--stand2)}
@@ -467,7 +475,7 @@ function makeFixtures(ids){
 }
 function newGame(form){
   const squad=[];
-  S = {v:2, manager:form.manager, club:{name:form.name,short:form.short,c1:form.c1,c2:form.c2},
+  S = {v:2, manager:form.manager, club:{name:form.name,short:form.short,c1:form.c1,c2:form.c2}, h2h:{},
     budget:START_BUDGET, season:1, round:0, squad, formation:"4-3-3", xi:[],
     teams:newSeasonTeams(), fixtures:null, results:[], history:[], packs:0, trophies:0, last:null, ended:false};
   S.fixtures = makeFixtures(["you"].concat(S.teams.map(t=>t.id)));
@@ -660,7 +668,7 @@ function ordinal(n){const s=["th","st","nd","rd"],v=n%100;return n+(s[(v-20)%10]
 function vClub(tbl,pos){
   const R=teamRatings();
   if(S.round>=S.fixtures.length) return seasonEnd(tbl,pos);
-  const {m}=myFixture(S.round), home=m[0]==="you", opp=teamInfo(home?m[1]:m[0]), O=ratingsFor(home?m[1]:m[0]);
+  const {m}=myFixture(S.round), home=m[0]==="you", oppId=home?m[1]:m[0], opp=teamInfo(oppId), O=ratingsFor(oppId);
   const me=tbl.find(r=>r.id==="you"), filled=S.xi.filter(Boolean).length;
   const last=S.last;
   const newish = S.round<=1 && S.packs<2;
@@ -679,6 +687,7 @@ function vClub(tbl,pos){
       </div>
       ${filled<11?`<p class="muted" style="margin:0">Your starting XI has ${11-filled} empty slot${filled===10?"":"s"}. Fill them on the Squad tab.</p>`:""}
       <div class="row"><button class="btn primary" data-act="play">Kick off</button><button class="btn" data-view="squad">Pick team</button></div>
+      ${h2hBlock(oppId)}
       <hr class="rule">
       <div class="split">
         <div class="stack" style="gap:8px"><span class="eyebrow">Coming up</span>${upcoming()}</div>
@@ -707,6 +716,16 @@ function vClub(tbl,pos){
         ${ui.confirmReset?`<div class="confirm"><span>Full reset: delete this club and all progress, and go back to the create-a-club screen? This can't be undone.</span><button class="btn small danger" data-act="reset-yes">Reset everything</button><button class="btn small" data-act="reset-no">Cancel</button></div>`:`<div><button class="btn small danger" data-act="reset">↺ Full reset — new club</button></div>`}
       </div>
     </section>
+  </div>`;
+}
+function h2hBlock(oppId){
+  const rec = S.h2h && S.h2h[oppId], opp = teamInfo(oppId);
+  if(!rec || !rec.log.length) return `<div class="h2h"><span class="eyebrow">Head to head</span><p class="muted" style="margin:0;font-size:13px">You have not played ${esc(opp.name)} before.</p></div>`;
+  const recent = rec.log.slice(-5).reverse();
+  return `<div class="h2h">
+    <div class="row" style="justify-content:space-between"><span class="eyebrow">Head to head vs ${esc(opp.short)}</span>
+      <span class="h2hrec"><b class="hw">${rec.w}W</b> <b class="hd">${rec.d}D</b> <b class="hl">${rec.l}L</b></span></div>
+    <div class="h2hlist">${recent.map(g=>{const k=g.m>g.t?"W":g.m<g.t?"L":"D";return `<div class="h2hrow"><span class="num muted">S${g.s} · MD${g.md}</span><span class="muted">${g.home?"Home":"Away"}</span><span class="num res2"><b>${g.m}–${g.t}</b></span><span class="rp ${k}">${k}</span></div>`}).join("")}</div>
   </div>`;
 }
 function upcoming(){
@@ -1076,6 +1095,12 @@ function playMatch(){
   const mine=h==="you"?gh:ga, theirs=h==="you"?ga:gh;
   const earn=(mine>theirs?4:mine===theirs?2:1)+mine*.5;
   S.results[r]=res; S.round++; S.budget+=earn; S.last={h,a,sc:[gh,ga],earn};
+  const oppId = h==="you"?a:h;
+  if(!S.h2h) S.h2h={};
+  const rec = S.h2h[oppId] || (S.h2h[oppId]={w:0,d:0,l:0,log:[]});
+  if(mine>theirs) rec.w++; else if(mine<theirs) rec.l++; else rec.d++;
+  rec.log.push({s:S.season, md:r+1, home:h==="you", m:mine, t:theirs});
+  if(rec.log.length>12) rec.log=rec.log.slice(-12);
   const byes=advanceByes();
   save();
 
@@ -1193,7 +1218,7 @@ function start(data){
 let loaded=false;
 async function finishLoad(){
   if(loaded) return; loaded=true;
-  try{ const saved=await load(); if(saved && saved.v===2) saved.squad.forEach(p=>{ if(!p.a||Object.keys(p.a).length<6) p.a=attrsFor(p.ovr,p.pos,p.rid) });
+  try{ const saved=await load(); if(saved && saved.v===2){ if(!saved.h2h) saved.h2h={}; saved.squad.forEach(p=>{ if(!p.a||Object.keys(p.a).length<6) p.a=attrsFor(p.ovr,p.pos,p.rid) }); }
     if(saved && saved.v===2 && (!S || (saved.round+saved.season*100)>=(S.round+S.season*100))) S=saved; }
   catch(e){ toast("Couldn't load your saved club. Try reloading the page.") }
   render();
