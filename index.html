@@ -315,8 +315,12 @@ tr.rel td:first-child{box-shadow:inset 3px 0 0 var(--loss)}
 .cday{aspect-ratio:1;border-radius:6px;background:var(--night);border:1px solid transparent;display:flex;flex-direction:column;padding:3px;min-width:0;position:relative}
 .cday.empty{background:transparent}
 .cday .cdn{font-family:var(--num);font-size:10px;color:var(--muted);line-height:1}
-.cday.match{background:var(--stand2);border-color:var(--flood)}
-.cday.match.cup{border-color:var(--elite)}
+.cday.match{background:rgba(244,200,75,.12);border-color:var(--flood)}
+.cday.match.cup{background:rgba(198,60,92,.16);border-color:var(--elite)}
+.cday .ctop{display:flex;justify-content:space-between;align-items:center;gap:2px}
+.cday .ctag{font-family:var(--num);font-weight:700;font-size:7.5px;letter-spacing:.03em;padding:0 3px;border-radius:3px;line-height:1.5}
+.cday .ctag.league{background:var(--flood);color:#1a1405}
+.cday .ctag.cup{background:var(--elite);color:#fff}
 .cday.match.next{box-shadow:0 0 0 2px var(--flood);border-color:var(--flood)}
 .cday.match.cup.next{box-shadow:0 0 0 2px var(--elite)}
 .cday.match.rW{background:rgba(67,195,131,.18)} .cday.match.rL{background:rgba(232,99,79,.18)} .cday.match.rD{background:rgba(210,172,74,.16)}
@@ -980,10 +984,10 @@ function monthGrid(y,mo,ev){
   for(let dn=1;dn<=days;dn++){ const e=ev[y+"-"+mo+"-"+dn];
     if(!e){ cells+=`<div class="cday"><span class="cdn">${dn}</span></div>`; continue; }
     const t=teamInfo(e.oppId), ha=e.home==null?"N":e.home?"H":"A";
-    cells+=`<div class="cday match ${e.comp}${e.isNext?" next":""}${e.k?" r"+e.k:""}" title="${esc(t.name)} (${e.comp==="cup"?"League Cup":"League"})">
-      <span class="cdn">${dn}</span>
+    cells+=`<div class="cday match ${e.comp}${e.isNext?" next":""}${e.k?" r"+e.k:""}" title="${esc(t.name)} (${e.comp==="cup"?"League Cup":"Premier League"})">
+      <span class="ctop"><span class="cdn">${dn}</span><span class="ctag ${e.comp}">${e.comp==="cup"?"CUP":"LGE"}</span></span>
       <span class="cmx">${crest(t.c1,t.c2,t.short,15)}<span class="cop">${esc(t.short)}</span><span class="cha">${ha}</span></span>
-      <span class="cres">${e.result?e.result[0]+"\u2013"+e.result[1]:(e.isNext?"NEXT":e.comp==="cup"?"CUP":"")}</span>
+      <span class="cres">${e.result?e.result[0]+"\u2013"+e.result[1]:(e.isNext?"NEXT":ha)}</span>
     </div>`;
   }
   return `<div class="cmonth"><div class="cmhead">${MN[mo]} ${y}</div><div class="cgh">${WD.map(w=>`<span>${w}</span>`).join("")}</div><div class="cgrid">${cells}</div></div>`;
@@ -1292,7 +1296,11 @@ function showSocial(ctx, onDone){
   sov.querySelector("#scont").addEventListener("click",()=>{ sov.remove(); onDone(); });
   sov.querySelector("#scont").focus();
 }
-function mDateObj(round){ return new Date(seasonStart()+round*7*864e5); } // one round per week
+function roundDayOffset(round){ // 0=Sat,1=Sun,-1=Fri,2=Mon,4=Wed(midweek)
+  let h=(round*2654435761 + (2025+S.season)*40503)>>>0; h=((h^(h>>>13))*1274126177)>>>0; const x=h%100;
+  if(x<42) return 0; if(x<70) return 1; if(x<83) return -1; if(x<93) return 2; return 4;
+}
+function mDateObj(round){ return new Date(seasonStart()+(round*7+roundDayOffset(round))*864e5); }
 // Tick through the calendar days leading up to a match, then kick off.
 function runDays(r,h,a,done){
   const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
