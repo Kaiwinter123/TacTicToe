@@ -306,6 +306,11 @@ function vUpdates(){
       <h2 style="font-size:40px;line-height:.95;margin:0">Recent updates</h2>
       <p class="muted" style="margin:0;max-width:60ch">Everything that’s just landed in the game, plus a look at what’s being worked on next. The game updates live — refresh to get the latest.</p>
     </div>
+    <div class="feedbackbox">
+      <span class="fbico">✉️</span>
+      <div><b>Got an idea, a tweak or spotted a bug?</b>
+      <p>Any suggestions on additions, tweaks or bugs — drop an email to <a href="mailto:Kaiwinter123@yahoo.com">Kaiwinter123@yahoo.com</a>. All queries considered and answered.</p></div>
+    </div>
     <div class="uplist">
       ${CHANGELOG.map(c=>`<article class="upcard" style="--acc:${c.accent}">
         <div class="uptop"><span class="uptag">${esc(c.tag)}</span><span class="upwhen">${esc(c.date)}</span></div>
@@ -321,7 +326,7 @@ function vUpdates(){
     <div class="roadgrid">
       ${ROADMAP.map(rm=>`<div class="roadcard"><b>${esc(rm.title)}</b><span>${esc(rm.body)}</span></div>`).join("")}
     </div>
-    <p class="muted" style="margin:6px 0 0;font-size:13px">Got an idea or found a bug? These updates come from player feedback — keep it coming.</p>
+    <p class="muted" style="margin:6px 0 0;font-size:13px">These updates come from player feedback — email <a href="mailto:Kaiwinter123@yahoo.com" style="color:var(--c-blue)">Kaiwinter123@yahoo.com</a> with anything you'd like to see.</p>
   </section>`;
 }
 const NEWS_OUTLETS_PL=["The Matchday Wire","Prem Report","Touchline Times","Back Page","The Byline","Ninety Minutes"];
