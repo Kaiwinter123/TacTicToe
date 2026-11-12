@@ -212,6 +212,10 @@ main{padding-block:22px 60px}
 .mbar i{position:absolute;top:50%;width:16px;height:16px;border-radius:50%;border:2px solid #05080e;transform:translate(-50%,-50%);transition:left .35s ease,background .35s;box-shadow:0 2px 6px rgba(0,0,0,.5)}
 .momcap{display:flex;justify-content:space-between;width:min(560px,100%);font-family:var(--num);font-weight:700;font-size:12px;letter-spacing:.06em;color:var(--muted)}
 .momcap #momtxt{color:var(--chalk)}
+/* cup night: green accent */
+.cuptheme{--flood:#2bc46e; --flood-ink:#05230f; --glow:rgba(43,196,110,.22)}
+.cuptheme .board{border-color:rgba(43,196,110,.4)}
+.cuptheme .eyebrow{color:#7fe0a6}
 /* social reactions */
 .socov{gap:14px}
 .phone{width:min(400px,100%);max-height:76vh;display:flex;flex-direction:column;background:#000;border:10px solid #15151a;border-radius:34px;overflow:hidden;box-shadow:0 22px 64px rgba(0,0,0,.65)}
@@ -1288,7 +1292,7 @@ function showSocial(ctx, onDone){
   const users = SOCIAL_USERS.slice().sort(()=>Math.random()-.5);
   const posts = lines.map((t,i)=>{ const u=users[i%users.length]; const base=u.v?ri(400,5200):ri(8,900);
     return {u, txt:fill(t), time:(i*4+1+ri(0,5))+"m", likes:base, rt:Math.floor(base/ (3+ri(0,4))), rep:ri(2,120)}; });
-  const sov=document.createElement("div"); sov.className="overlay socov"; sov.setAttribute("role","dialog"); sov.setAttribute("aria-label","Fan reaction");
+  const sov=document.createElement("div"); sov.className="overlay socov"+(ctx.cup?" cuptheme":""); sov.setAttribute("role","dialog"); sov.setAttribute("aria-label","Fan reaction");
   sov.innerHTML=`<span class="eyebrow">Full time · the fans react</span>
     <div class="phone">
       <div class="phnotch"></div>
@@ -1382,7 +1386,7 @@ function simMatch(h,a){
 }
 function showMatchOverlay(o, onDone){
   const H=teamInfo(o.h), A=teamInfo(o.a), events=o.events, gh=o.gh, ga=o.ga;
-  const ov=document.createElement("div"); ov.className="overlay"; ov.setAttribute("role","dialog"); ov.setAttribute("aria-label","Match");
+  const ov=document.createElement("div"); ov.className="overlay"+(o.theme==="cup"?" cuptheme":""); ov.setAttribute("role","dialog"); ov.setAttribute("aria-label","Match");
   ov.innerHTML=`<span class="eyebrow">${esc(o.title)}</span>
     <div class="board"><div class="tm">${crest(H.c1,H.c2,H.short,48)}${esc(H.name)}</div><div><div class="sc" id="sc">0\u20130</div><div class="clk" id="clk">0'</div></div><div class="tm">${crest(A.c1,A.c2,A.short,48)}${esc(A.name)}</div></div>
     <div class="momrow"><span class="marr" id="marrL">\u25c0</span><div class="mbar"><span class="mcenter"></span><i id="mom"></i></div><span class="marr" id="marrR">\u25b6</span></div>
@@ -1495,7 +1499,7 @@ function playCup(){
   const color = won?"var(--win)":"var(--loss)";
   const pensTxt = pens ? (won?"Won "+pens[0]+"\u2013"+pens[1]+" on pens \u00b7 ":"Lost "+pens[1]+"\u2013"+pens[0]+" on pens \u00b7 ") : "";
   const social = {win:won?1:-1, score:gh+"\u2013"+ga, scorers:events.filter(e=>e.goal&&e.team==="you").map(e=>e.who), opp:teamInfo(tie.opp).name, oppShort:teamInfo(tie.opp).short, cup:{won, final:isFinal, round:tie.name}};
-  showMatchOverlay({h,a,lh,la,events,gh,ga,title,word,color,note:pensTxt+"+"+money(earn),social}, ()=> render());
+  showMatchOverlay({h,a,lh,la,events,gh,ga,title,word,color,note:pensTxt+"+"+money(earn),social,theme:"cup"}, ()=> render());
 }
 function nextEvent(){
   const leagueOver = S.round>=S.fixtures.length;
