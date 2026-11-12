@@ -151,6 +151,25 @@ main{padding-block:22px 60px}
 .prospecttip b{color:#b78cff}
 .ucltip{background:linear-gradient(120deg,rgba(58,160,255,.16),rgba(58,160,255,.05));border:1px solid rgba(58,160,255,.5);border-radius:12px;padding:12px 14px;font-size:14px;color:#eaf3ff;margin-top:10px}
 .ucltip b{color:var(--c-blue)}
+/* updates / changelog */
+.tab.fresh{color:var(--c-pink)}
+.tab .newdot{display:inline-block;margin-left:6px;font-family:var(--num);font-size:9px;font-weight:700;letter-spacing:.08em;background:var(--c-pink);color:#2a0712;padding:1px 5px;border-radius:9px;vertical-align:1px}
+.uphead{display:flex;flex-direction:column;gap:6px}
+.uplist{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.upcard{position:relative;background:var(--stand);border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:14px;padding:16px 16px 14px;display:flex;flex-direction:column;gap:9px;overflow:hidden}
+.upcard::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 70% at 0% 0%,color-mix(in srgb,var(--acc) 16%,transparent),transparent 60%);pointer-events:none}
+.uptop{display:flex;align-items:center;justify-content:space-between;position:relative}
+.uptag{font-family:var(--num);font-weight:700;font-size:10px;letter-spacing:.12em;background:var(--acc);color:#07121f;padding:2px 8px;border-radius:5px}
+.upwhen{font-family:var(--num);font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.uptitle{font-family:var(--display);font-size:22px;line-height:1;margin:0;position:relative}
+.upbody{margin:0;font-size:14px;line-height:1.5;color:var(--chalk);opacity:.92;position:relative}
+.upitems{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:5px;position:relative}
+.upitems li{position:relative;padding-left:18px;font-size:13px;line-height:1.4;color:var(--muted)}
+.upitems li::before{content:"";position:absolute;left:4px;top:7px;width:6px;height:6px;border-radius:50%;background:var(--acc)}
+.roadgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.roadcard{background:var(--stand2);border:1px dashed var(--line);border-radius:12px;padding:13px 14px;display:flex;flex-direction:column;gap:5px}
+.roadcard b{font-size:14px}.roadcard span{font-size:12.5px;color:var(--muted);line-height:1.45}
+@media (max-width:460px){.uplist{grid-template-columns:1fr}}
 .futurebanner{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:30;writing-mode:vertical-rl;text-orientation:mixed;background:linear-gradient(180deg,#9b5cff,#3a1a70);color:#fff;font-family:var(--display);font-weight:900;letter-spacing:.16em;text-transform:uppercase;padding:18px 10px;border-radius:14px 0 0 14px;font-size:15px;box-shadow:0 0 22px rgba(123,60,255,.55),-4px 0 14px rgba(0,0,0,.4);border:2px solid rgba(199,160,255,.7);border-right:none;animation:fbglow 2.6s ease-in-out infinite}
 @keyframes fbglow{50%{box-shadow:0 0 34px rgba(123,60,255,.85),-4px 0 14px rgba(0,0,0,.4)}}
 @media (max-width:860px){.futurebanner{position:static;writing-mode:horizontal-tb;transform:none;border-radius:12px;border-right:2px solid rgba(199,160,255,.7);text-align:center;margin-bottom:2px}}
@@ -919,9 +938,9 @@ function render(){
     </div>
   </div>
   <nav class="tabs" aria-label="Sections"><div class="wrap">
-    ${[["club","Club"],["packs","Packs"],["squad","Squad"],["table","Table"],["calendar","Calendar"],["history","History"]].concat(isAdmin?[["admin","Admin"]]:[]).map(([k,l])=>`<button class="tab ${k==="admin"?"owner":""}" data-view="${k}" ${view===k?'aria-current="page"':""}>${l}</button>`).join("")}
+    ${[["club","Club"],["packs","Packs"],["squad","Squad"],["table","Table"],["calendar","Calendar"],["history","History"],["updates","Updates"]].concat(isAdmin?[["admin","Admin"]]:[]).map(([k,l])=>`<button class="tab ${k==="admin"?"owner":k==="updates"?"fresh":""}" data-view="${k}" ${view===k?'aria-current="page"':""}>${l}${k==="updates"?'<span class="newdot">NEW</span>':""}</button>`).join("")}
   </div></nav></header>
-  <main class="wrap">${(({club:vClub,packs:vPacks,squad:vSquad,table:vTable,calendar:vCalendar,history:vHistory,admin:vAdmin})[view]||vClub)(tbl,pos)}
+  <main class="wrap">${(({club:vClub,packs:vPacks,squad:vSquad,table:vTable,calendar:vCalendar,history:vHistory,updates:vUpdates,admin:vAdmin})[view]||vClub)(tbl,pos)}
   <p class="muted" style="margin:28px 0 0;text-align:center;font-size:13px">Official sponsor \u2014 <a href="https://upnorthplumbing.com/" target="_blank" rel="noopener sponsored" style="color:var(--c-blue);font-weight:700;text-decoration:underline;text-underline-offset:3px">UpNorthPlumbing</a></p>
   <div style="margin-top:14px;text-align:center"><a class="btn coffee" href="https://buymeacoffee.com/tictactoekai" target="_blank" rel="noopener">\u2615 Enjoying TacTicToe? Buy me a coffee</a></div>
   <p class="muted" style="margin:16px 0 0;font-size:12px">© 2026 Kai Winterbottom. All rights reserved. Unofficial fan game, not affiliated with the Premier League or its clubs. Player ratings are this game's own estimates.</p></main>`;
@@ -1153,6 +1172,57 @@ function vAdmin(){
   </section>`;
 }
 function ordinalPos(n){ return n>0?ordinal(n):"\u2014"; }
+const CHANGELOG = [
+  {tag:"NEW", accent:"var(--c-blue)", date:"Latest", title:"Europe’s Finest cards",
+   body:"A brand-new blue card type: 45 of the biggest names from Europe’s other top leagues — Mbappé, Vinícius and Bellingham (Real Madrid), Yamal, Pedri and Lewandowski (Barcelona), Kane and Musiala (Bayern), Dembélé and Kvaratskhelia (PSG), Lautaro, De Bruyne, Yıldız and more.",
+   items:["Rated 83–92 — genuine world-class signings.","The rarest pull in the game: only Elite packs can contain one, roughly 1 in every 10.","Each shows its real club crest, kit colours and name."]},
+  {tag:"NEW", accent:"#9b5cff", date:"Latest", title:"Future Prospect cards (now purple)",
+   body:"Eight real-life wonderkids that grow with your club: Eli Junior Kroupi, Rayan and António Silva (Bournemouth), Archie Gray (Spurs), Ousmane Diomande (Forest), Max Dowman (Arsenal), Rio Ngumoha (Liverpool) and JJ Gabriel (Man Utd).",
+   items:["Start rated 82 and gain +1 overall every single season you play.","Recoloured from teal to deep purple so they’re clearly different from Europe’s Finest.","Any pack has a small chance to contain one."]},
+  {tag:"ADDED", accent:"var(--c-teal)", date:"Latest", title:"100+ more Premier League players",
+   body:"Every club’s squad has been deepened with real 2025/26 players, so you stop seeing the same faces every time you open a pack.",
+   items:["The player pool grew from ~205 to 321.","More variety across every rating band and position."]},
+  {tag:"CHANGED", accent:"var(--c-money)", date:"Recent", title:"Transfer budgets rebalanced",
+   body:"The money flow was retuned so building a title-winning side takes real planning across seasons.",
+   items:["Start each save with £75m.","£30m board investment when the January window opens.","£50m summer budget at the end of every season, on top of prize money."]},
+  {tag:"ADDED", accent:"var(--c-orange)", date:"Recent", title:"League Cup, calendar & match day",
+   body:"A fuller season experience around the league campaign.",
+   items:["Midweek League Cup knockout run to Wembley, with a green cup theme.","Month-by-month calendar grid with real-looking dates and rest days.","Match preview before kick-off, momentum arrows, and an X-style fan reaction feed after every game."]},
+  {tag:"ADDED", accent:"var(--c-pink)", date:"Recent", title:"Seasons, prizes & selling",
+   body:"Long-term progression and squad management.",
+   items:["Prize money for every finishing position, plus an end-of-season review.","Multi-season title race — it takes a few years to build a winner.","Sell players you don’t need for an instant cash boost."]}
+];
+const ROADMAP = [
+  {title:"Keeping squads accurate", body:"Rosters are hand-checked against the current season. Spot a player who’s moved or retired? Flag them and they’ll be swapped out."},
+  {title:"More depth & card ideas", body:"Exploring further squad depth, extra card types and more ways to earn and spend across a save."},
+  {title:"Balancing", body:"Ongoing tuning of pack odds, ratings and match difficulty based on how games actually play out."},
+  {title:"Accounts & login", body:"A proper sign-in wall so progress can follow you between devices is being looked at for a future update."}
+];
+function vUpdates(){
+  return `<section class="stack">
+    <div class="uphead">
+      <span class="eyebrow">What’s new in TacTicToe</span>
+      <h2 style="font-size:40px;line-height:.95;margin:0">Recent updates</h2>
+      <p class="muted" style="margin:0;max-width:60ch">Everything that’s just landed in the game, plus a look at what’s being worked on next. The game updates live — refresh to get the latest.</p>
+    </div>
+    <div class="uplist">
+      ${CHANGELOG.map(c=>`<article class="upcard" style="--acc:${c.accent}">
+        <div class="uptop"><span class="uptag">${esc(c.tag)}</span><span class="upwhen">${esc(c.date)}</span></div>
+        <h3 class="uptitle">${esc(c.title)}</h3>
+        <p class="upbody">${esc(c.body)}</p>
+        <ul class="upitems">${c.items.map(i=>`<li>${esc(i)}</li>`).join("")}</ul>
+      </article>`).join("")}
+    </div>
+    <div class="uphead" style="margin-top:8px">
+      <span class="eyebrow">On the way</span>
+      <h2 style="font-size:32px;margin:0">What’s being worked on</h2>
+    </div>
+    <div class="roadgrid">
+      ${ROADMAP.map(rm=>`<div class="roadcard"><b>${esc(rm.title)}</b><span>${esc(rm.body)}</span></div>`).join("")}
+    </div>
+    <p class="muted" style="margin:6px 0 0;font-size:13px">Got an idea or found a bug? These updates come from player feedback — keep it coming.</p>
+  </section>`;
+}
 function vHistory(tbl,pos){
   const titles=S.trophies||0, cups=S.cupTrophies||0, seasons=(S.history||[]).length;
   const best = (S.history||[]).reduce((b,h)=>Math.min(b, h.pos), pos||99);
