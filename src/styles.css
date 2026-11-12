@@ -223,14 +223,14 @@ main{padding-block:22px 60px}
 .board .tm{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;font-family:var(--display);font-size:18px;text-transform:uppercase;line-height:1}
 .board .sc{font-family:var(--num);font-weight:700;font-size:58px;color:var(--flood);line-height:1;text-align:center;letter-spacing:.04em}
 .board .clk{font-family:var(--num);font-size:16px;color:var(--muted);text-align:center}
-.feed{width:min(560px,100%);max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
+.feed{width:min(560px,100%);max-height:272px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding-bottom:4px;-webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 18px),transparent);mask-image:linear-gradient(to bottom,#000 calc(100% - 18px),transparent)}
 .ev{display:grid;grid-template-columns:42px 1fr;gap:8px;padding:8px 12px;background:var(--stand);border-radius:8px;border-left:3px solid var(--line);animation:in .3s ease-out}
-.ev.goal{border-left-color:var(--flood);background:color-mix(in srgb,var(--flood) 12%,var(--stand))} .ev.goal.them{border-left-color:var(--loss);background:color-mix(in srgb,var(--loss) 12%,var(--stand))}
-.ev.goal b{color:var(--flood)} .ev.goal.them b{color:var(--loss)}
-.ev.save{border-left-color:var(--c-blue)} .ev.wood{border-left-color:var(--c-orange)} .ev.card{border-left-color:var(--gold)} .ev.corner{border-left-color:var(--muted)}
-.ev.late{box-shadow:0 0 0 1px var(--flood)}
+.ev.ev-goal{border-left-color:var(--flood);background:color-mix(in srgb,var(--flood) 12%,var(--stand))} .ev.ev-goal.ev-them{border-left-color:var(--loss);background:color-mix(in srgb,var(--loss) 12%,var(--stand))}
+.ev.ev-goal b{color:var(--flood)} .ev.ev-goal.ev-them b{color:var(--loss)}
+.ev.ev-save{border-left-color:var(--c-blue)} .ev.ev-wood{border-left-color:var(--c-orange)} .ev.ev-card{border-left-color:var(--gold)} .ev.ev-corner{border-left-color:var(--muted)}
+.ev.ev-late{box-shadow:0 0 0 1px var(--flood)}
 .ev .assist{color:var(--muted);font-size:12px} .ev .latetag{font-family:var(--num);font-size:9px;font-weight:700;background:var(--flood);color:var(--flood-ink);padding:1px 5px;border-radius:7px;letter-spacing:.06em;margin-left:4px}
-.ev .yc{display:inline-block;width:8px;height:11px;background:var(--gold);border-radius:1px;vertical-align:-1px;margin-right:3px}
+.ev .yc{display:inline-block;width:11px;height:15px;background:linear-gradient(135deg,#ffd451,#e0a400);border-radius:2px;vertical-align:-3px;margin-right:5px;box-shadow:0 0 0 1px rgba(0,0,0,.35),0 1px 2px rgba(0,0,0,.4)}
 .ev .m{font-family:var(--num);font-weight:700;color:var(--muted)}
 @keyframes in{from{opacity:.2;transform:translateY(6px)}}
 /* live match stats */
@@ -479,10 +479,12 @@ tr.rel td:first-child{box-shadow:inset 3px 0 0 var(--loss)}
 .sponsor .sp-label{font-family:var(--num);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--c-blue)}
 .sponsor .sp-about{margin:0;font-size:13px;color:var(--chalk);max-width:48ch}
 @media (max-width:560px){.sponsor{gap:12px}.sponsor .unp1{font-size:24px}.sponsor .unp2{font-size:11px}}
-.led{overflow:hidden;white-space:nowrap;width:min(560px,100%);background:#06101f;border:1px solid rgba(58,160,255,.4);border-radius:6px;padding:6px 0}
-.led span{display:inline-block;font-family:var(--num);font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:13px;color:#7fc4ff;padding:0 14px;animation:ledscroll 14s linear infinite}
+.led{overflow:hidden;width:min(560px,100%);background:#06101f;border:1px solid rgba(58,160,255,.4);border-radius:6px;padding:6px 0}
+.led .ledtrack{display:flex;width:max-content;animation:ledscroll 26s linear infinite}
+.led span{flex:none;white-space:nowrap;font-family:var(--num);font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:13px;color:#7fc4ff;padding:0 14px}
+.led span.d{color:rgba(127,196,255,.5);padding:0 2px}
 @keyframes ledscroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-@media (prefers-reduced-motion:reduce){.led span{animation:none}}
+@media (prefers-reduced-motion:reduce){.led .ledtrack{animation:none}}
 /* how-to */
 .howto{background:var(--stand);border:1px solid var(--line);border-radius:12px;padding:4px 16px;margin-bottom:18px}
 .howto[open]{border-color:var(--flood)}

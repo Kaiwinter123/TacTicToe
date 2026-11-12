@@ -284,7 +284,7 @@ function showMatchOverlay(o, onDone){
     <div class="momcap"><span>${esc(H.short)}</span><span id="momtxt">Momentum</span><span>${esc(A.short)}</span></div>
     <div class="pbar"><i id="pb"></i></div>
     <div class="mstats" aria-hidden="true"><div class="mscol"><b id="poH">50%</b><b id="shH">0</b><b id="stH">0</b><b id="coH">0</b></div><div class="mslab"><span>Possession</span><span>Shots</span><span>On target</span><span>Corners</span></div><div class="mscol r"><b id="poA">50%</b><b id="shA">0</b><b id="stA">0</b><b id="coA">0</b></div></div>
-    <div class="led"><span>UpNorthPlumbing</span><span>\u00b7</span><span>Official Sponsor</span><span>\u00b7</span><span>UpNorthPlumbing</span></div>
+    <div class="led"><div class="ledtrack">${(()=>{const seg='<span>UpNorthPlumbing</span><span class="d">\u2022</span><span>Official Sponsor</span><span class="d">\u2022</span>';const half=seg.repeat(3);return half+half;})()}</div></div>
     <div class="feed" id="feed" aria-live="polite"></div>
     <div class="row"><button class="btn" id="skip">Skip to full time</button></div>`;
   document.body.appendChild(ov);
@@ -322,7 +322,7 @@ function showMatchOverlay(o, onDone){
       else if(e.type==="miss"||e.type==="wood"){ live.sh[si]++; mom=clamp(mom+(si===0?0.2:-0.2),-1,1); }
       else if(e.type==="corner"){ live.co[si]++; mom=clamp(mom+(si===0?0.12:-0.12),-1,1); }
       const late=e.type==="goal"&&e.min>=85;
-      const d=document.createElement("div"); d.className="ev "+e.type+(e.type==="goal"?(us?" goal":" goal them"):"")+(late?" late":"");
+      const d=document.createElement("div"); d.className="ev ev-"+e.type+(e.type==="goal"&&!us?" ev-them":"")+(late?" ev-late":"");
       let body;
       if(e.type==="goal"){ body=`<b>${e.pen?"PENALTY \u2014 GOAL!":"GOAL!"}</b> ${esc(surname(e.who))} ${esc(e.desc)} for ${esc(tn.name)}.${e.assist?` <span class="assist">Assist: ${esc(surname(e.assist))}</span>`:""}${late?` <span class="latetag">LATE DRAMA</span>`:""}`; }
       else if(e.type==="card"){ body=`<span class="yc">\u25ac</span> ${esc(e.txt)}.`; }
