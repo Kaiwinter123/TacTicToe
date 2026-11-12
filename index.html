@@ -138,6 +138,18 @@ main{padding-block:22px 60px}
 .card.elite{--rim:var(--gold);box-shadow:0 0 0 2px var(--elite),0 0 26px rgba(233,196,92,.55),0 10px 30px rgba(0,0,0,.5)}
 .card::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.2) 44%,transparent 54%);background-size:250% 100%;background-position:100% 0}
 .card.elite::after{animation:sheen 3.2s ease-in-out infinite}
+.card.prospect{--rim:var(--c-teal);color:#eafffb;box-shadow:0 0 0 2px var(--c-teal),0 0 24px rgba(43,212,192,.5),0 10px 30px rgba(0,0,0,.5);
+  background:
+    linear-gradient(118deg,transparent 0 71.5%,rgba(190,255,244,.4) 71.5% 75.5%,transparent 75.5%) top/100% 58% no-repeat,
+    radial-gradient(ellipse 70% 46% at 50% 36%,rgba(140,255,238,.4),transparent 72%),
+    linear-gradient(160deg,#12807a 0%,#0c4f62 46%,#07293f 100%)}
+.card.prospect .rar{background:linear-gradient(90deg,var(--c-teal),#d8fff8,var(--c-teal));color:#06201d}
+.card.prospect::after{animation:sheen 3.2s ease-in-out infinite}
+.card.prospect .ovr .rise{font-size:15px;color:#8dffe9;vertical-align:super;margin-left:1px;text-shadow:0 0 6px rgba(43,212,192,.7)}
+.card .pnote{font-family:var(--num);font-weight:700;font-size:8.5px;letter-spacing:.03em;text-align:center;background:rgba(3,22,20,.45);border:1px solid rgba(141,255,233,.55);color:#cffff6;border-radius:6px;padding:2px 4px;position:relative;z-index:1;line-height:1.25}
+.prospecttip{background:linear-gradient(120deg,rgba(43,212,192,.16),rgba(43,212,192,.05));border:1px solid rgba(43,212,192,.5);border-radius:12px;padding:12px 14px;font-size:14px;color:var(--ink,#eafffb)}
+.prospecttip b{color:var(--c-teal)}
+@media (prefers-reduced-motion:reduce){.card.prospect::after{animation:none}}
 @keyframes sheen{0%{background-position:100% 0}60%,100%{background-position:-60% 0}}
 .card .top{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1}
 .card .lhs{display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1}
@@ -479,7 +491,7 @@ input[type=text]{background:var(--night);border:1px solid var(--line);border-rad
 const CLUBS = [
   ["Arsenal","ARS","#EF0107","#FFFFFF",87,"David Raya/GK/87 William Saliba/DEF/88 Gabriel Magalhães/DEF/87 Jurriën Timber/DEF/84 Piero Hincapié/DEF/82 Riccardo Calafiori/DEF/81 Declan Rice/MID/88 Martin Ødegaard/MID/86 Martín Zubimendi/MID/85 Eberechi Eze/MID/84 Bukayo Saka/FWD/88 Viktor Gyökeres/FWD/85 Gabriel Martinelli/FWD/81 Noni Madueke/FWD/81 Kai Havertz/FWD/81"],
   ["Aston Villa","AVL","#670E36","#95BFE5",81,"Emiliano Martínez/GK/84 Ezri Konsa/DEF/82 Pau Torres/DEF/81 Matty Cash/DEF/79 Lucas Digne/DEF/78 Youri Tielemans/MID/82 Boubacar Kamara/MID/81 Johan Manzambi/MID/80 John McGinn/MID/80 Amadou Onana/MID/80 Ollie Watkins/FWD/84"],
-  ["Bournemouth","BOU","#DA291C","#000000",78,"Đorđe Petrović/GK/79 Adrien Truffert/DEF/77 Álex Jiménez/DEF/76 Marcos Senesi/DEF/78 Tyler Adams/MID/79 Marcus Tavernier/MID/79 Alex Scott/MID/78 Justin Kluivert/FWD/80 Evanilson/FWD/79 Eli Junior Kroupi/FWD/77"],
+  ["Bournemouth","BOU","#DA291C","#000000",78,"Đorđe Petrović/GK/79 Adrien Truffert/DEF/77 Álex Jiménez/DEF/76 Marcos Senesi/DEF/78 Tyler Adams/MID/79 Marcus Tavernier/MID/79 Alex Scott/MID/78 Justin Kluivert/FWD/80 Evanilson/FWD/79"],
   ["Brentford","BRE","#E30613","#FFFFFF",78,"Caoimhín Kelleher/GK/81 Nathan Collins/DEF/79 Sepp van den Berg/DEF/78 Kristoffer Ajer/DEF/76 Mikkel Damsgaard/MID/79 Mathias Jensen/MID/77 Jordan Henderson/MID/77 Igor Thiago/FWD/81 Kevin Schade/FWD/79 Dango Ouattara/FWD/78"],
   ["Brighton","BHA","#0057B8","#FFFFFF",79,"Bart Verbruggen/GK/80 Jan Paul van Hecke/DEF/80 Lewis Dunk/DEF/78 Maxim De Cuyper/DEF/77 Carlos Baleba/MID/81 Diego Gómez/MID/78 Yasin Ayari/MID/77 Jack Hinshelwood/MID/77 Kaoru Mitoma/FWD/80 Yankuba Minteh/FWD/79 Danny Welbeck/FWD/77"],
   ["Chelsea","CHE","#034694","#FFFFFF",85,"Robert Sánchez/GK/80 Reece James/DEF/83 Levi Colwill/DEF/82 Marc Cucurella/DEF/82 Wesley Fofana/DEF/80 Malo Gusto/DEF/80 Moisés Caicedo/MID/88 Cole Palmer/MID/87 Morgan Rogers/MID/85 Estêvão/FWD/83 João Pedro/FWD/83 Pedro Neto/FWD/81 Alejandro Garnacho/FWD/80 Liam Delap/FWD/79"],
@@ -500,6 +512,18 @@ const CLUBS = [
 ];
 const POOL = [];
 CLUBS.forEach((c,ci)=>{ for(const m of c[5].matchAll(/\s*([^/]+?)\/(GK|DEF|MID|FWD)\/(\d+)/g)) POOL.push({rid:ci+":"+m[1],n:m[1],pos:m[2],ovr:+m[3],club:ci}) });
+// --- Future Prospect cards: start at 82, gain +1 overall every season ---
+const PROSPECT_BASE=82, PROSPECT_CAP=95;
+const PROSPECTS = [
+  ["Eli Junior Kroupi","BOU","FWD"],
+  ["Rayan","BOU","FWD"],
+  ["Ant\u00f3nio Silva","BOU","DEF"],
+  ["Archie Gray","TOT","MID"],
+  ["Ousmane Diomande","NFO","DEF"],
+  ["Max Dowman","ARS","FWD"],
+  ["Rio Ngumoha","LIV","FWD"],
+  ["JJ Gabriel","MUN","FWD"]
+].map(([n,sh,pos])=>({n,pos,club:CLUBS.findIndex(c=>c[1]===sh),rid:"P:"+n}));
 const FIRST = ["Jamal","Oliver","Mateo","Kofi","Luca","Ethan","Rafael","Tomás","Callum","Yusuf","Niko","Adebayo","Marcus","Leon","Kai","Theo","Ibrahim","Diego","Sami","Jonah","Ruben","Arlo","Emeka","Hugo","Finn","Dario","Kenji","Mateus","Ollie","Bilal","Andrés","Joel","Stellan","Idris","Ciaran","Malik","Pavel","Eli","Felix","Tariq","Nuno","Reece","Sander","Kwame","Elias","Jude","Iker","Milan","Bastian","Omar"];
 const LAST = ["Okafor","Hartley","Vidal","Mensah","Brennan","Castell","Lindqvist","Adeyemi","Moreau","Kowal","Ferreira","Ashby","Nakamura","Quinn","Duarte","Halloran","Sesay","Varga","Petrov","Whitlock","Osei","Marchetti","Rowe","Bakker","Iwobi","Santos","Fairley","Novak","Dembélé","Thorne","Kaya","Calloway","Ruiz","Holm","Abara","Lemaire","Prior","Szabo","Eriksen","Banda","Morrow","Takeda","Galván","Strand","Achebe","Pryce","Okoro","Lund","Mbeki","Doherty"];
 const POS = ["GK","DEF","MID","FWD"];
@@ -584,6 +608,15 @@ function gapPos(){
   return under.length ? pick(under) : null;
 }
 function clubOf(p){ return p.club!=null ? CLUBS[p.club] : null }
+function drawProspect(){
+  const owned=new Set(S.squad.map(p=>p.rid).filter(Boolean));
+  const free=PROSPECTS.filter(x=>x.club>=0 && !owned.has(x.rid));
+  if(!free.length) return null;
+  const b=pick(free), q=makePlayer(PROSPECT_BASE,b.pos);
+  q.n=b.n; q.rid=b.rid; q.club=b.club; q.prospect=true; q.baseSeason=S.season;
+  q.a=attrsFor(PROSPECT_BASE,b.pos,b.rid);
+  return q;
+}
 function rollOvr(lo,hi){ // skewed toward the low end
   const t = Math.pow(Math.random(),4.6);
   return Math.round(lo + t*(hi-lo));
@@ -798,14 +831,15 @@ const surname = n => n.includes(" ") ? n.slice(n.indexOf(" ")+1) : n;
 function mix(a,b,t){const h=x=>{x=x.replace("#","");if(x.length===3)x=x.split("").map(c=>c+c).join("");return [0,2,4].map(i=>parseInt(x.slice(i,i+2),16))};const A=h(a),B=h(b);return "#"+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,"0")).join("")}
 const RLABEL={bronze:"Bronze",silver:"Silver",gold:"Gold",elite:"Elite"};
 function card(p,opts={}){
-  const r=rarity(p.ovr), c=clubOf(p);
+  const r=p.prospect?"prospect":rarity(p.ovr), c=clubOf(p);
   const k1 = c?c[2]:S?S.club.c1:"#888", k2 = c?c[3]:S?S.club.c2:"#444";
   const ink = readable(mix(k1,"#000000",.15)), panel = ink==="#ffffff"?"rgba(0,0,0,.3)":"rgba(255,255,255,.45)";
   const at = Object.entries(p.a||{}), cr = c?crest(c[2],c[3],c[1],opts.sm?16:22):S?crest(S.club.c1,S.club.c2,S.club.short,opts.sm?16:22):"";
   return `<button type="button" class="card ${r} ${opts.sm?"sm":""} ${opts.sel?"sel":""} ${opts.subin?"subin":""}" style="--k1:${esc(k1)};--k2:${esc(k2)};--k3:${esc(c?c3of(c[1])||k2:k2)};--ink:${ink};--panel:${panel}" ${opts.act?`data-act="${opts.act}" data-id="${p.id}"`:"tabindex=-1"} aria-label="${esc(p.n)}, ${p.pos}, rated ${p.ovr}${c?", "+esc(c[0]):""}">
-    <div class="top"><div class="lhs"><div class="ovr num">${p.ovr}</div><div class="pos">${p.pos}</div>${cr}</div><span class="rar">${RLABEL[r]}</span></div>
+    <div class="top"><div class="lhs"><div class="ovr num">${p.ovr}${p.prospect?'<span class="rise">\u25b2</span>':''}</div><div class="pos">${p.pos}</div>${cr}</div><span class="rar">${p.prospect?"PROSPECT":RLABEL[r]}</span></div>
     <div class="face">${shirt(k1,k2)}</div>
     <div class="pname" title="${esc(p.n)}">${esc(surname(p.n))}</div>
+    ${p.prospect&&!opts.sm?`<div class="pnote">\u2605 Future prospect \u00b7 +1 OVR every season</div>`:""}
     <div class="attrs">${at.map(([k,v])=>`<div><b>${v}</b><span>${k}</span></div>`).join("")}</div>
     <div class="foot"><span>${c?esc(c[0]):"Academy"}</span></div>
     ${opts.tag?`<span class="tag">${opts.tag}</span>`:""}
@@ -997,7 +1031,7 @@ function vPacks(){
         <ul>${p.desc.map(d=>`<li>${d}</li>`).join("")}</ul>
         <button class="btn primary" data-act="buy" data-pack="${p.id}" ${S.budget<p.price||S.squad.length+p.count>MAX_SQUAD?"disabled":""}>${S.budget<p.price?"Need "+money(p.price-S.budget)+" more":S.squad.length+p.count>MAX_SQUAD?"Squad full":"Open pack"}</button>
       </article>`).join("")}</div>
-    ${S.squad.length>=MAX_SQUAD?`<div class="panel row" style="justify-content:space-between"><span>Your squad is full (${MAX_SQUAD} players). Win matches to earn more, but you have a full roster to pick from.</span><button class="btn" data-view="squad">Go to squad</button></div>`:`<p class="muted" style="margin:0">Players you pack are yours to keep — build the deepest squad you can across the season.</p>`}
+    ${S.squad.length>=MAX_SQUAD?`<div class="panel row" style="justify-content:space-between"><span>Your squad is full (${MAX_SQUAD} players). Win matches to earn more, but you have a full roster to pick from.</span><button class="btn" data-view="squad">Go to squad</button></div>`:`<div class="prospecttip"><b>\u2b50 Future Prospect cards</b> \u2014 every pack has a rare chance to pull a teal Future Prospect (Kroupi, Rayan, Ant\u00f3nio Silva, Archie Gray, Diomande, Dowman, Ngumoha, JJ Gabriel). They start rated 82 and gain +1 overall every season you play \u2014 raw talent that grows with you.</div><p class="muted" style="margin:0">Players you pack are yours to keep — build the deepest squad you can across the season.</p>`}
   </div>`;
 }
 
@@ -1313,6 +1347,7 @@ function nextSeason(){
   S.history.push({season:S.season,pos,pts:tbl[pos-1].pts,cup:cupRes,title:pos===1});
   if(pos===1) S.trophies++;
   const summer=50; S.budget+=prize+summer; S.season++; S.round=0; S.results=[]; S.last=null; S.januaryDone=false; S.lastStar=null;
+  S.squad.forEach(p=>{ if(p.prospect && p.ovr<PROSPECT_CAP){ p.ovr=Math.min(PROSPECT_CAP,p.ovr+1); p.a=attrsFor(p.ovr,p.pos,p.rid); } });
   S.teams=newSeasonTeams(S.teams);
   S.fixtures=makeFixtures(["you"].concat(S.teams.map(t=>t.id)));
   S.cup=makeCup(4); S.schedFixed=true;
@@ -1328,6 +1363,9 @@ function openPack(pk){
   // the headline pull first, so the guarantee holds even as the pool thins; steer it to a needed position
   if(pk.guar) add(ri(pk.guar,pk.hi),pk.guar,null,gapPos());
   while(got.length<pk.count) add(rollOvr(pk.lo,pk.hi),null,null,gapPos());
+  const PCH={bronze:.06,silver:.11,gold:.17,elite:.26};
+  if(Math.random()<(PCH[pk.id]||0)){ const pr=drawProspect();
+    if(pr){ const idx=pk.guar?ri(1,got.length-1):ri(0,got.length-1); const si=S.squad.indexOf(got[idx]); if(si>=0) S.squad.splice(si,1); got[idx]=pr; S.squad.push(pr); } }
   got.sort((a,b)=>a.ovr-b.ovr);
   const topPull=got[got.length-1]; if(topPull && topPull.ovr>=86) S.lastStar=topPull.n;
   save();
@@ -1352,7 +1390,7 @@ function openPack(pk){
       flips.forEach((f,i)=>setTimeout(()=>f.classList.add("open"), reduce?0:350+i*(i===flips.length-1?700:520)));
       setTimeout(()=>{
         ov.querySelector("#pkact").hidden=false;
-        const b=top; ov.querySelector("#pkmsg").textContent = b.ovr>=86?`Elite signing: ${b.n}, rated ${b.ovr}.`:`Best pull: ${b.n} (${b.ovr} ${b.pos}).`;
+        const b=top, prp=got.find(x=>x.prospect); ov.querySelector("#pkmsg").textContent = prp?`\u2b50 Future prospect signed: ${prp.n} \u2014 starts ${prp.ovr}, rises +1 every season!`:b.ovr>=86?`Elite signing: ${b.n}, rated ${b.ovr}.`:`Best pull: ${b.n} (${b.ovr} ${b.pos}).`;
         ov.querySelector("#done").focus();
       }, reduce?50:350+flips.length*520+600);
       ov.querySelector("#done").addEventListener("click",()=>{ov.remove();autoPickIfBetter();render()});
