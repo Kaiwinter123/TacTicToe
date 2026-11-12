@@ -632,7 +632,7 @@ function realisticVenues(fx){
 }
 function newGame(form){
   const squad=[];
-  S = {v:2, manager:form.manager, club:{name:form.name,short:form.short,stadium:form.stadium,c1:form.c1,c2:form.c2}, h2h:{}, januaryDone:false, lastStar:null, records:{bestWin:null}, cupTrophies:0,
+  S = {v:2, manager:form.manager, club:{name:form.name,short:form.short,stadium:form.stadium,c1:form.c1,c2:form.c2}, h2h:{}, januaryDone:false, lastStar:null, records:{bestWin:null}, cupTrophies:0, schedFixed:true,
     budget:START_BUDGET, season:1, round:0, squad, formation:"4-3-3", xi:[],
     teams:newSeasonTeams(), fixtures:null, results:[], history:[], packs:0, trophies:0, last:null, ended:false};
   S.fixtures = makeFixtures(["you"].concat(S.teams.map(t=>t.id)));
@@ -1276,7 +1276,7 @@ function nextSeason(){
   S.budget+=prize; S.season++; S.round=0; S.results=[]; S.last=null; S.januaryDone=false; S.lastStar=null;
   S.teams=newSeasonTeams(S.teams);
   S.fixtures=makeFixtures(["you"].concat(S.teams.map(t=>t.id)));
-  S.cup=makeCup(4);
+  S.cup=makeCup(4); S.schedFixed=true;
   advanceByes(); save(); render(); toast(`${money(prize)} prize money added. Season ${S.season} begins.`);
 }
 
@@ -1726,15 +1726,12 @@ async function finishLoad(){
     if(saved && saved.v===2){ if(!saved.club.stadium) saved.club.stadium=saved.club.name+" Stadium"; }
     if(saved && saved.v===2 && (!S || (saved.round+saved.season*100)>=(S.round+S.season*100))) S=saved; }
   catch(e){ toast("Couldn't load your saved club. Try reloading the page.") }
-  // if this season hasn't been played yet, rebuild the fixtures with the mixed home/away schedule
-  if(S && S.fixtures){
+  // one-time only: upgrade a pre-mixed-schedule save (then never touch fixtures again, so refreshing can't change your opponent)
+  if(S && S.fixtures && !S.schedFixed){
     let played=false;
     for(let r=0;r<S.round;r++){ if(!myFixture(r).m.includes("bye")){ played=true; break } }
-    if(!played){
-      S.round=0; S.results=[];
-      S.fixtures=makeFixtures(["you"].concat(S.teams.map(t=>t.id)));
-      advanceByes(); save();
-    }
+    if(!played){ S.round=0; S.results=[]; S.fixtures=makeFixtures(["you"].concat(S.teams.map(t=>t.id))); advanceByes(); }
+    S.schedFixed=true; save();
   }
   render();
 }
