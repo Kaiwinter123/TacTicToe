@@ -18,6 +18,7 @@
   --chalk:#eef2f7; --muted:#8e9ab0; --flood:#f4c84b; --flood-ink:#1a1405;
   --turf:#1d6644; --turf2:#1a5c3d; --win:#43c383; --draw:#d2ac4a; --loss:#e8634f;
   --bronze:#b97a4c; --silver:#b9c3d0; --gold:#e9c45c; --elite:#c63c5c;
+  --c-money:#43c383; --c-blue:#3aa0ff; --c-purple:#a579ff; --c-pink:#ff5c8a; --c-teal:#2bd4c0; --c-orange:#ff8a3c;
   --display:"Big Shoulders Display","Impact","Arial Narrow",sans-serif;
   --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
   --num:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
@@ -26,12 +27,13 @@
 *{box-sizing:border-box}
 html,body{min-height:100%}
 body{background:var(--night);color:var(--chalk);font-family:var(--body);font-size:15px;line-height:1.45;
-  background-image:radial-gradient(ellipse 80% 40% at 15% -5%,rgba(244,200,75,.10),transparent 70%),radial-gradient(ellipse 80% 40% at 85% -5%,rgba(244,200,75,.07),transparent 70%);background-attachment:fixed}
+  background-image:radial-gradient(ellipse 70% 40% at 8% -5%,rgba(58,160,255,.14),transparent 68%),radial-gradient(ellipse 70% 40% at 92% -5%,rgba(165,121,255,.13),transparent 68%),radial-gradient(ellipse 90% 50% at 50% 108%,rgba(43,212,192,.10),transparent 70%),radial-gradient(ellipse 60% 30% at 50% 40%,rgba(244,200,75,.05),transparent 70%);background-attachment:fixed}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--night)}
 button{font:inherit;color:inherit;cursor:pointer}
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--flood);outline-offset:2px}
 .wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 h1,h2,h3{font-family:var(--display);font-weight:900;letter-spacing:.01em;line-height:1;margin:0;text-wrap:balance;text-transform:uppercase}
+h2{background:linear-gradient(92deg,var(--flood),var(--c-orange) 70%,var(--c-pink));-webkit-background-clip:text;background-clip:text;color:transparent}
 .eyebrow{font-family:var(--num);font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .num{font-family:var(--num);font-variant-numeric:tabular-nums}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:var(--stand2);padding:10px 16px;border-radius:8px;font-weight:600}
@@ -52,7 +54,7 @@ h1,h2,h3{font-family:var(--display);font-weight:900;letter-spacing:.01em;line-he
 .coffee-link:hover{color:var(--flood)}
 
 /* top bar */
-.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:linear-gradient(180deg,rgba(28,24,10,.96),rgba(12,19,32,.92));backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:linear-gradient(180deg,rgba(28,24,10,.96),rgba(12,19,32,.92));backdrop-filter:blur(8px);border-bottom:2px solid transparent;border-image:linear-gradient(90deg,var(--c-blue),var(--c-purple),var(--flood),var(--c-pink)) 1}
 .bar .wrap{display:flex;align-items:center;gap:14px;padding-block:10px;flex-wrap:wrap}
 .club-id{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
 .club-id .nm{font-family:var(--display);font-weight:900;font-size:22px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -60,14 +62,16 @@ h1,h2,h3{font-family:var(--display);font-weight:900;letter-spacing:.01em;line-he
 .stats{display:flex;gap:18px}
 @media (max-width:560px){.club-id{flex-basis:100%}.stats{width:100%;justify-content:space-between}.club-id .nm{white-space:normal;font-size:20px}}
 .stat .v{font-family:var(--num);font-weight:700;font-size:22px;line-height:1}
-.stat .v.money{color:var(--flood)}
+.stat .v.money{color:var(--c-money)} .stat .v.pos{color:var(--c-blue)} .stat .v.md{color:var(--c-purple)}
 .tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
 .tabs .wrap{display:flex;gap:4px;padding-block:0}
 .tab{background:none;border:0;border-bottom:3px solid transparent;padding:10px 12px;font-family:var(--num);font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-size:14px;white-space:nowrap}
-.tab[aria-current="page"]{color:var(--chalk);border-color:var(--flood)}
+.tab[aria-current="page"]{color:var(--chalk);border-image:linear-gradient(90deg,var(--c-blue),var(--c-purple),var(--flood)) 1;border-bottom-width:3px}
+.tab:hover{color:var(--chalk)}
 .tab.owner{color:var(--flood)}.tab.owner::before{content:"★ "}
 main{padding-block:22px 60px}
-.panel{background:var(--stand);border:1px solid var(--line);border-radius:12px;padding:18px}
+.panel{position:relative;background:linear-gradient(180deg,var(--stand2),var(--stand));border:1px solid var(--line);border-radius:12px;padding:18px;overflow:hidden}
+.panel::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--c-blue),var(--c-teal),var(--flood),var(--c-pink));opacity:.75}
 .grid2{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:18px}
 @media (max-width:760px){.grid2{grid-template-columns:minmax(0,1fr)}}
 .stack{display:flex;flex-direction:column;gap:14px}
@@ -396,6 +400,9 @@ tr.rel td:first-child{box-shadow:inset 3px 0 0 var(--loss)}
 /* history */
 .achgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
 .achcard{background:var(--stand);border:1px solid var(--line);border-radius:12px;padding:16px;text-align:center;display:flex;flex-direction:column;gap:4px}
+.achcard{position:relative;overflow:hidden}
+.achcard::before{content:"";position:absolute;top:0;left:0;right:0;height:3px}
+.achcard:nth-child(1)::before{background:var(--flood)} .achcard:nth-child(2)::before{background:var(--c-blue)} .achcard:nth-child(3)::before{background:var(--c-teal)} .achcard:nth-child(4)::before{background:var(--c-pink)}
 .achcard .achico{font-size:26px;line-height:1}
 .achcard .achv{font-family:var(--num);font-weight:700;font-size:30px;color:var(--flood);line-height:1}
 .achcard .achl{font-size:12px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;font-family:var(--num)}
@@ -411,6 +418,8 @@ tr.rel td:first-child{box-shadow:inset 3px 0 0 var(--loss)}
 .steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
 .steps li{padding-left:4px}
 .steps li b{color:var(--flood)}
+.steps{counter-reset:step}
+.steps li::marker{color:var(--c-blue);font-weight:700}
 /* onboarding */
 .gate{min-height:100vh;display:grid;place-items:center;padding-block:40px}
 .gate .box{width:min(560px,100%);display:flex;flex-direction:column;gap:20px}
@@ -802,8 +811,8 @@ function render(){
     <div class="club-id">${crest(S.club.c1,S.club.c2,S.club.short,34)}<div style="min-width:0"><div class="nm">${esc(S.club.name)}</div><div class="sub">Manager ${esc(S.manager)} · Season ${S.season}</div></div></div>
     <div class="stats">
       <div class="stat"><div class="eyebrow">Budget</div><div class="v money">${money(S.budget)}</div></div>
-      <div class="stat"><div class="eyebrow">Position</div><div class="v">${S.round?ordinal(pos):"–"}</div></div>
-      <div class="stat"><div class="eyebrow">Matchday</div><div class="v">${Math.min(S.round+1,S.fixtures.length)}/${S.fixtures.length}</div></div>
+      <div class="stat"><div class="eyebrow">Position</div><div class="v pos">${S.round?ordinal(pos):"–"}</div></div>
+      <div class="stat"><div class="eyebrow">Matchday</div><div class="v md">${Math.min(S.round+1,S.fixtures.length)}/${S.fixtures.length}</div></div>
     </div>
   </div>
   <nav class="tabs" aria-label="Sections"><div class="wrap">
@@ -855,9 +864,9 @@ function vClub(tbl,pos){
       <div class="panel stack">
         <span class="eyebrow">Season so far</span>
         <div class="row" style="gap:22px">
-          <div class="stat"><div class="eyebrow">Pts</div><div class="v">${me.pts}</div></div>
-          <div class="stat"><div class="eyebrow">W-D-L</div><div class="v">${me.w}-${me.d}-${me.l}</div></div>
-          <div class="stat"><div class="eyebrow">GD</div><div class="v">${me.gf-me.ga>0?"+":""}${me.gf-me.ga}</div></div>
+          <div class="stat"><div class="eyebrow">Pts</div><div class="v" style="color:var(--flood)">${me.pts}</div></div>
+          <div class="stat"><div class="eyebrow">W-D-L</div><div class="v" style="color:var(--c-money)">${me.w}-${me.d}-${me.l}</div></div>
+          <div class="stat"><div class="eyebrow">GD</div><div class="v" style="color:var(--c-blue)">${me.gf-me.ga>0?"+":""}${me.gf-me.ga}</div></div>
         </div>
         <div class="form">${me.form.slice(-6).map(f=>`<span class="${f}">${f}</span>`).join("")||'<span class="muted" style="width:auto;font-family:var(--body);font-weight:400">No matches yet</span>'}</div>
       </div>
