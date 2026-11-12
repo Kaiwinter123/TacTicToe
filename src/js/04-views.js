@@ -16,9 +16,9 @@ function render(){
     </div>
   </div>
   <nav class="tabs" aria-label="Sections"><div class="wrap">
-    ${[["club","Club"],["packs","Packs"],["cards","Cards"],["squad","Squad"],["table","Table"],["calendar","Calendar"],["news","News"],["history","History"],["updates","Updates"]].concat(isAdmin?[["admin","Admin"]]:[]).map(([k,l])=>`<button class="tab ${k==="admin"?"owner":k==="updates"?"fresh":""}" data-view="${k}" ${view===k?'aria-current="page"':""}>${l}${k==="updates"?'<span class="newdot">NEW</span>':""}</button>`).join("")}
+    ${[["club","Club"],["packs","Packs"],["cards","Cards"],["squad","Squad"],["table","Table"],["calendar","Calendar"],["euro","Europe"],["news","News"],["history","History"],["updates","Updates"]].concat(isAdmin?[["admin","Admin"]]:[]).map(([k,l])=>`<button class="tab ${k==="admin"?"owner":k==="updates"?"fresh":""}" data-view="${k}" ${view===k?'aria-current="page"':""}>${l}${k==="updates"?'<span class="newdot">NEW</span>':""}</button>`).join("")}
   </div></nav></header>
-  <main class="wrap">${(({club:vClub,packs:vPacks,cards:vCollection,squad:vSquad,table:vTable,calendar:vCalendar,news:vNews,history:vHistory,updates:vUpdates,admin:vAdmin})[view]||vClub)(tbl,pos)}
+  <main class="wrap">${(({club:vClub,packs:vPacks,cards:vCollection,squad:vSquad,table:vTable,calendar:vCalendar,euro:vCompetitions,news:vNews,history:vHistory,updates:vUpdates,admin:vAdmin})[view]||vClub)(tbl,pos)}
   <p class="muted" style="margin:28px 0 0;text-align:center;font-size:13px">Official sponsor \u2014 <a href="https://upnorthplumbing.com/" target="_blank" rel="noopener sponsored" style="color:var(--c-blue);font-weight:700;text-decoration:underline;text-underline-offset:3px">UpNorthPlumbing</a></p>
   <div style="margin-top:14px;text-align:center"><a class="btn coffee" href="https://buymeacoffee.com/tictactoekai" target="_blank" rel="noopener">\u2615 Enjoying TacTicToe? Buy me a coffee</a></div>
   <p class="muted" style="margin:16px 0 0;font-size:12px">© 2026 Kai Winterbottom. All rights reserved. Unofficial fan game, not affiliated with the Premier League or its clubs. Player ratings are this game's own estimates.</p></main>`;
@@ -130,7 +130,7 @@ function howTo(open){
     <div class="howbody">
       <p style="margin:0 0 10px">Build a football club from nothing: open packs of real Premier League players, pick your team, and manage them through a full home-and-away league season plus a midweek League Cup. Climb the table, win prize money and cups, and build a title-winning side over several seasons.</p>
       <ol class="steps">
-        <li><b>Open packs</b> — go to <b>Packs</b>. You start with <b>£75m</b>. <b>Bronze, Silver, Gold</b> and <b>Elite</b> packs give real players (all rated 80+); every pack also has a rare chance of a <b>Future Prospect</b> — a teal wonderkid rated 82 that gains +1 every season. Keep opening until you have at least 11.</li>
+        <li><b>Open packs</b> — go to <b>Packs</b>. You start with <b>£75m</b>. <b>Silver, Gold</b> and <b>Elite</b> packs give real players rated 80+, while <b>Bronze</b> is cheap pot luck (no minimum). Every pack also has a rare chance of a <b>Future Prospect</b> — a purple wonderkid rated 85 that gains +1 every season. Keep opening until you have at least 11.</li>
         <li><b>Pick your team</b> — go to <b>Squad</b>. Choose a formation, then tap a player on the pitch and tap a substitute to swap them. Green means the right position, red means out of position. You can also sell players for cash.</li>
         <li><b>Play matches</b> — go to <b>Calendar</b> and hit <b>Advance</b> (or <b>Kick off</b> here). Get a match preview, then watch it play out with momentum arrows. League games are blue; green League Cup ties come midweek.</li>
         <li><b>Earn & improve</b> — win matches and finish high for prize money. The board tops you up with <b>£30m</b> in the January window and a <b>£50m</b> summer budget at the end of every season — spend it on better packs and climb the <b>Table</b>.</li>
@@ -182,7 +182,7 @@ function vPacks(){
         <ul>${p.desc.map(d=>`<li>${d}</li>`).join("")}</ul>
         <button class="btn primary" data-act="buy" data-pack="${p.id}" ${S.budget<p.price||S.squad.length+p.count>MAX_SQUAD?"disabled":""}>${S.budget<p.price?"Need "+money(p.price-S.budget)+" more":S.squad.length+p.count>MAX_SQUAD?"Squad full":"Open pack"}</button>
       </article>`).join("")}</div>
-    ${S.squad.length>=MAX_SQUAD?`<div class="panel row" style="justify-content:space-between"><span>Your squad is full (${MAX_SQUAD} players). Win matches to earn more, but you have a full roster to pick from.</span><button class="btn" data-view="squad">Go to squad</button></div>`:`<div class="prospecttip"><b>\u2b50 Future Prospect cards</b> \u2014 every pack has a rare chance to pull a purple Future Prospect (Kroupi, Rayan, Ant\u00f3nio Silva, Archie Gray, Diomande, Dowman, Ngumoha, JJ Gabriel). They start rated 82 and gain +1 overall every season you play \u2014 raw talent that grows with you.</div><div class="ucltip"><b>\u2b50 Europe\u2019s Finest cards</b> \u2014 the rarest pull of all. Only <b>Elite</b> packs can contain a blue Europe\u2019s Finest superstar \u2014 roughly one in every ten Elite packs \u2014 with continental icons like Mbapp\u00e9, Yamal, Kane, Demb\u00e9l\u00e9, Bellingham and Lautaro.</div><p class="muted" style="margin:0">Players you pack are yours to keep — build the deepest squad you can across the season.</p>`}
+    ${S.squad.length>=MAX_SQUAD?`<div class="panel row" style="justify-content:space-between"><span>Your squad is full (${MAX_SQUAD} players). Win matches to earn more, but you have a full roster to pick from.</span><button class="btn" data-view="squad">Go to squad</button></div>`:`<div class="prospecttip"><b>\u2b50 Future Prospect cards</b> \u2014 every pack has a rare chance to pull a purple Future Prospect (Kroupi, Rayan, Ant\u00f3nio Silva, Archie Gray, Diomande, Dowman, Ngumoha, JJ Gabriel). They start rated 85 and gain +1 overall every season you play \u2014 raw talent that grows with you.</div><div class="ucltip"><b>\u2b50 Europe\u2019s Finest cards</b> \u2014 the rarest pull of all. Only <b>Elite</b> packs can contain a blue Europe\u2019s Finest superstar \u2014 roughly one in every ten Elite packs \u2014 with continental icons like Mbapp\u00e9, Yamal, Kane, Demb\u00e9l\u00e9, Bellingham and Lautaro.</div><p class="muted" style="margin:0">Players you pack are yours to keep — build the deepest squad you can across the season.</p>`}
   </div>`;
 }
 
@@ -264,7 +264,10 @@ function vAdmin(){
 }
 function ordinalPos(n){ return n>0?ordinal(n):"\u2014"; }
 const CHANGELOG = [
-  {tag:"NEW", accent:"var(--c-purple)", date:"Latest", title:"Club reputation",
+  {tag:"NEW", accent:"#4f7cff", date:"Latest", title:"European competitions",
+   body:"Finish high in the league and your club now qualifies for Europe the next season.",
+   items:["Top five reach the Champions League, 6th the Europa League, 7th the Conference League — with a celebration the moment you qualify.","A new Europe tab with your knockout run to the final against real continental clubs — Real Madrid, Bayern, Inter, PSG and more.","Each competition has its own on-brand theme: blue Champions League, orange Europa League, green Conference League.","Prize money and reputation for going deep, and a trophy for lifting it."]},
+  {tag:"NEW", accent:"var(--c-purple)", date:"Recent", title:"Club reputation",
    body:"A reputation bar that charts your club’s rise from nobody to continental giant.",
    items:["Starts near zero and climbs through six tiers — Unknown, Up-and-coming, Established, Big club, Elite, Continental giant.","Grows from marquee signings, wins (worth far more against strong teams), high league finishes and — above all — titles.","Shown as a bar on the Club screen and a live figure in the header; it takes seasons of success to reach the top."]},
   {tag:"NEW", accent:"var(--c-money)", date:"Recent", title:"Card collection",
@@ -284,7 +287,7 @@ const CHANGELOG = [
    items:["Rated 83–92 — genuine world-class signings.","The rarest pull in the game: only Elite packs can contain one, roughly 1 in every 10.","Each shows its real club crest, kit colours and name."]},
   {tag:"NEW", accent:"#9b5cff", date:"Latest", title:"Future Prospect cards (now purple)",
    body:"Eight real-life wonderkids that grow with your club: Eli Junior Kroupi, Rayan and António Silva (Bournemouth), Archie Gray (Spurs), Ousmane Diomande (Forest), Max Dowman (Arsenal), Rio Ngumoha (Liverpool) and JJ Gabriel (Man Utd).",
-   items:["Start rated 82 and gain +1 overall every single season you play.","Recoloured from teal to deep purple so they’re clearly different from Europe’s Finest.","Any pack has a small chance to contain one."]},
+   items:["Start rated 85 and gain +1 overall every single season you play.","Recoloured from teal to deep purple so they’re clearly different from Europe’s Finest.","Any pack has a small chance to contain one."]},
   {tag:"ADDED", accent:"var(--c-teal)", date:"Latest", title:"100+ more Premier League players",
    body:"Every club’s squad has been deepened with real 2025/26 players, so you stop seeing the same faces every time you open a pack.",
    items:["The player pool grew from ~205 to 321.","More variety across every rating band and position."]},
@@ -437,6 +440,48 @@ function vCollection(){
     ${section("⭐ Future Prospects","#b78cff",prospects)}
     <div class="collsec"><div class="collhead"><span class="eyebrow">Premier League</span><span class="collcount">${pl.filter(it=>owned.has(it.rid)).length}/${pl.length}</span></div>
       <div class="stack" style="gap:14px">${plHTML||'<p class="muted" style="margin:0">None to show here.</p>'}</div></div>
+  </section>`;
+}
+function shortRound(n){ return ({"Round of 16":"R16","Quarter-final":"QF","Semi-final":"SF","Final":"Final","Second Round":"R2","Third Round":"R3","Fourth Round":"R4"})[n]||n; }
+function bracketGraph(c, accent){
+  if(!c) return "";
+  const nodes=c.rounds.map((t,i)=>{
+    const played=t.played, isNext=(i===c.idx && !c.out && !c.won && !played), opp=teamInfo(t.opp);
+    const st=played?(t.won?"won":"lost"):isNext?"next":"up";
+    const ha=t.name==="Final"?"N":t.home?"H":"A";
+    const res=played?`${t.score[0]}–${t.score[1]}${t.pens?" p":""}`:isNext?"NEXT":"–";
+    return `<div class="brd ${st}" title="${esc(t.name)} vs ${esc(opp.name)}"><span class="brround">${esc(shortRound(t.name))} · ${ha}</span><div class="brnode">${crest(opp.c1,opp.c2,opp.short,18)}<span class="bropp">${esc(opp.short)}</span></div><span class="brres">${res}</span></div>`;
+  }).join('<span class="brline"></span>');
+  const trophy=`<span class="brline"></span><div class="brd trophy ${c.won?"won":c.out?"out":""}"><span class="brtroph">${c.won?"🏆":"🌟"}</span><span class="brround">${c.won?"Winners":c.out?"Out":"Trophy"}</span></div>`;
+  return `<div class="bracket" style="--brc:${accent||"var(--flood)"}">${nodes}${trophy}</div>`;
+}
+function vCompetitions(tbl){
+  const T=tbl||table(), pos=T.findIndex(r=>r.id==="you")+1;
+  const onCourseComp = pos<=5?"ucl":pos===6?"uel":pos===7?"uecl":null;
+  const e=S.euro, cup=S.cup, ne=nextEvent();
+  const EUROCOL={ucl:"#4f7cff",uel:"#ff8a2a",uecl:"#36d97a"};
+  const zone=`<div class="panel stack"><span class="eyebrow">How you qualify for Europe</span>
+    <div class="qzones">
+      <div class="qzone ucl"><b>Champions League</b><span>Finish 1st – 5th</span></div>
+      <div class="qzone uel"><b>Europa League</b><span>Finish 6th</span></div>
+      <div class="qzone uecl"><b>Conference League</b><span>Finish 7th</span></div>
+    </div>
+    <p class="muted" style="margin:0;font-size:13px">${S.round>0?`You’re currently <b>${ordinal(pos)}</b> — ${onCourseComp?`on course for the <b>${EURO_META[onCourseComp].name}</b> next season.`:"outside the European places for now."}`:"Finish high enough in the league and you’ll qualify for Europe next season."}</p></div>`;
+  const header = e
+    ? (()=>{ const m=EURO_META[e.comp]; const st=e.won?`${m.name} winners! 🏆`:e.out?`Knocked out in the ${e.rounds[e.idx].name}.`:`Still in it — ${e.rounds[e.idx].name}.`;
+        return `<div class="ehead ${e.theme}"><span class="ebadge">🏆</span><div><h2 style="margin:0;font-size:34px">${esc(m.name)}</h2><span class="estatus">${esc(st)}</span></div><span class="etag ${e.theme}">${m.short}</span></div>`; })()
+    : `<div class="ehead none"><span class="ebadge">🌍</span><div><h2 style="margin:0;font-size:34px">Competitions</h2><span class="muted">${S.round>0&&onCourseComp?`On course for the ${EURO_META[onCourseComp].name} next season.`:"Track your knockout runs — League Cup and Europe."}</span></div></div>`;
+  const cupNext=ne&&ne.type==="cup", euroNext=ne&&ne.type==="euro";
+  const cupStatus=cup?(cup.won?"Winners 🏆":cup.out?"Knocked out":"In the "+cup.rounds[cup.idx].name):"";
+  const cupSection=`<div class="panel stack"><div class="row" style="justify-content:space-between;align-items:center"><span class="eyebrow">League Cup · ${esc(cupStatus)}</span>${cupNext?`<button class="btn small primary" data-act="play">Play ${esc(cup.rounds[cup.idx].name)} ▶</button>`:""}</div>${bracketGraph(cup,"var(--win)")}</div>`;
+  const euroSection = e?`<div class="panel stack"><div class="row" style="justify-content:space-between;align-items:center"><span class="eyebrow">${esc(EURO_META[e.comp].name)} · your run to the final</span>${euroNext?`<button class="btn small primary" data-act="play">Play ${esc(e.rounds[e.idx].name)} ▶</button>`:""}</div>${bracketGraph(e,EUROCOL[e.comp])}</div>`:"";
+  const honours = (S.cupTrophies||S.euroTrophies)?`<div class="panel"><span class="eyebrow">Honours</span><p style="margin:6px 0 0">${S.cupTrophies?`🏆 ${S.cupTrophies} League Cup${S.cupTrophies===1?"":"s"}. `:""}${S.euroTrophies?`⭐ ${S.euroTrophies} European troph${S.euroTrophies===1?"y":"ies"} won.`:""}</p></div>`:"";
+  return `<section class="stack">
+    ${header}
+    ${cupSection}
+    ${euroSection}
+    ${zone}
+    ${honours}
   </section>`;
 }
 function vHistory(tbl,pos){

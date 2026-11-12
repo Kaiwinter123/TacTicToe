@@ -48,6 +48,21 @@ function socialAvatar(u){
   return `<span class="xav" style="background:${col}">${esc(init)}</span>`;
 }
 function fmtK(n){ return n>=1000 ? (n/1000).toFixed(1).replace(/\.0$/,"")+"K" : ""+n; }
+function themeClass(t){ return ({cup:"cuptheme",ucl:"ucltheme",uel:"ueltheme",uecl:"uecltheme"})[t]||""; }
+function showEuroCongrats(comp, onDone){
+  const m=EURO_META[comp];
+  const ov=document.createElement("div"); ov.className="overlay "+themeClass(comp); ov.setAttribute("role","dialog"); ov.setAttribute("aria-label","European qualification");
+  ov.innerHTML=`<div class="jancard eurocard">
+    <div class="janicon">🌟</div>
+    <span class="eyebrow">Qualification confirmed</span>
+    <h2>${esc(S.club.name)} are into the<br>${esc(m.name)}!</h2>
+    <p>Congratulations — your league finish has earned <b>${esc(S.club.name)}</b> a place in next season’s <b>${esc(m.name)}</b>. European nights are coming to ${esc(S.club.stadium)}. Check the <b>Competitions</b> tab for your draw.</p>
+    <div class="row" style="justify-content:center"><button class="btn primary" id="eok">Bring on Europe →</button></div>
+  </div>`;
+  document.body.appendChild(ov);
+  ov.querySelector("#eok").addEventListener("click",()=>{ ov.remove(); onDone&&onDone(); });
+  ov.querySelector("#eok").focus();
+}
 function showSocial(ctx, onDone){
   const club=S.club.name, cshort=S.club.short, manager=S.manager;
   const scorer = ctx.scorers.length ? surname(pick(ctx.scorers)) : null;
@@ -66,6 +81,7 @@ function showSocial(ctx, onDone){
   if(S.lastStar) ctxLines.push("BREAKING 📝 {club} have signed {star}! Proper statement of intent from {manager}.");
   if(ctx.january) ctxLines.push("💰 {club} hand {manager} a £30m January top-up. Spend it well, gaffer!");
   if(ctx.cup){ ctxLines.unshift(ctx.cup.won ? (ctx.cup.final?"WE'VE WON THE CUP \ud83c\udfc6\ud83c\udfc6 {manager} is a LEGEND. Get it in the cabinet!!":"Into the next round of the Cup \ud83c\udfc6 {club} march on. {manager} rotating like a pro.") : "OUT of the Cup to {opp} \ud83d\ude29 {manager} says we focus on the league now."); }
+  if(ctx.euro){ const en=ctx.euro.name; ctxLines.unshift(ctx.euro.won ? (ctx.euro.final?`CHAMPIONS OF EUROPE \ud83c\udfc6\u2b50 {club} have WON THE ${en.toUpperCase()}!! {manager} writes his name into history.`:`{club} are through in the ${en} \ud83c\udfc6 European nights at {club}, {manager} loving it.`) : `Europe\u2019s dream is over \u2014 {club} knocked out of the ${en} by {opp}. \ud83d\ude14`); }
   if(meRow.p>5 && pos<=4) ctxLines.push(pos===1?"TOP OF THE LEAGUE 🏆 pinch me. {manager} is building something special at {club}.":"{club} in the TOP FOUR 🌟 {manager} has us dreaming of Europe.");
   else if(meRow.p>5 && pos>=N-2) ctxLines.push("{club} in the drop zone 😬 {manager}, it's squeaky-bum time.");
   if(streak>=3 && sv==="W") ctxLines.push(streak+" wins on the spin!! {club} are UNREAL right now 🔥 {manager} magic.");
@@ -79,7 +95,7 @@ function showSocial(ctx, onDone){
   const users = SOCIAL_USERS.slice().sort(()=>Math.random()-.5);
   const posts = lines.map((t,i)=>{ const u=users[i%users.length]; const base=u.v?ri(400,5200):ri(8,900);
     return {u, txt:fill(t), time:(i*4+1+ri(0,5))+"m", likes:base, rt:Math.floor(base/ (3+ri(0,4))), rep:ri(2,120)}; });
-  const sov=document.createElement("div"); sov.className="overlay socov"+(ctx.cup?" cuptheme":""); sov.setAttribute("role","dialog"); sov.setAttribute("aria-label","Fan reaction");
+  const sov=document.createElement("div"); sov.className="overlay socov"+(ctx.theme?" "+themeClass(ctx.theme):ctx.cup?" cuptheme":""); sov.setAttribute("role","dialog"); sov.setAttribute("aria-label","Fan reaction");
   sov.innerHTML=`<span class="eyebrow">Full time · the fans react</span>
     <div class="phone">
       <div class="phnotch"></div>
@@ -160,7 +176,7 @@ function showMatchPreview(info, onKick){
   const rec=info.rec;
   const h2h = rec&&rec.log.length ? `<div class="pvh2h"><span class="eyebrow">Head to head</span> &nbsp; <b class="hw">${rec.w}W</b> <b class="hd">${rec.d}D</b> <b class="hl">${rec.l}L</b></div>` : `<div class="pvh2h muted">First ever meeting with ${esc(info.opp.name)}</div>`;
   const vtag = info.finalNeutral?`<span class="vtag cup">FINAL</span> Wembley Stadium`:info.home?`<span class="vtag home">HOME</span> At ${esc(S.club.stadium)}`:`<span class="vtag away">AWAY</span> At ${esc(info.venue)}`;
-  const ov=document.createElement("div"); ov.className="overlay"+(info.theme==="cup"?" cuptheme":""); ov.setAttribute("role","dialog"); ov.setAttribute("aria-label","Match preview");
+  const ov=document.createElement("div"); ov.className="overlay"+(info.theme?" "+themeClass(info.theme):""); ov.setAttribute("role","dialog"); ov.setAttribute("aria-label","Match preview");
   ov.innerHTML=`<div class="preview-card">
     <span class="eyebrow" style="text-align:center">${esc(info.comp)} \u00b7 ${esc(info.roundLabel)} \u00b7 ${esc(info.dateLabel)}</span>
     <div class="pvteams">
@@ -226,6 +242,7 @@ function pickInjTier(){ const tot=INJ_TIERS.reduce((a,t)=>a+t.weight,0); let r=M
 const INJ_TXT=["pulls up and can't continue","goes down holding their hamstring","lands awkwardly and signals to the bench","limps off after a heavy challenge"];
 function teamScorers(team){
   if(team==="you") return S.xi.map(byId).filter(Boolean);
+  if(typeof team==="string" && team.slice(0,2)==="e:"){ const e=euroTeam(team.slice(2)); return e?e.players:[]; }
   const ci=+String(team).slice(1);
   return POOL.filter(p=>p.club===ci && !S.squad.some(q=>q.rid===p.rid));
 }
@@ -315,7 +332,7 @@ function injuryToast(res){
 }
 function showMatchOverlay(o, onDone){
   const H=teamInfo(o.h), A=teamInfo(o.a), events=o.events, gh=o.gh, ga=o.ga;
-  const ov=document.createElement("div"); ov.className="overlay"+(o.theme==="cup"?" cuptheme":""); ov.setAttribute("role","dialog"); ov.setAttribute("aria-label","Match");
+  const ov=document.createElement("div"); ov.className="overlay"+(o.theme?" "+themeClass(o.theme):""); ov.setAttribute("role","dialog"); ov.setAttribute("aria-label","Match");
   const stats=matchStats(events,o.h,o.a,o.poss||[50,50]);
   ov.innerHTML=`<span class="eyebrow">${esc(o.title)}</span>
     <div class="board"><div class="tm">${crest(H.c1,H.c2,H.short,48)}${esc(H.name)}</div><div><div class="sc" id="sc">0\u20130</div><div class="clk" id="clk">0'</div></div><div class="tm">${crest(A.c1,A.c2,A.short,48)}${esc(A.name)}</div></div>
@@ -466,16 +483,62 @@ function playCup(){
   };
   showMatchPreview(info, kick);
 }
+// ---- European competitions ----
+const EURO_META={
+  ucl:{name:"Champions League", short:"UCL", theme:"ucl", prize:[6,10,16,32]},
+  uel:{name:"Europa League",    short:"UEL", theme:"uel", prize:[4,7,11,22]},
+  uecl:{name:"Conference League",short:"UECL",theme:"uecl",prize:[3,5,8,15]}
+};
+const EURO_ROUNDS=["Round of 16","Quarter-final","Semi-final","Final"];
+const EURO_WEEKS=[7,12,21,30];
+function makeEuro(comp){
+  const pool=EURO_POOL[comp].slice(), used=new Set();
+  const rounds=EURO_ROUNDS.map((n,i)=>{ let sh; do{ sh=pick(pool); }while(used.has(sh)&&used.size<pool.length); used.add(sh);
+    return {name:n, week:EURO_WEEKS[i], opp:"e:"+sh, home:(n==="Final")?true:Math.random()<0.5, played:false, score:null, won:null, pens:null}; });
+  return {comp, name:EURO_META[comp].name, theme:EURO_META[comp].theme, rounds, idx:0, out:false, won:false};
+}
+function euroTie(){ const e=S.euro; if(!e||e.out||e.won||e.idx>=e.rounds.length) return null; const t=e.rounds[e.idx]; return t.played?null:t; }
+function euroDate(week){ return seasonStart()+(week*7+3)*864e5; }
+function playEuro(){
+  const e=S.euro, tie=e.rounds[e.idx], isFinal=tie.name==="Final";
+  const h=tie.home?"you":tie.opp, a=tie.home?tie.opp:"you", home=tie.home, oppId=tie.opp;
+  const info=previewInfo({comp:e.name, roundLabel:tie.name, date:new Date(euroDate(tie.week)), home, oppId, theme:e.theme, finalNeutral:isFinal});
+  const kick=(ment)=>{
+    const sim=simMatch(h,a,ment);
+    const {gh,ga,events,lh,la,poss,motm}=sim;
+    const mine=home?gh:ga, theirs=home?ga:gh;
+    let won=mine>theirs, pens=null;
+    if(mine===theirs){ const Rm=teamRatings().ovr, Ro=ratingsFor(oppId).ovr; won=Math.random()<Rm/(Rm+Ro); pens=won?[ri(4,5),ri(2,4)]:[ri(2,4),ri(4,5)]; if(pens[0]===pens[1]) pens[won?0:1]++; }
+    const prize=EURO_META[e.comp].prize[e.idx], earn=prize+(won?prize:0);
+    tie.played=true; tie.score=[gh,ga]; tie.won=won; tie.pens=pens;
+    S.budget+=earn;
+    if(won){ if(isFinal){ e.won=true; S.euroTrophies=(S.euroTrophies||0)+1; S.budget+=prize*1.5; addRep(e.comp==="ucl"?30:e.comp==="uel"?18:12); } else e.idx++; } else e.out=true;
+    recordWin(mine,theirs,oppId,e.name);
+    const injRes=processInjuries(sim);
+    save();
+    const venue=isFinal?"the Final (neutral)":(home?"Home · "+S.club.stadium:"Away · "+teamInfo(oppId).name);
+    const title=e.name+" · "+tie.name+" · "+venue;
+    const word=won?(isFinal?"EUROPEAN CHAMPIONS 🏆":"Through ✔"):"Knocked out";
+    const color=won?"var(--win)":"var(--loss)";
+    const pensTxt=pens?(won?"Won "+pens[0]+"–"+pens[1]+" on pens · ":"Lost "+pens[1]+"–"+pens[0]+" on pens · "):"";
+    const social={win:won?1:-1, score:gh+"–"+ga, scorers:events.filter(x=>x.type==="goal"&&x.team==="you").map(x=>x.who), opp:teamInfo(oppId).name, oppShort:teamInfo(oppId).short, euro:{won,final:isFinal,round:tie.name,name:e.name}, theme:e.theme, motm:motm&&won?motm.n:null, injury:injRes.injured?injRes.injured.who:null, recovered:injRes.recovered};
+    showMatchOverlay({h,a,lh,la,events,gh,ga,poss,motm,title,word,color,note:pensTxt+"+"+money(earn),social,theme:e.theme}, ()=>{ render(); injuryToast(injRes); });
+  };
+  showMatchPreview(info, kick);
+}
 function nextEvent(){
   const leagueOver = S.round>=S.fixtures.length;
-  const tie=cupTie();
+  const tie=cupTie(), et=euroTie();
   const leagueDate = leagueOver?Infinity:mDateObj(S.round).getTime();
   const cupD = tie?cupDate(tie.week):Infinity;
-  if(cupD<leagueDate) return {type:"cup", tie};
-  if(!leagueOver) return {type:"league"};
-  return null;
+  const euroD = et?euroDate(et.week):Infinity;
+  const m=Math.min(leagueDate,cupD,euroD);
+  if(m===Infinity) return null;
+  if(euroD===m && et) return {type:"euro", tie:et};
+  if(cupD===m && tie) return {type:"cup", tie};
+  return {type:"league"};
 }
-function advance(){ const ev=nextEvent(); if(!ev) return; if(ev.type==="cup") playCup(); else playMatch(); }
+function advance(){ const ev=nextEvent(); if(!ev) return; if(ev.type==="euro") playEuro(); else if(ev.type==="cup") playCup(); else playMatch(); }
 
 /* ---------- the 5-minute check-in (the thumbs-down runs away) ---------- */
 let enjoyArmed=false;

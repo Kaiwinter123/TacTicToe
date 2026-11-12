@@ -27,7 +27,7 @@ const CLUBS = [
 const POOL = [];
 CLUBS.forEach((c,ci)=>{ for(const m of c[5].matchAll(/\s*([^/]+?)\/(GK|DEF|MID|FWD)\/(\d+)/g)) POOL.push({rid:ci+":"+m[1],n:m[1],pos:m[2],ovr:+m[3],club:ci}) });
 // --- Future Prospect cards: start at 82, gain +1 overall every season ---
-const PROSPECT_BASE=82, PROSPECT_CAP=95;
+const PROSPECT_BASE=85, PROSPECT_CAP=95;
 const PROSPECTS = [
   ["Eli Junior Kroupi","BOU","FWD"],
   ["Rayan","BOU","FWD"],
@@ -65,6 +65,60 @@ const UCL = [
   ["Julián Álvarez","ATM","FWD",87],["Antoine Griezmann","ATM","FWD",84],
   ["Serhou Guirassy","DOR","FWD",84]
 ].map(([n,sh,pos,ovr])=>{const e=EURO_CLUBS[sh];return {n,pos,ovr,rid:"U:"+n,csh:sh,k1:e[0],k2:e[1],cname:e[2]};});
+// --- European opponents for continental competitions (2026/27): [name, c1, c2, strength, "Player/POS ..."] ---
+const EUROTEAMS = {
+  RMA:["Real Madrid","#FFFFFF","#00529F",90,"Kylian Mbappé/FWD Vinícius Júnior/FWD Jude Bellingham/MID Federico Valverde/MID Thibaut Courtois/GK Antonio Rüdiger/DEF Rodrygo/FWD"],
+  FCB:["Barcelona","#004D98","#A50044",88,"Lamine Yamal/FWD Robert Lewandowski/FWD Pedri/MID Raphinha/FWD Frenkie de Jong/MID Pau Cubarsí/DEF"],
+  BAY:["Bayern München","#DC052D","#FFFFFF",88,"Harry Kane/FWD Jamal Musiala/MID Michael Olise/FWD Joshua Kimmich/MID Dayot Upamecano/DEF"],
+  PSG:["Paris Saint-Germain","#0C1C3C","#DA291C",88,"Ousmane Dembélé/FWD Khvicha Kvaratskhelia/FWD Vitinha/MID Achraf Hakimi/DEF Désiré Doué/FWD"],
+  INT:["Inter","#0068A8","#000000",85,"Lautaro Martínez/FWD Marcus Thuram/FWD Nicolò Barella/MID Hakan Çalhanoğlu/MID Federico Dimarco/DEF"],
+  ATM:["Atlético Madrid","#CB3524","#FFFFFF",84,"Julián Álvarez/FWD Antoine Griezmann/FWD Pablo Barrios/MID Robin Le Normand/DEF"],
+  NAP:["Napoli","#12A0D7","#FFFFFF",84,"Kevin De Bruyne/MID Scott McTominay/MID Romelu Lukaku/FWD Alessandro Buongiorno/DEF"],
+  JUV:["Juventus","#000000","#FFFFFF",83,"Kenan Yıldız/FWD Dušan Vlahović/FWD Manuel Locatelli/MID Gleison Bremer/DEF"],
+  LEV:["Bayer Leverkusen","#E32221","#000000",82,"Alejandro Grimaldo/DEF Patrik Schick/FWD Nordi Mukiele/DEF Aleix García/MID"],
+  ATA:["Atalanta","#1D71B8","#000000",82,"Ademola Lookman/FWD Charles De Ketelaere/FWD Éderson/MID Gianluca Scamacca/FWD"],
+  DOR:["Borussia Dortmund","#FDE100","#000000",82,"Serhou Guirassy/FWD Karim Adeyemi/FWD Julian Brandt/MID Nico Schlotterbeck/DEF"],
+  SLB:["Benfica","#E30613","#FFFFFF",81,"Vangelis Pavlidis/FWD Fredrik Aursnes/MID Orkun Kökçü/MID Nicolás Otamendi/DEF"],
+  SCP:["Sporting CP","#016A3A","#FFFFFF",81,"Pedro Gonçalves/MID Francisco Trincão/FWD Gonçalo Inácio/DEF Morten Hjulmand/MID"],
+  GAL:["Galatasaray","#FDB912","#A90432",80,"Victor Osimhen/FWD Mauro Icardi/FWD Dries Mertens/FWD Lucas Torreira/MID"],
+  OLM:["Marseille","#2FAEE0","#103D73",80,"Mason Greenwood/FWD Pierre-Emerick Aubameyang/FWD Adrien Rabiot/MID Leonardo Balerdi/DEF"],
+  ASM:["Monaco","#E63312","#FFFFFF",80,"Folarin Balogun/FWD Maghnes Akliouche/MID Takumi Minamino/MID"],
+  VIL:["Villarreal","#FFE667","#005187",80,"Nicolas Pépé/FWD Dani Parejo/MID Álex Baena/MID"],
+  PSV:["PSV","#ED1C24","#FFFFFF",79,"Ismael Saibari/MID Ricardo Pepi/FWD Luuk de Jong/FWD"],
+  AJX:["Ajax","#D2122E","#FFFFFF",78,"Wout Weghorst/FWD Kenneth Taylor/MID Jorrel Hato/DEF"],
+  ROM:["Roma","#8E1F2F","#F0BC42",80,"Paulo Dybala/FWD Lorenzo Pellegrini/MID Manu Koné/MID Gianluca Mancini/DEF"],
+  POR:["Porto","#003DA5","#FFFFFF",80,"Samu Aghehowa/FWD Pepê/FWD Alan Varela/MID"],
+  BET:["Real Betis","#00A651","#FFFFFF",79,"Antony/FWD Isco/MID Giovani Lo Celso/MID"],
+  FEN:["Fenerbahçe","#00205B","#FFED00",79,"Youssef En-Nesyri/FWD Anderson Talisca/FWD İrfan Can Kahveci/MID"],
+  RSO:["Real Sociedad","#0067B1","#FFFFFF",78,"Mikel Oyarzabal/FWD Takefusa Kubo/FWD Brais Méndez/MID"],
+  LYO:["Lyon","#FFFFFF","#DA001A",78,"Malick Fofana/FWD Corentin Tolisso/MID Nicolás Tagliafico/DEF"],
+  LIL:["Lille","#E01E24","#FFFFFF",78,"Jonathan David/FWD Hákon Haraldsson/MID Benjamin André/MID"],
+  BOL:["Bologna","#1A2F48","#A21C27",78,"Riccardo Orsolini/FWD Santiago Castro/FWD Lewis Ferguson/MID"],
+  STU:["Stuttgart","#E32219","#FFFFFF",78,"Deniz Undav/FWD Ermedin Demirović/FWD Angelo Stiller/MID"],
+  FEY:["Feyenoord","#E30613","#FFFFFF",78,"Ayase Ueda/FWD Quinten Timber/MID Anis Hadj Moussa/FWD"],
+  CLT:["Celtic","#018749","#FFFFFF",77,"Daizen Maeda/FWD Callum McGregor/MID Reo Hatate/MID"],
+  FRE:["Freiburg","#000000","#E2001A",77,"Vincenzo Grifo/MID Ritsu Dōan/FWD Matthias Ginter/DEF"],
+  BRA:["Braga","#E30613","#FFFFFF",77,"Ricardo Horta/FWD Bruma/FWD João Moutinho/MID"],
+  CEL:["Celta Vigo","#8AC3EE","#E53027",77,"Iago Aspas/FWD Borja Iglesias/FWD Óscar Mingueza/DEF"],
+  FIO:["Fiorentina","#582C83","#FFFFFF",78,"Moise Kean/FWD Albert Guðmundsson/FWD Rolando Mandragora/MID"],
+  RAY:["Rayo Vallecano","#FFFFFF","#E53027",74,"Isi Palazón/MID Jorge de Frutos/FWD Óscar Trejo/MID"],
+  AZA:["AZ Alkmaar","#E4001B","#FFFFFF",75,"Troy Parrott/FWD Jordy Clasie/MID Sven Mijnans/MID"],
+  SHK:["Shakhtar Donetsk","#FF6600","#000000",76,"Kevin/FWD Georgiy Sudakov/MID Marian Shved/FWD"],
+  MAI:["Mainz","#C3141E","#FFFFFF",75,"Jonathan Burkardt/FWD Nadiem Amiri/MID Jae-sung Lee/MID"],
+  RAN:["Rangers","#1B458F","#FFFFFF",76,"Cyriel Dessers/FWD Nicolas Raskin/MID James Tavernier/DEF"],
+  SAL:["RB Salzburg","#CE0E2D","#FFFFFF",76,"Karim Konaté/FWD Oscar Gloukh/MID Petar Ratkov/FWD"],
+  DYN:["Dynamo Kyiv","#FFFFFF","#004B87",73,"Andriy Yarmolenko/FWD Mykola Shaparenko/MID Vladyslav Vanat/FWD"],
+  LEG:["Legia Warszawa","#005CA9","#FFFFFF",72,"Marc Gual/FWD Bartosz Kapustka/MID Rafał Augustyniak/DEF"]
+};
+const EURO_POOL = {
+  ucl:["RMA","FCB","BAY","PSG","INT","ATM","NAP","JUV","LEV","ATA","DOR","SLB","SCP","GAL","OLM","ASM","VIL","PSV","AJX"],
+  uel:["ROM","POR","BET","FEN","RSO","LYO","LIL","BOL","STU","FEY","CLT","FRE","BRA","CEL","RAN","SAL"],
+  uecl:["FIO","RAY","AZA","SHK","MAI","DYN","LEG","CEL","BRA"]
+};
+const _euroCache={};
+function euroTeam(sh){ if(_euroCache[sh]) return _euroCache[sh]; const d=EUROTEAMS[sh]; if(!d) return null;
+  const players=[...d[4].matchAll(/\s*([^/]+?)\/(GK|DEF|MID|FWD)/g)].map(m=>({n:m[1],pos:m[2]}));
+  return _euroCache[sh]={name:d[0],short:sh,c1:d[1],c2:d[2],str:d[3],players}; }
 const FIRST = ["Jamal","Oliver","Mateo","Kofi","Luca","Ethan","Rafael","Tomás","Callum","Yusuf","Niko","Adebayo","Marcus","Leon","Kai","Theo","Ibrahim","Diego","Sami","Jonah","Ruben","Arlo","Emeka","Hugo","Finn","Dario","Kenji","Mateus","Ollie","Bilal","Andrés","Joel","Stellan","Idris","Ciaran","Malik","Pavel","Eli","Felix","Tariq","Nuno","Reece","Sander","Kwame","Elias","Jude","Iker","Milan","Bastian","Omar"];
 const LAST = ["Okafor","Hartley","Vidal","Mensah","Brennan","Castell","Lindqvist","Adeyemi","Moreau","Kowal","Ferreira","Ashby","Nakamura","Quinn","Duarte","Halloran","Sesay","Varga","Petrov","Whitlock","Osei","Marchetti","Rowe","Bakker","Iwobi","Santos","Fairley","Novak","Dembélé","Thorne","Kaya","Calloway","Ruiz","Holm","Abara","Lemaire","Prior","Szabo","Eriksen","Banda","Morrow","Takeda","Galván","Strand","Achebe","Pryce","Okoro","Lund","Mbeki","Doherty"];
 const POS = ["GK","DEF","MID","FWD"];
@@ -80,7 +134,7 @@ const FORMATIONS = {
   "5-3-2":[["GK",50,90],["DEF",10,70],["DEF",30,76],["DEF",50,78],["DEF",70,76],["DEF",90,70],["MID",28,52],["MID",50,54],["MID",72,52],["FWD",38,24],["FWD",62,24]]
 };
 const PACKS = [
-  {id:"bronze",name:"Bronze",price:5,count:4,lo:80,hi:82,guar:null,foil:"f-bronze",desc:["4 players, 80–82","Cheap squad depth"]},
+  {id:"bronze",name:"Bronze",price:5,count:4,lo:70,hi:82,guar:null,foil:"f-bronze",desc:["4 players · no minimum, up to 82","Pot luck — the cheapest squad filler"]},
   {id:"silver",name:"Silver",price:12,count:4,lo:80,hi:83,guar:81,foil:"f-silver",desc:["4 players, 80–83","One guaranteed 81+"]},
   {id:"gold",name:"Gold",price:45,count:5,lo:82,hi:86,guar:84,foil:"f-gold",desc:["5 players, 82–86","One guaranteed 84+ · one upgrade early"]},
   {id:"elite",name:"Elite",price:85,count:5,lo:84,hi:91,guar:86,foil:"f-elite",desc:["5 players, 84–91","One guaranteed 86+ · for after the summer or January budget"]}

@@ -95,7 +95,12 @@ function nextSeason(){
   S.teams=newSeasonTeams(S.teams);
   S.fixtures=makeFixtures(["you"].concat(S.teams.map(t=>t.id)));
   S.cup=makeCup(4); S.schedFixed=true;
-  advanceByes(); save(); render(); toast(`${money(prize)} prize money + ${money(summer)} summer budget added. Season ${S.season} begins.`);
+  // European qualification for the new season, from the finish just achieved
+  const euroComp = pos<=5?"ucl":pos===6?"uel":pos===7?"uecl":null;
+  S.euro = euroComp ? makeEuro(euroComp) : null;
+  advanceByes(); save(); render();
+  toast(`${money(prize)} prize money + ${money(summer)} summer budget added. Season ${S.season} begins.`);
+  if(euroComp) showEuroCongrats(euroComp);
 }
 
 /* ---------- pack opening ---------- */

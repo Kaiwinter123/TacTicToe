@@ -51,10 +51,12 @@ function teamRatings(){
 }
 function ratingsFor(id){
   if(id==="you") return teamRatings();
+  if(typeof id==="string" && id.slice(0,2)==="e:"){ const e=euroTeam(id.slice(2)); if(e) return {att:e.str+1,def:e.str-1,ovr:e.str}; }
   const t=S.teams.find(t=>t.id===id); return {att:t.str+1,def:t.str-1,ovr:t.str};
 }
 function teamInfo(id){
   if(id==="you") return {name:S.club.name,short:S.club.short,c1:S.club.c1,c2:S.club.c2};
+  if(typeof id==="string" && id.slice(0,2)==="e:"){ const e=euroTeam(id.slice(2)); if(e) return {name:e.name,short:e.short,c1:e.c1,c2:e.c2}; }
   return S.teams.find(t=>t.id===id);
 }
 function lambdas(h,a){
