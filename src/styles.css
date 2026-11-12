@@ -184,6 +184,24 @@ main{padding-block:22px 60px}
 .plrow .sc{font-weight:700;background:var(--night);padding:1px 7px;border-radius:6px;white-space:nowrap;color:var(--chalk)}
 .plrow.me{box-shadow:0 0 0 1px var(--flood)}
 @media (max-width:820px){.newscols{grid-template-columns:1fr}}
+/* card collection */
+.collprog{display:flex;align-items:center;gap:12px}
+.collbar{flex:1;height:10px;background:var(--line);border-radius:5px;overflow:hidden}
+.collbar i{display:block;height:100%;background:linear-gradient(90deg,var(--c-blue),var(--flood));border-radius:5px}
+.collprog b{font-family:var(--num);color:var(--flood);white-space:nowrap}
+.collsec{display:flex;flex-direction:column;gap:9px;margin-top:6px}
+.collclub{display:flex;flex-direction:column;gap:6px}
+.collhead{display:flex;align-items:center;gap:8px}
+.collhead .collcount{margin-left:auto;font-family:var(--num);font-size:12px;color:var(--muted)}
+.collhead .clubnm{font-family:var(--display);text-transform:uppercase;font-size:18px}
+.collgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:6px}
+.collitem{display:flex;align-items:center;gap:7px;padding:6px 9px;border-radius:8px;background:var(--stand);border:1px solid var(--line);border-left:3px solid var(--acc,var(--flood));opacity:.42;position:relative}
+.collitem.got{opacity:1}
+.collitem .covr{font-family:var(--num);font-weight:700;font-size:15px;min-width:22px;text-align:center}
+.collitem .cnm{font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.collitem .cpos{font-family:var(--num);font-size:9px;color:var(--muted);margin-left:auto}
+.collitem .ctick{color:var(--win);font-weight:900;font-size:13px;flex:none}
+.collitem .clock{color:var(--muted);font-size:12px;flex:none}
 @media (prefers-reduced-motion:reduce){.card.prospect::after{animation:none}}
 .card.ucl{--rim:var(--c-blue);color:#eaf3ff;box-shadow:0 0 0 2px var(--c-blue),0 0 24px rgba(58,160,255,.55),0 10px 30px rgba(0,0,0,.5);
   background:

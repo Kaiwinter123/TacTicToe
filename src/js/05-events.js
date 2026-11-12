@@ -52,6 +52,7 @@ function handle(act,el){
       toast(`Sold ${surname(pl.n)} for ${money(fee)} \u2014 straight into the bank.`); break;
     }
     case "filter": ui.filter=el.dataset.f; render(); break;
+    case "collfilter": ui.collFilter=el.dataset.f; render(); window.scrollTo(0,0); break;
     case "reset": ui.confirmReset=true; render(); break;
     case "reset-no": ui.confirmReset=false; render(); break;
     case "reset-yes": ui.confirmReset=false; resetClub(); break;
@@ -108,6 +109,8 @@ function openPack(pk){
   if(Math.random()<(UCH[pk.id]||0)){ const uc=drawUCL();
     if(uc){ const idx=pk.guar?ri(1,got.length-1):ri(0,got.length-1); const si=S.squad.indexOf(got[idx]); if(si>=0) S.squad.splice(si,1); got[idx]=uc; S.squad.push(uc); } }
   got.sort((a,b)=>a.ovr-b.ovr);
+  if(!S.collected) S.collected=[];
+  got.forEach(p=>{ if(p.rid && !S.collected.includes(p.rid)) S.collected.push(p.rid); });
   const topPull=got[got.length-1]; if(topPull && topPull.ovr>=86) S.lastStar=topPull.n;
   save();
 

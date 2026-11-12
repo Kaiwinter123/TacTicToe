@@ -15,9 +15,9 @@ function render(){
     </div>
   </div>
   <nav class="tabs" aria-label="Sections"><div class="wrap">
-    ${[["club","Club"],["packs","Packs"],["squad","Squad"],["table","Table"],["calendar","Calendar"],["news","News"],["history","History"],["updates","Updates"]].concat(isAdmin?[["admin","Admin"]]:[]).map(([k,l])=>`<button class="tab ${k==="admin"?"owner":k==="updates"?"fresh":""}" data-view="${k}" ${view===k?'aria-current="page"':""}>${l}${k==="updates"?'<span class="newdot">NEW</span>':""}</button>`).join("")}
+    ${[["club","Club"],["packs","Packs"],["cards","Cards"],["squad","Squad"],["table","Table"],["calendar","Calendar"],["news","News"],["history","History"],["updates","Updates"]].concat(isAdmin?[["admin","Admin"]]:[]).map(([k,l])=>`<button class="tab ${k==="admin"?"owner":k==="updates"?"fresh":""}" data-view="${k}" ${view===k?'aria-current="page"':""}>${l}${k==="updates"?'<span class="newdot">NEW</span>':""}</button>`).join("")}
   </div></nav></header>
-  <main class="wrap">${(({club:vClub,packs:vPacks,squad:vSquad,table:vTable,calendar:vCalendar,news:vNews,history:vHistory,updates:vUpdates,admin:vAdmin})[view]||vClub)(tbl,pos)}
+  <main class="wrap">${(({club:vClub,packs:vPacks,cards:vCollection,squad:vSquad,table:vTable,calendar:vCalendar,news:vNews,history:vHistory,updates:vUpdates,admin:vAdmin})[view]||vClub)(tbl,pos)}
   <p class="muted" style="margin:28px 0 0;text-align:center;font-size:13px">Official sponsor \u2014 <a href="https://upnorthplumbing.com/" target="_blank" rel="noopener sponsored" style="color:var(--c-blue);font-weight:700;text-decoration:underline;text-underline-offset:3px">UpNorthPlumbing</a></p>
   <div style="margin-top:14px;text-align:center"><a class="btn coffee" href="https://buymeacoffee.com/tictactoekai" target="_blank" rel="noopener">\u2615 Enjoying TacTicToe? Buy me a coffee</a></div>
   <p class="muted" style="margin:16px 0 0;font-size:12px">© 2026 Kai Winterbottom. All rights reserved. Unofficial fan game, not affiliated with the Premier League or its clubs. Player ratings are this game's own estimates.</p></main>`;
@@ -262,7 +262,10 @@ function vAdmin(){
 }
 function ordinalPos(n){ return n>0?ordinal(n):"\u2014"; }
 const CHANGELOG = [
-  {tag:"NEW", accent:"var(--c-blue)", date:"Latest", title:"News tab",
+  {tag:"NEW", accent:"var(--c-money)", date:"Latest", title:"Card collection",
+   body:"A collector’s page that tracks every card in the game.",
+   items:["All 374 cards — every Premier League player, all 8 Future Prospects and all 45 Europe’s Finest.","A ✓ marks each card you’ve packed; once collected it stays ticked even if you sell the player.","Filter by Collected or Missing and watch your completion percentage climb."]},
+  {tag:"NEW", accent:"var(--c-blue)", date:"Recent", title:"News tab",
    body:"A matchday news hub that brings the rest of the football world into your season.",
    items:["Every other Premier League result from the latest matchday, plus a live top-of-the-table story.","League talking points — the title race, the relegation scrap and the division’s top scorers.","Around Europe: continental headlines starring the names you can pull as Europe’s Finest cards."]},
   {tag:"NEW", accent:"var(--loss)", date:"Recent", title:"Injuries & the Treatment Room",
@@ -385,6 +388,45 @@ function vNews(tbl){
         <p class="muted" style="margin:0;font-size:12px">Continental coverage featuring the stars you can pull as Europe’s Finest cards.</p>
       </div>
     </div>
+  </section>`;
+}
+function collectItems(){
+  const items=[];
+  POOL.forEach(p=>items.push({rid:p.rid,n:p.n,pos:p.pos,ovr:p.ovr,type:"pl",club:p.club}));
+  PROSPECTS.forEach(p=>items.push({rid:p.rid,n:p.n,pos:p.pos,ovr:PROSPECT_BASE,type:"prospect",club:p.club}));
+  UCL.forEach(u=>items.push({rid:u.rid,n:u.n,pos:u.pos,ovr:u.ovr,type:"finest",csh:u.csh}));
+  return items;
+}
+function vCollection(){
+  const owned=new Set([...(S.collected||[]), ...S.squad.map(p=>p.rid).filter(Boolean)]);
+  const filt=ui.collFilter||"all";
+  const keep=it=>filt==="all"||(filt==="have"?owned.has(it.rid):!owned.has(it.rid));
+  const chip=it=>{ const got=owned.has(it.rid);
+    const acc=it.type==="finest"?"var(--c-blue)":it.type==="prospect"?"#9b5cff":(CLUBS[it.club]?CLUBS[it.club][2]:"var(--flood)");
+    return `<div class="collitem ${got?"got":""}" style="--acc:${esc(acc)}" title="${esc(it.n)} · ${it.pos} · ${it.ovr}${got?" · collected":" · not collected"}">
+      <span class="covr">${it.ovr}</span><span class="cnm">${esc(surname(it.n))}</span><span class="cpos">${it.pos}</span>
+      ${got?'<span class="ctick">✓</span>':'<span class="clock">○</span>'}</div>`; };
+  const all=collectItems();
+  const ownedCount=all.filter(it=>owned.has(it.rid)).length, pct=Math.round(ownedCount/all.length*100);
+  const section=(label,accent,list)=>{ const l=list.filter(keep); if(!l.length&&filt!=="all") return "";
+    const c=list.filter(it=>owned.has(it.rid)).length;
+    return `<div class="collsec"><div class="collhead"><span class="eyebrow" style="color:${accent}">${label}</span><span class="collcount">${c}/${list.length}</span></div><div class="collgrid">${l.map(chip).join("")||'<p class="muted" style="margin:0;grid-column:1/-1">None to show here.</p>'}</div></div>`; };
+  const finest=all.filter(it=>it.type==="finest"), prospects=all.filter(it=>it.type==="prospect"), pl=all.filter(it=>it.type==="pl");
+  let plHTML="";
+  CLUBS.forEach((c,ci)=>{ const list=pl.filter(it=>it.club===ci); if(!list.length) return;
+    const l=list.filter(keep); if(!l.length&&filt!=="all") return;
+    const got=list.filter(it=>owned.has(it.rid)).length;
+    plHTML+=`<div class="collclub"><div class="collhead">${crest(c[2],c[3],c[1],20)}<span class="clubnm">${esc(c[0])}</span><span class="collcount">${got}/${list.length}</span></div><div class="collgrid">${l.map(chip).join("")}</div></div>`;
+  });
+  return `<section class="stack">
+    <div class="row" style="justify-content:space-between"><h2 style="font-size:40px">Card collection</h2><span class="muted">${ownedCount}/${all.length} cards</span></div>
+    <div class="collprog"><div class="collbar"><i style="width:${pct}%"></i></div><b>${pct}% complete</b></div>
+    <p class="muted" style="margin:0;font-size:13px">Every real card in the game. A ✓ means it’s in your collection — pack a player once and it’s ticked for good, even if you later sell them.</p>
+    <div class="filters">${[["all","All"],["have","Collected"],["need","Missing"]].map(([f,l])=>`<button class="chip" data-act="collfilter" data-f="${f}" aria-pressed="${filt===f}">${l}</button>`).join("")}</div>
+    ${section("⭐ Europe’s Finest","var(--c-blue)",finest)}
+    ${section("⭐ Future Prospects","#b78cff",prospects)}
+    <div class="collsec"><div class="collhead"><span class="eyebrow">Premier League</span><span class="collcount">${pl.filter(it=>owned.has(it.rid)).length}/${pl.length}</span></div>
+      <div class="stack" style="gap:14px">${plHTML||'<p class="muted" style="margin:0">None to show here.</p>'}</div></div>
   </section>`;
 }
 function vHistory(tbl,pos){
