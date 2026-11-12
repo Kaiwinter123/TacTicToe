@@ -407,13 +407,14 @@ tr.rel td:first-child{box-shadow:inset 3px 0 0 var(--loss)}
 .achcard .achv{font-family:var(--num);font-weight:700;font-size:30px;color:var(--flood);line-height:1}
 .achcard .achl{font-size:12px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;font-family:var(--num)}
 /* sponsor */
-.sponsor{display:flex;align-items:center;gap:14px;text-decoration:none;color:var(--chalk);background:linear-gradient(100deg,rgba(58,160,255,.22),rgba(43,212,192,.12) 60%,transparent);border:1px solid rgba(58,160,255,.5);border-radius:12px;padding:12px 16px;margin-bottom:18px}
-.sponsor .sp-badge{font-size:26px;line-height:1;background:rgba(58,160,255,.2);border-radius:10px;padding:6px 8px}
-.sponsor .sp-text{display:flex;flex-direction:column;line-height:1.1;min-width:0}
+.sponsor{display:flex;align-items:center;gap:18px;flex-wrap:wrap;background:linear-gradient(100deg,rgba(58,160,255,.18),rgba(43,212,192,.08) 60%,transparent);border:1px solid rgba(58,160,255,.5);border-radius:12px;padding:14px 18px;margin-bottom:18px}
+.sponsor .unp{background:#fff;border-radius:8px;padding:12px 20px;display:flex;flex-direction:column;align-items:center;line-height:.9;flex:none;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+.sponsor .unp1{font-family:var(--display);font-weight:900;font-size:30px;letter-spacing:.015em;color:#0b0b0b}
+.sponsor .unp2{font-family:var(--num);font-weight:600;font-size:13px;letter-spacing:.42em;color:#0b0b0b;margin-left:.42em;margin-top:3px}
+.sponsor .sp-text{display:flex;flex-direction:column;gap:5px;min-width:200px;flex:1}
 .sponsor .sp-label{font-family:var(--num);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--c-blue)}
-.sponsor .sp-name{font-family:var(--display);font-weight:900;font-size:24px;text-transform:uppercase;letter-spacing:.01em}
-.sponsor .sp-tag{margin-left:auto;font-size:12px;color:var(--muted);text-align:right}
-@media (max-width:560px){.sponsor .sp-tag{display:none}.sponsor .sp-name{font-size:20px}}
+.sponsor .sp-about{margin:0;font-size:13px;color:var(--chalk);max-width:48ch}
+@media (max-width:560px){.sponsor{gap:12px}.sponsor .unp1{font-size:24px}.sponsor .unp2{font-size:11px}}
 .led{overflow:hidden;white-space:nowrap;width:min(560px,100%);background:#06101f;border:1px solid rgba(58,160,255,.4);border-radius:6px;padding:6px 0}
 .led span{display:inline-block;font-family:var(--num);font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:13px;color:#7fc4ff;padding:0 14px;animation:ledscroll 14s linear infinite}
 @keyframes ledscroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
@@ -932,7 +933,13 @@ function miniTable(tbl){
   return tbl.slice(a,a+5).map((r,k)=>{const t=teamInfo(r.id);return `<div class="mini ${r.id==="you"?"me":""}"><span class="num muted">${a+k+1}</span>${crest(t.c1,t.c2,t.short,16)}<span class="grow">${esc(t.name)}</span><b class="num">${r.pts}</b></div>`}).join("");
 }
 function sponsorBanner(){
-  return `<a class="sponsor" href="https://upnorthplumbing.com/" target="_blank" rel="noopener sponsored" aria-label="Official sponsor UpNorthPlumbing \u2014 opens upnorthplumbing.com"><span class="sp-badge">\ud83d\udd27</span><span class="sp-text"><span class="sp-label">Official club sponsor</span><span class="sp-name">UpNorthPlumbing</span></span><span class="sp-tag">Proud sponsor of TacTicToe</span></a>`;
+  return `<div class="sponsor">
+    <div class="unp" aria-label="UpNorthPlumbing"><span class="unp1">UPNORTH</span><span class="unp2">PLUMBING</span></div>
+    <div class="sp-text"><span class="sp-label">Official club sponsor</span>
+      <p class="sp-about">UpNorthPlumbing \u2014 professional plumbing services, and the proud official sponsor of TacTicToe.</p>
+      <a class="btn small" href="https://upnorthplumbing.com/" target="_blank" rel="noopener sponsored" style="margin-top:2px">Visit upnorthplumbing.com \u2192</a>
+    </div>
+  </div>`;
 }
 function howTo(open){
   return `<details class="howto" ${open?"open":""}>
