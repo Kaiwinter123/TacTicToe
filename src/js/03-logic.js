@@ -1,19 +1,26 @@
 /* ---------- squad logic ---------- */
 const byId = id => S.squad.find(p=>p.id===id);
+const isInjured = p => !!(p && p.inj && p.inj.games>0);
+const injuredSquad = () => S.squad.filter(isInjured);
 function slots(){ return FORMATIONS[S.formation] }
 function effective(p,slotPos){ if(!p) return 0; return p.pos===slotPos? p.ovr : p.ovr - (p.pos==="GK"||slotPos==="GK"?35:12) }
 function autoPick(){
-  const used=new Set(), sl=slots(), xi=sl.map(()=>null);
+  const used=new Set(), sl=slots(), xi=sl.map(()=>null), fit=p=>!used.has(p.id)&&!isInjured(p);
   sl.forEach(([pos],i)=>{
-    const best=S.squad.filter(p=>!used.has(p.id)&&p.pos===pos).sort((a,b)=>b.ovr-a.ovr)[0];
+    const best=S.squad.filter(p=>fit(p)&&p.pos===pos).sort((a,b)=>b.ovr-a.ovr)[0];
     if(best){used.add(best.id); xi[i]=best.id}
   });
   sl.forEach(([pos],i)=>{
     if(xi[i]) return;
-    const best=S.squad.filter(p=>!used.has(p.id)).sort((a,b)=>effective(b,pos)-effective(a,pos))[0];
+    const best=S.squad.filter(fit).sort((a,b)=>effective(b,pos)-effective(a,pos))[0];
     if(best){used.add(best.id); xi[i]=best.id}
   });
   S.xi = xi;
+}
+// Best fit, uninjured bench player for a given slot position (or null).
+function bestFitFor(pos){
+  const inXI=new Set(S.xi.filter(Boolean));
+  return S.squad.filter(p=>!inXI.has(p.id)&&!isInjured(p)).sort((a,b)=>effective(b,pos)-effective(a,pos))[0]||null;
 }
 function teamRatings(){
   const g={GK:[],DEF:[],MID:[],FWD:[]};

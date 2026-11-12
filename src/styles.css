@@ -231,6 +231,21 @@ main{padding-block:22px 60px}
 .ev.ev-late{box-shadow:0 0 0 1px var(--flood)}
 .ev .assist{color:var(--muted);font-size:12px} .ev .latetag{font-family:var(--num);font-size:9px;font-weight:700;background:var(--flood);color:var(--flood-ink);padding:1px 5px;border-radius:7px;letter-spacing:.06em;margin-left:4px}
 .ev .yc{display:inline-block;width:11px;height:15px;background:linear-gradient(135deg,#ffd451,#e0a400);border-radius:2px;vertical-align:-3px;margin-right:5px;box-shadow:0 0 0 1px rgba(0,0,0,.35),0 1px 2px rgba(0,0,0,.4)}
+.ev.ev-injury{border-left-color:var(--loss);background:color-mix(in srgb,var(--loss) 10%,var(--stand))}
+.ev .injico{display:inline-block;color:var(--loss);font-weight:900;margin-right:4px}
+.ev .injtag{font-family:var(--num);font-size:10px;font-weight:700;letter-spacing:.04em;padding:1px 6px;border-radius:7px;margin-left:4px;white-space:nowrap}
+.ev .injtag.minor{background:rgba(255,138,60,.22);color:#ffb37a} .ev .injtag.moderate{background:rgba(232,99,79,.22);color:#ff9d8c} .ev .injtag.serious{background:var(--loss);color:#fff}
+/* treatment room / injury hub */
+.treatroom{border:1px solid color-mix(in srgb,var(--loss) 35%,var(--line))}
+.injlist{display:flex;flex-direction:column;gap:7px}
+.injrow{display:flex;align-items:center;gap:10px;background:var(--stand2);border-radius:10px;padding:9px 12px;border-left:3px solid var(--muted)}
+.injrow.minor{border-left-color:var(--c-orange)} .injrow.moderate{border-left-color:var(--loss)} .injrow.serious{border-left-color:var(--loss);box-shadow:0 0 0 1px rgba(232,99,79,.4)}
+.injrow b{font-size:15px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.injrow .injmeta{font-size:12px;color:var(--muted)}
+.injrow .injdot{width:10px;height:10px;border-radius:50%;background:var(--loss);flex:none;box-shadow:0 0 8px rgba(232,99,79,.6)}
+.injrow.minor .injdot{background:var(--c-orange);box-shadow:0 0 8px rgba(255,138,60,.6)}
+.injrow .injout{margin-left:auto;font-family:var(--num);font-weight:700;font-size:20px;color:var(--loss);line-height:1;text-align:right}
+.injrow .injout small{display:block;font-size:9px;font-weight:600;color:var(--muted);letter-spacing:.04em}
 .ev .m{font-family:var(--num);font-weight:700;color:var(--muted)}
 @keyframes in{from{opacity:.2;transform:translateY(6px)}}
 /* live match stats */

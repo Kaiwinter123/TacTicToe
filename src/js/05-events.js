@@ -32,6 +32,7 @@ function handle(act,el){
     }
     case "subin": {
       const p=byId(el.dataset.id); if(!p) return;
+      if(isInjured(p)){ toast(`${surname(p.n)} is injured and can't be selected.`); return; }
       const sls=slots();
       let idx = sls.findIndex(([pos],i)=>!S.xi[i] && pos===p.pos);
       if(idx<0) idx = sls.findIndex((x,i)=>!S.xi[i]);
@@ -84,7 +85,7 @@ function nextSeason(){
   S.history.push({season:S.season,pos,pts:tbl[pos-1].pts,cup:cupRes,title:pos===1});
   if(pos===1) S.trophies++;
   const summer=50; S.budget+=prize+summer; S.season++; S.round=0; S.results=[]; S.last=null; S.januaryDone=false; S.lastStar=null;
-  S.squad.forEach(p=>{ if(p.prospect && p.ovr<PROSPECT_CAP){ p.ovr=Math.min(PROSPECT_CAP,p.ovr+1); p.a=attrsFor(p.ovr,p.pos,p.rid); } });
+  S.squad.forEach(p=>{ if(p.inj) delete p.inj; if(p.prospect && p.ovr<PROSPECT_CAP){ p.ovr=Math.min(PROSPECT_CAP,p.ovr+1); p.a=attrsFor(p.ovr,p.pos,p.rid); } });
   S.teams=newSeasonTeams(S.teams);
   S.fixtures=makeFixtures(["you"].concat(S.teams.map(t=>t.id)));
   S.cup=makeCup(4); S.schedFixed=true;

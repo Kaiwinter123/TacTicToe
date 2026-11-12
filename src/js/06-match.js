@@ -60,6 +60,8 @@ function showSocial(ctx, onDone){
   const form=meRow.form||[]; let sv=form.length?form[form.length-1]:null, streak=0; for(let i=form.length-1;i>=0&&form[i]===sv;i--) streak++;
   const star = S.lastStar ? surname(S.lastStar) : null;
   const ctxLines=[];
+  if(ctx.injury) ctxLines.unshift("😬 Injury blow — {injured} limps off for {club}. {manager} has a reshuffle on his hands.");
+  (ctx.recovered||[]).slice(0,1).forEach(n=> ctxLines.push("➕ "+esc(surname(n))+" is back from injury for {club} — a lift for {manager}."));
   if(ctx.motm) ctxLines.push("⭐ {motm} was the standout today — give that man the headlines. {manager} will be buzzing.");
   if(S.lastStar) ctxLines.push("BREAKING 📝 {club} have signed {star}! Proper statement of intent from {manager}.");
   if(ctx.january) ctxLines.push("💰 {club} hand {manager} a £30m January top-up. Spend it well, gaffer!");
@@ -69,7 +71,7 @@ function showSocial(ctx, onDone){
   if(streak>=3 && sv==="W") ctxLines.push(streak+" wins on the spin!! {club} are UNREAL right now 🔥 {manager} magic.");
   if(streak>=3 && sv==="L") ctxLines.push(streak+" defeats in a row... is {manager} losing the dressing room? 😤");
   const fill = t => t.replace(/{club}/g,esc(club)).replace(/{opp}/g,esc(ctx.opp)).replace(/{manager}/g,esc(manager))
-    .replace(/{score}/g,esc(ctx.score)).replace(/{scorer}/g,esc(scorer||"the lads")).replace(/{player}/g,esc(scape)).replace(/{verb}/g,esc(verb)).replace(/{star}/g,esc(star||"a new face")).replace(/{motm}/g,esc(ctx.motm?surname(ctx.motm):"the skipper"));
+    .replace(/{score}/g,esc(ctx.score)).replace(/{scorer}/g,esc(scorer||"the lads")).replace(/{player}/g,esc(scape)).replace(/{verb}/g,esc(verb)).replace(/{star}/g,esc(star||"a new face")).replace(/{motm}/g,esc(ctx.motm?surname(ctx.motm):"the skipper")).replace(/{injured}/g,esc(ctx.injury?surname(ctx.injury):"a key man"));
   S.lastStar=null; // consumed
   let lines = ctxLines.slice(0,2).concat(tone.slice().sort(()=>Math.random()-.5).slice(0,3));
   lines.splice(ri(1,Math.max(1,lines.length)),0, pick(T_PUNDIT));
@@ -213,6 +215,15 @@ const MISS_TXT=["fires just wide","drags it past the far post","blazes over from
 const WOOD_TXT=["rattles the crossbar","clips the outside of the post","smashes it against the upright"];
 const CORNER_TXT=["wins a corner","forces a corner after a goalmouth scramble","swings in a dangerous corner"];
 const CARD_TXT=["is booked for a late challenge","goes into the book for dissent","picks up a yellow for a cynical foul"];
+// injury severity tiers (games = matches the player will miss)
+const INJ_TIERS=[
+  {label:"Knock",         sev:"minor",    min:1, max:1,  weight:34},
+  {label:"Minor strain",  sev:"minor",    min:2, max:3,  weight:30},
+  {label:"Pulled muscle", sev:"moderate", min:4, max:6,  weight:22},
+  {label:"Serious injury",sev:"serious",  min:8, max:12, weight:14}
+];
+function pickInjTier(){ const tot=INJ_TIERS.reduce((a,t)=>a+t.weight,0); let r=Math.random()*tot; for(const t of INJ_TIERS){ r-=t.weight; if(r<=0) return t; } return INJ_TIERS[0]; }
+const INJ_TXT=["pulls up and can't continue","goes down holding their hamstring","lands awkwardly and signals to the bench","limps off after a heavy challenge"];
 function teamScorers(team){
   if(team==="you") return S.xi.map(byId).filter(Boolean);
   const ci=+String(team).slice(1);
@@ -260,10 +271,18 @@ function simMatch(h,a,ment){
     else if(kind==="wood") txt=(who?surname(who)+" ":"")+pick(WOOD_TXT);
     else txt=(who?surname(who)+" ":"A "+teamInfo(team).short+" player ")+pick(CARD_TXT);
     events.push({min:ri(1,90),team,type:kind,who,txt}); }
+  // random injury to one of your players on the pitch (~1 in 6 matches)
+  let injury=null;
+  if(Math.random()<1/6){
+    const xi=S.xi.map(byId).filter(p=>p&&!isInjured(p));
+    if(xi.length){ const v=pick(xi), t=pickInjTier(), games=ri(t.min,t.max);
+      injury={pid:v.id, who:v.n, pos:v.pos, label:t.label, sev:t.sev, games};
+      events.push({min:ri(12,86),team:"you",type:"injury",who:v.n,label:t.label,sev:t.sev,games,txt:surname(v.n)+" "+pick(INJ_TXT)}); }
+  }
   events.sort((x,y)=>x.min-y.min);
   const possH=clamp(Math.round(50+(lh-la)*9+(Math.random()*8-4)),30,70);
   const motm=pickMOTM(h,a,gh,ga,events);
-  return {lh,la,gh,ga,events,poss:[possH,100-possH],motm,ment};
+  return {lh,la,gh,ga,events,poss:[possH,100-possH],motm,ment,injury};
 }
 // shots/on-target/corners derived from the timeline so live totals match the summary
 function matchStats(events,h,a,poss){
@@ -273,6 +292,26 @@ function matchStats(events,h,a,poss){
     else if(e.type==="miss"||e.type==="wood"){sh[e.team]++;}
     else if(e.type==="corner"){co[e.team]++;} });
   return {poss, shots:[sh[h],sh[a]], sot:[st[h],st[a]], corners:[co[h],co[a]]};
+}
+// Tick existing injuries down a match, then apply this match's new injury (if any).
+function processInjuries(sim){
+  const recovered=[];
+  S.squad.forEach(p=>{ if(p.inj && p.inj.games>0){ p.inj.games--; if(p.inj.games<=0){ recovered.push(p.n); delete p.inj; } } });
+  let injured=null;
+  if(sim.injury){ const v=byId(sim.injury.pid);
+    if(v && !isInjured(v)){
+      v.inj={label:sim.injury.label, sev:sim.injury.sev, games:sim.injury.games};
+      const slot=S.xi.indexOf(v.id); let repName=null;
+      if(slot>=0){ const pos=slots()[slot][0], rep=bestFitFor(pos); S.xi[slot]=rep?rep.id:null; repName=rep?rep.n:null; }
+      injured={who:v.n, label:sim.injury.label, sev:sim.injury.sev, games:sim.injury.games, replacedBy:repName};
+    }
+  }
+  return {recovered, injured};
+}
+function injuryToast(res){
+  if(res.injured){ const i=res.injured;
+    toast(`✚ ${surname(i.who)} — ${i.label.toLowerCase()}, out ${i.games} game${i.games>1?"s":""}.`+(i.replacedBy?` ${surname(i.replacedBy)} fills in.`:" Re-pick your XI in Squad."));
+  } else if(res.recovered.length){ toast(`➕ ${surname(res.recovered[0])} is back from injury.`); }
 }
 function showMatchOverlay(o, onDone){
   const H=teamInfo(o.h), A=teamInfo(o.a), events=o.events, gh=o.gh, ga=o.ga;
@@ -321,11 +360,13 @@ function showMatchOverlay(o, onDone){
       else if(e.type==="save"){ live.sh[si]++; live.st[si]++; mom=clamp(mom+(si===0?0.24:-0.24),-1,1); }
       else if(e.type==="miss"||e.type==="wood"){ live.sh[si]++; mom=clamp(mom+(si===0?0.2:-0.2),-1,1); }
       else if(e.type==="corner"){ live.co[si]++; mom=clamp(mom+(si===0?0.12:-0.12),-1,1); }
+      else if(e.type==="injury"){ mom=clamp(mom+(si===0?-0.1:0.1),-1,1); }
       const late=e.type==="goal"&&e.min>=85;
       const d=document.createElement("div"); d.className="ev ev-"+e.type+(e.type==="goal"&&!us?" ev-them":"")+(late?" ev-late":"");
       let body;
       if(e.type==="goal"){ body=`<b>${e.pen?"PENALTY \u2014 GOAL!":"GOAL!"}</b> ${esc(surname(e.who))} ${esc(e.desc)} for ${esc(tn.name)}.${e.assist?` <span class="assist">Assist: ${esc(surname(e.assist))}</span>`:""}${late?` <span class="latetag">LATE DRAMA</span>`:""}`; }
       else if(e.type==="card"){ body=`<span class="yc">\u25ac</span> ${esc(e.txt)}.`; }
+      else if(e.type==="injury"){ body=`<span class="injico">\u271a</span> <b>Injury \u2014</b> ${esc(e.txt)}. <span class="injtag ${esc(e.sev)}">${esc(e.label)} \u00b7 out ${e.games} game${e.games>1?"s":""}</span>`; }
       else { body=`${esc(e.txt)}.`; }
       d.innerHTML=`<span class="m">${e.min}'</span><span>${body}</span>`;
       feed.prepend(d);
@@ -372,6 +413,7 @@ function playMatch(){
     if(mine>theirs) rec.w++; else if(mine<theirs) rec.l++; else rec.d++;
     rec.log.push({s:S.season,md:r+1,home,m:mine,t:theirs}); if(rec.log.length>12) rec.log=rec.log.slice(-12);
     recordWin(mine,theirs,oppId,"League");
+    const injRes=processInjuries(sim);
     let januaryBoost=false;
     if(!S.januaryDone && mDateObj(r).getUTCMonth()===0){ S.budget+=30; S.januaryDone=true; januaryBoost=true; }
     const byes=advanceByes(); save();
@@ -379,9 +421,9 @@ function playMatch(){
     const title="Premier League \u00b7 Matchday "+(r+1)+" \u00b7 "+venue;
     const word=mine>theirs?"Win":mine<theirs?"Defeat":"Draw";
     const color=mine>theirs?"var(--win)":mine<theirs?"var(--loss)":"var(--draw)";
-    const social={win:mine>theirs?1:mine<theirs?-1:0, score:gh+"\u2013"+ga, scorers:events.filter(e=>e.type==="goal"&&e.team==="you").map(e=>e.who), opp:teamInfo(oppId).name, oppShort:teamInfo(oppId).short, january:januaryBoost, motm:motm&&(mine>=theirs)?motm.n:null};
+    const social={win:mine>theirs?1:mine<theirs?-1:0, score:gh+"\u2013"+ga, scorers:events.filter(e=>e.type==="goal"&&e.team==="you").map(e=>e.who), opp:teamInfo(oppId).name, oppShort:teamInfo(oppId).short, january:januaryBoost, motm:motm&&(mine>=theirs)?motm.n:null, injury:injRes.injured?injRes.injured.who:null, recovered:injRes.recovered};
     showMatchOverlay({h,a,lh,la,events,gh,ga,poss,motm,title,word,color,note:"+"+money(earn),social}, ()=>{
-      const fin=()=>{ render(); if(byes) toast("Your club had no fixture on that matchday. Those results are in the table."); };
+      const fin=()=>{ render(); if(byes) toast("Your club had no fixture on that matchday. Those results are in the table."); else injuryToast(injRes); };
       if(januaryBoost) showJanuaryNotice(fin); else fin();
     });
   };
@@ -412,14 +454,15 @@ function playCup(){
     S.budget+=earn;
     if(won){ if(isFinal){ c.won=true; S.cupTrophies=(S.cupTrophies||0)+1; S.budget+=30; } else c.idx++; } else c.out=true;
     recordWin(mine,theirs,oppId,"League Cup");
+    const injRes=processInjuries(sim);
     save();
     const venue=isFinal?"Wembley Stadium (neutral)":(home?"Home \u00b7 "+S.club.stadium:"Away \u00b7 "+(stadiumFor(teamInfo(oppId).short)||teamInfo(oppId).name));
     const title="League Cup \u00b7 "+tie.name+" \u00b7 "+venue;
     const word=won?(isFinal?"CUP WINNERS \ud83c\udfc6":"Through \u2714"):"Knocked out";
     const color=won?"var(--win)":"var(--loss)";
     const pensTxt=pens?(won?"Won "+pens[0]+"\u2013"+pens[1]+" on pens \u00b7 ":"Lost "+pens[1]+"\u2013"+pens[0]+" on pens \u00b7 "):"";
-    const social={win:won?1:-1, score:gh+"\u2013"+ga, scorers:events.filter(e=>e.type==="goal"&&e.team==="you").map(e=>e.who), opp:teamInfo(oppId).name, oppShort:teamInfo(oppId).short, cup:{won, final:isFinal, round:tie.name}, motm:motm&&won?motm.n:null};
-    showMatchOverlay({h,a,lh,la,events,gh,ga,poss,motm,title,word,color,note:pensTxt+"+"+money(earn),social,theme:"cup"}, ()=> render());
+    const social={win:won?1:-1, score:gh+"\u2013"+ga, scorers:events.filter(e=>e.type==="goal"&&e.team==="you").map(e=>e.who), opp:teamInfo(oppId).name, oppShort:teamInfo(oppId).short, cup:{won, final:isFinal, round:tie.name}, motm:motm&&won?motm.n:null, injury:injRes.injured?injRes.injured.who:null, recovered:injRes.recovered};
+    showMatchOverlay({h,a,lh,la,events,gh,ga,poss,motm,title,word,color,note:pensTxt+"+"+money(earn),social,theme:"cup"}, ()=>{ render(); injuryToast(injRes); });
   };
   showMatchPreview(info, kick);
 }

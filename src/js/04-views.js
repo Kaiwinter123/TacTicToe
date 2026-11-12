@@ -188,7 +188,9 @@ function vSquad(){
   const subMode = ui.slot!==null;
   const outP = subMode ? byId(S.xi[ui.slot]) : null;
   const bench = S.squad.filter(p=>!inXI.has(p.id));
-  const list = bench.filter(p=>ui.filter==="ALL"||p.pos===ui.filter).sort((a,b)=>POS.indexOf(a.pos)-POS.indexOf(b.pos)||b.ovr-a.ovr);
+  const injured = bench.filter(isInjured);
+  const benchFit = bench.filter(p=>!isInjured(p));
+  const list = benchFit.filter(p=>ui.filter==="ALL"||p.pos===ui.filter).sort((a,b)=>POS.indexOf(a.pos)-POS.indexOf(b.pos)||b.ovr-a.ovr);
   const sel = ui.sel && byId(ui.sel);
   return `<div class="grid2">
     <section class="panel stack pitchpanel">
@@ -212,15 +214,24 @@ function vSquad(){
         : `<p class="muted" style="margin:0;font-size:13px">Tap a player on the pitch to take them off, then tap a sub below. Tap two pitch positions to swap them.</p>`}
     </section>
     <section class="stack">
+      <div class="panel stack treatroom">
+        <div class="row" style="justify-content:space-between"><span class="eyebrow">⚕ Treatment room</span><span class="muted">${injured.length?injured.length+" injured":"fully fit"}</span></div>
+        ${injured.length?`<div class="injlist">${injured.sort((a,b)=>b.inj.games-a.inj.games).map(p=>`
+          <div class="injrow ${esc(p.inj.sev)}"><span class="injdot"></span>
+            <div style="min-width:0"><b>${esc(p.n)}</b><span class="injmeta">${p.pos} · ${esc(p.inj.label)}</span></div>
+            <span class="injout">${p.inj.games}<small>game${p.inj.games>1?"s":""}</small></span></div>`).join("")}</div>
+          <p class="muted" style="margin:0;font-size:12px">Injured players can’t be selected until they recover. Each match played brings them a game closer to fitness.</p>`
+        :`<p class="muted" style="margin:0">No injuries — your whole squad is available. 💪</p>`}
+      </div>
       ${sel?`<div class="panel row" style="align-items:flex-start;gap:16px">${card(sel)}<div class="stack" style="flex:1;min-width:160px">
         <h3 style="font-size:26px">${esc(sel.n)}</h3><span class="muted">${sel.pos} · rated ${sel.ovr} · on the bench</span>
         <span>Sale value <b class="num" style="color:var(--flood)">${money(value(sel.ovr))}</b></span>
         <div class="row"><button class="btn small primary" data-act="subin" data-id="${sel.id}" style="font-size:14px;padding:8px 14px">Bring into XI</button><button class="btn small danger" data-act="sell" data-id="${sel.id}" ${S.squad.length<=11?"disabled":""}>Sell for ${money(value(sel.ovr))}</button><button class="btn small" data-act="desel">Close</button></div></div></div>`:""}
       <div class="panel stack">
-        <div class="row" style="justify-content:space-between"><span class="eyebrow">${subMode?"Tap a substitute":"Substitutes"} · ${bench.length} on the bench</span>
+        <div class="row" style="justify-content:space-between"><span class="eyebrow">${subMode?"Tap a substitute":"Substitutes"} · ${benchFit.length} available</span>
         <div class="filters">${["ALL"].concat(POS).map(f=>`<button class="chip" data-act="filter" data-f="${f}" aria-pressed="${ui.filter===f}">${f==="ALL"?"All":f}</button>`).join("")}</div></div>
         <div class="squadgrid">${list.map(p=>card(p,{sm:true,act:"pcard",sel:ui.sel===p.id,subin:subMode})).join("")||`<p class="muted">${bench.length?"No subs in this position.":"Everyone is in your starting XI. Open packs to add depth."}</p>`}</div>
-        <p class="muted" style="margin:0;font-size:12px">${S.squad.length}/${MAX_SQUAD} players signed · 11 in your XI, ${bench.length} on the bench</p>
+        <p class="muted" style="margin:0;font-size:12px">${S.squad.length}/${MAX_SQUAD} players signed · 11 in your XI, ${benchFit.length} on the bench${injured.length?` · ${injured.length} injured`:""}</p>
       </div>
     </section>
   </div>`;
@@ -250,7 +261,10 @@ function vAdmin(){
 }
 function ordinalPos(n){ return n>0?ordinal(n):"\u2014"; }
 const CHANGELOG = [
-  {tag:"NEW", accent:"var(--c-orange)", date:"Latest", title:"Matchday overhaul",
+  {tag:"NEW", accent:"var(--loss)", date:"Latest", title:"Injuries & the Treatment Room",
+   body:"Your players can now pick up injuries during matches — about one every six games.",
+   items:["Four severities, from a one-game Knock to a serious injury that sidelines a player for 8–12 matches.","Injuries show live in the match feed; injured players can’t be picked until they recover — one game closer each match.","A new Treatment Room on the Squad screen lists everyone currently injured and their return time.","A fit sub is pulled into your XI automatically when someone goes down, and season’s end clears the lot."]},
+  {tag:"NEW", accent:"var(--c-orange)", date:"Recent", title:"Matchday overhaul",
    body:"The live match is richer and more interactive than ever before.",
    items:["Choose your approach before kick-off — Defensive, Balanced or Attacking — and it changes how the match actually plays out.","Live commentary with named players, assists, penalties, saves, woodwork, bookings and late-drama goals.","Live match stats: possession, shots, shots on target and corners.","A Player of the Match at full time, carried into the fan reactions."]},
   {tag:"NEW", accent:"var(--c-blue)", date:"Recent", title:"Europe’s Finest cards",
