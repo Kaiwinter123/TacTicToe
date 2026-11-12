@@ -550,6 +550,13 @@ tr.rel td:first-child{box-shadow:inset 3px 0 0 var(--loss)}
 .cday .cha{font-family:var(--num);font-size:8px;color:var(--muted);margin-left:auto}
 .cday .cres{font-family:var(--num);font-weight:700;font-size:10px;margin-top:auto;color:var(--flood)}
 .cday.match.cup .cres{color:var(--elite)}
+/* European calendar days */
+.cday.match.euro.ucl{background:rgba(79,124,255,.16);border-color:#4f7cff} .cday.match.euro.ucl .cres{color:#4f7cff} .cday.match.euro.ucl.next{box-shadow:0 0 0 2px #4f7cff}
+.cday.match.euro.uel{background:rgba(255,138,42,.16);border-color:#ff8a2a} .cday.match.euro.uel .cres{color:#ff8a2a} .cday.match.euro.uel.next{box-shadow:0 0 0 2px #ff8a2a}
+.cday.match.euro.uecl{background:rgba(54,217,122,.16);border-color:#36d97a} .cday.match.euro.uecl .cres{color:#36d97a} .cday.match.euro.uecl.next{box-shadow:0 0 0 2px #36d97a}
+.cday .ctag.ucl{background:#4f7cff;color:#fff} .cday .ctag.uel{background:#ff8a2a;color:#231000} .cday .ctag.uecl{background:#36d97a;color:#042914}
+.callegend .lg.euro.ucl{background:#4f7cff} .callegend .lg.euro.uel{background:#ff8a2a} .callegend .lg.euro.uecl{background:#36d97a}
+.calhead.uclhead{border-color:#4f7cff} .calhead.uelhead{border-color:#ff8a2a} .calhead.ueclhead{border-color:#36d97a}
 @media (max-width:460px){.calmonths{grid-template-columns:1fr}.cday .cop{font-size:8px}.cday .cmx svg{width:12px;height:14px}}
 /* calendar */
 .calhead{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:var(--stand);border:1px solid var(--flood);border-radius:12px;padding:16px 18px}

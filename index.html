@@ -563,6 +563,13 @@ tr.rel td:first-child{box-shadow:inset 3px 0 0 var(--loss)}
 .cday .cha{font-family:var(--num);font-size:8px;color:var(--muted);margin-left:auto}
 .cday .cres{font-family:var(--num);font-weight:700;font-size:10px;margin-top:auto;color:var(--flood)}
 .cday.match.cup .cres{color:var(--elite)}
+/* European calendar days */
+.cday.match.euro.ucl{background:rgba(79,124,255,.16);border-color:#4f7cff} .cday.match.euro.ucl .cres{color:#4f7cff} .cday.match.euro.ucl.next{box-shadow:0 0 0 2px #4f7cff}
+.cday.match.euro.uel{background:rgba(255,138,42,.16);border-color:#ff8a2a} .cday.match.euro.uel .cres{color:#ff8a2a} .cday.match.euro.uel.next{box-shadow:0 0 0 2px #ff8a2a}
+.cday.match.euro.uecl{background:rgba(54,217,122,.16);border-color:#36d97a} .cday.match.euro.uecl .cres{color:#36d97a} .cday.match.euro.uecl.next{box-shadow:0 0 0 2px #36d97a}
+.cday .ctag.ucl{background:#4f7cff;color:#fff} .cday .ctag.uel{background:#ff8a2a;color:#231000} .cday .ctag.uecl{background:#36d97a;color:#042914}
+.callegend .lg.euro.ucl{background:#4f7cff} .callegend .lg.euro.uel{background:#ff8a2a} .callegend .lg.euro.uecl{background:#36d97a}
+.calhead.uclhead{border-color:#4f7cff} .calhead.uelhead{border-color:#ff8a2a} .calhead.ueclhead{border-color:#36d97a}
 @media (max-width:460px){.calmonths{grid-template-columns:1fr}.cday .cop{font-size:8px}.cday .cmx svg{width:12px;height:14px}}
 /* calendar */
 .calhead{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:var(--stand);border:1px solid var(--flood);border-radius:12px;padding:16px 18px}
@@ -1673,6 +1680,12 @@ function calEvents(){
     let result=null,k=null; if(t.played){ result=t.score; k=t.won?"W":"L"; }
     ev[dkey(new Date(cupDate(t.week)))]={comp:"cup",oppId:t.opp,home:(t.name==="Final"?null:t.home),result,k,round:t.name,isNext:(ne&&ne.type==="cup"&&idx===S.cup.idx)};
   }); }
+  if(S.euro){ S.euro.rounds.forEach((t,idx)=>{
+    const show = t.played || (idx===S.euro.idx && !S.euro.out && !S.euro.won);
+    if(!show) return;
+    let result=null,k=null; if(t.played){ result=t.score; k=t.won?"W":"L"; }
+    ev[dkey(new Date(euroDate(t.week)))]={comp:"euro",theme:S.euro.theme,tag:EURO_META[S.euro.comp].short,compName:S.euro.name,oppId:t.opp,home:(t.name==="Final"?null:t.home),result,k,round:t.name,isNext:(ne&&ne.type==="euro"&&idx===S.euro.idx)};
+  }); }
   return ev;
 }
 function monthGrid(y,mo,ev,nowDay){
@@ -1685,8 +1698,11 @@ function monthGrid(y,mo,ev,nowDay){
     const past = Date.UTC(y,mo,dn) < nowDay;
     if(!e){ cells+=`<div class="cday${past?" past":""}"><span class="cdn">${dn}</span></div>`; continue; }
     const t=teamInfo(e.oppId), ha=e.home==null?"N":e.home?"H":"A";
-    cells+=`<div class="cday match ${e.comp}${e.isNext?" next":""}${e.k?" r"+e.k:""}${past?" past":""}" title="${esc(t.name)} (${e.comp==="cup"?"League Cup":"Premier League"})">
-      <span class="ctop"><span class="cdn">${dn}</span><span class="ctag ${e.comp}">${e.comp==="cup"?"CUP":"LGE"}</span></span>
+    const compClass=e.comp==="euro"?"euro "+e.theme:e.comp;
+    const compTitle=e.comp==="cup"?"League Cup":e.comp==="euro"?e.compName:"Premier League";
+    const tagClass=e.comp==="euro"?e.theme:e.comp, tagTxt=e.comp==="cup"?"CUP":e.comp==="euro"?e.tag:"LGE";
+    cells+=`<div class="cday match ${compClass}${e.isNext?" next":""}${e.k?" r"+e.k:""}${past?" past":""}" title="${esc(t.name)} (${esc(compTitle)})">
+      <span class="ctop"><span class="cdn">${dn}</span><span class="ctag ${tagClass}">${tagTxt}</span></span>
       <span class="cmx">${crest(t.c1,t.c2,t.short,15)}<span class="cop">${esc(t.short)}</span><span class="cha">${ha}</span></span>
       <span class="cres">${e.result?e.result[0]+"\u2013"+e.result[1]:(e.isNext?"NEXT":ha)}</span>
     </div>`;
@@ -1699,29 +1715,31 @@ function vCalendar(tbl){
   if(!ne){ const pos=tbl.findIndex(r=>r.id==="you")+1;
     head=`<div class="calhead done"><div><span class="eyebrow">Season ${S.season} finished</span><div class="cal-next">${pos===1?"Champions of England":ordinal(pos)+" in the league"}</div></div><button class="btn primary" data-act="next-season">Start season ${S.season+1}</button></div>`;
   } else {
-    const isCup=ne.type==="cup", t=isCup?ne.tie:null;
-    const home=isCup?(t.name==="Final"?true:t.home):(myFixture(S.round).m[0]==="you");
-    const oppId=isCup?t.opp:(home?myFixture(S.round).m[1]:myFixture(S.round).m[0]);
-    const opp=teamInfo(oppId), d=isCup?new Date(cupDate(t.week)):mDateObj(S.round);
-    const comp=isCup?("League Cup \u00b7 "+t.name):("Matchday "+(S.round+1));
+    const isCup=ne.type==="cup", isEuro=ne.type==="euro", t=(isCup||isEuro)?ne.tie:null;
+    const home=t?(t.name==="Final"?true:t.home):(myFixture(S.round).m[0]==="you");
+    const oppId=t?t.opp:(home?myFixture(S.round).m[1]:myFixture(S.round).m[0]);
+    const opp=teamInfo(oppId), d=isEuro?new Date(euroDate(t.week)):isCup?new Date(cupDate(t.week)):mDateObj(S.round);
+    const comp=isEuro?(S.euro.name+" \u00b7 "+t.name):isCup?("League Cup \u00b7 "+t.name):("Matchday "+(S.round+1));
+    const accent=isEuro?({ucl:"#4f7cff",uel:"#ff8a2a",uecl:"#36d97a"})[S.euro.theme]:isCup?"var(--elite)":"var(--flood)";
     const filled=S.xi.filter(Boolean).length;
-    head=`<div class="calhead ${isCup?"cuphead":""}"><div style="min-width:0"><span class="eyebrow">Next up \u00b7 ${CAL_WD[d.getUTCDay()]} ${d.getUTCDate()} ${CAL_MO[d.getUTCMonth()]} \u00b7 <b style="color:${isCup?"var(--elite)":"var(--flood)"}">${esc(comp)}</b></span>
-      <div class="cal-next">${crest(opp.c1,opp.c2,opp.short,26)}<span>${esc(opp.name)}</span><span class="muted" style="font-weight:400">${isCup&&t.name==="Final"?"Neutral":home?"Home":"Away"}</span></div>
+    head=`<div class="calhead ${isEuro?S.euro.theme+"head":isCup?"cuphead":""}"><div style="min-width:0"><span class="eyebrow">Next up \u00b7 ${CAL_WD[d.getUTCDay()]} ${d.getUTCDate()} ${CAL_MO[d.getUTCMonth()]} \u00b7 <b style="color:${accent}">${esc(comp)}</b></span>
+      <div class="cal-next">${crest(opp.c1,opp.c2,opp.short,26)}<span>${esc(opp.name)}</span><span class="muted" style="font-weight:400">${t&&t.name==="Final"?"Neutral":home?"Home":"Away"}</span></div>
       ${filled<11?`<span class="muted" style="font-size:13px">${11-filled} empty slot${filled===10?"":"s"} \u2014 a youth player fills in.</span>`:""}</div>
       <button class="btn primary" data-act="play">Advance \u25b6</button></div>`;
   }
   const ev=calEvents();
-  const nowMs = ne ? (ne.type==="cup"? cupDate(ne.tie.week) : mDateObj(S.round).getTime()) : (seasonStart()+(S.fixtures.length)*7*864e5);
+  const nowMs = ne ? (ne.type==="euro"? euroDate(ne.tie.week) : ne.type==="cup"? cupDate(ne.tie.week) : mDateObj(S.round).getTime()) : (seasonStart()+(S.fixtures.length)*7*864e5);
   const nd=new Date(nowMs), nowDay=Date.UTC(nd.getUTCFullYear(),nd.getUTCMonth(),nd.getUTCDate());
   const startD=new Date(seasonStart()), lastD=new Date(seasonStart()+(S.fixtures.length-1)*7*864e5);
   let grids="";
   for(let d=new Date(Date.UTC(startD.getUTCFullYear(),startD.getUTCMonth(),1)); d<=lastD; d=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,1)))
     grids+=monthGrid(d.getUTCFullYear(),d.getUTCMonth(),ev,nowDay);
   const cup=S.cup, cupLine = cup? (cup.won?"\ud83c\udfc6 League Cup WINNERS":cup.out?"League Cup \u00b7 knocked out ("+cup.rounds[cup.idx].name+")":"League Cup \u00b7 "+cup.rounds[cup.idx].name) : "";
+  const eu=S.euro, euLine = eu? (eu.won?"\ud83c\udfc6 "+eu.name+" WINNERS":eu.out?eu.name+" \u00b7 knocked out ("+eu.rounds[eu.idx].name+")":eu.name+" \u00b7 "+eu.rounds[eu.idx].name) : "";
   return `<section class="stack">
     <div class="row" style="justify-content:space-between"><h2 style="font-size:36px">Calendar</h2><span class="muted">Season ${S.season} \u00b7 ${2025+S.season}/${String(26+S.season).padStart(2,"0")}</span></div>
     ${head}
-    <div class="callegend"><span><i class="lg league"></i>League</span><span><i class="lg cup"></i>League Cup</span><span>${esc(cupLine)}</span></div>
+    <div class="callegend"><span><i class="lg league"></i>League</span><span><i class="lg cup"></i>League Cup</span>${eu?`<span><i class="lg euro ${eu.theme}"></i>${esc(EURO_META[eu.comp].name)}</span>`:""}<span>${esc(cupLine)}</span>${eu?`<span>${esc(euLine)}</span>`:""}</div>
     <div class="calmonths">${grids}</div>
   </section>`;
 }
