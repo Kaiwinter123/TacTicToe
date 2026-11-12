@@ -212,6 +212,25 @@ main{padding-block:22px 60px}
 .mbar i{position:absolute;top:50%;width:16px;height:16px;border-radius:50%;border:2px solid #05080e;transform:translate(-50%,-50%);transition:left .35s ease,background .35s;box-shadow:0 2px 6px rgba(0,0,0,.5)}
 .momcap{display:flex;justify-content:space-between;width:min(560px,100%);font-family:var(--num);font-weight:700;font-size:12px;letter-spacing:.06em;color:var(--muted)}
 .momcap #momtxt{color:var(--chalk)}
+/* social reactions */
+.socov{gap:14px}
+.phone{width:min(400px,100%);max-height:76vh;display:flex;flex-direction:column;background:#000;border:10px solid #15151a;border-radius:34px;overflow:hidden;box-shadow:0 22px 64px rgba(0,0,0,.65)}
+.phnotch{height:24px;background:#15151a;position:relative;flex:none}
+.phnotch::after{content:"";position:absolute;left:50%;top:5px;transform:translateX(-50%);width:110px;height:16px;background:#000;border-radius:0 0 12px 12px}
+.phhead{display:flex;align-items:center;gap:12px;padding:9px 14px;border-bottom:1px solid #2f3336;color:#e7e9ea;background:#000;flex:none}
+.phhead .phback{font-size:22px;color:#e7e9ea}
+.phhead b{font-size:15px}.phhead .phsub{display:block;font-size:11px;color:#71767b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.phhead .phlogo{margin-left:auto;font-size:20px;color:#e7e9ea}
+.phfeed{overflow-y:auto;background:#000;color:#e7e9ea}
+.xp{display:grid;grid-template-columns:44px 1fr;gap:10px;padding:12px 14px;border-bottom:1px solid #2f3336;text-align:left}
+.xav{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-family:var(--body);font-weight:700;color:#fff;font-size:15px;flex:none}
+.xhead{display:flex;align-items:center;gap:5px;flex-wrap:wrap;font-size:14px;line-height:1.2}
+.xhead b{color:#e7e9ea;font-weight:700}
+.xver{color:#1d9bf0;font-size:12px}
+.xhandle,.xtime{color:#71767b;font-weight:400;font-size:13px}
+.xtext{margin:3px 0 9px;font-size:14px;line-height:1.4;color:#e7e9ea;word-break:break-word}
+.xacts{display:flex;justify-content:space-between;max-width:290px;color:#71767b;font-size:12.5px;font-family:var(--num)}
+.xacts span{display:inline-flex;align-items:center;gap:5px}
 /* pitch */
 .pitchpanel{position:sticky;top:calc(env(safe-area-inset-top,0px) + 132px);align-self:start}
 @media (max-width:760px){.pitchpanel{position:static}}
@@ -1118,6 +1137,85 @@ function autoPickIfBetter(){
 }
 
 /* ---------- match ---------- */
+// --- post-match social reactions (X-style) ---
+const SOCIAL_USERS=[
+  {n:"Terrace Talk",h:"@terracetalk",v:false},{n:"The Touchline",h:"@touchline90",v:true},
+  {n:"Footy Banter HQ",h:"@footybanterhq",v:false},{n:"xG Merchant",h:"@xg_merchant",v:false},
+  {n:"Gaffer's Corner",h:"@gafferscorner",v:true},{n:"Prem Pundit",h:"@prempundit",v:true},
+  {n:"Ultra Dan",h:"@dan_ultra",v:false},{n:"The Boot Room",h:"@thebootroom",v:false},
+  {n:"Half-Time Takes",h:"@halftimetakes",v:false},{n:"Megan ⚽",h:"@meg_matchday",v:false},
+  {n:"The 12th Man",h:"@twelfthman_",v:false},{n:"Sunday League Scout",h:"@parkfootyscout",v:false},
+  {n:"Rory",h:"@rory_httid",v:false},{n:"Matchday Minutes",h:"@mdminutes",v:true}
+];
+const AVCOL=["#1d9bf0","#e0245e","#17bf63","#f45d22","#794bc4","#f4c84b","#00b4d8","#ff7b00"];
+const T_WIN=[
+  "GET IN!! {club} were brilliant today. {manager} has them flying. {score} 🔥",
+  "{scorer} take a bow 👏 absolutely unplayable this afternoon. We are SO back.",
+  "Say what you want about {manager} but {club} look the real deal right now. Big one over {opp}.",
+  "{score} and it could've been more. Defence solid, {scorer} clinical. Perfect day 🙌",
+  "{manager} out-thought {opp} from minute one. Love this team man ❤️",
+  "Book the parade 😂 {club} looking unstoppable. {scorer} is HIM.",
+  "Three points, clean sheet energy, momentum building. {manager} knows exactly what he's doing."
+];
+const T_DRAW=[
+  "A point vs {opp}. {club} huffed and puffed but no cutting edge. {manager} needs a plan B.",
+  "{score}. Led it, gave it back. Same old {club} 🤦 frustrating watch.",
+  "Not a disaster, not a triumph. {manager} will call it a point gained. I call it two dropped.",
+  "Honestly that was... fine? Need way more from the forwards if we're being real.",
+  "Decent point against {opp} to be fair. {manager} steadying the ship 👏",
+  "{club} fans split down the middle after that one. Me? I'm just numb 😅"
+];
+const T_LOSS=[
+  "Shambolic. {club} had no fight, no ideas. {manager} OUT. {score} flatters us 😡",
+  "How is {player} STILL starting?? Costing us every week. {manager} must see it surely.",
+  "{opp} bullied us all over the park. Worrying times at {club} #CrisisClub",
+  "Lost to {opp}... {score}. The defending was criminal. {manager} has serious questions.",
+  "Woeful. Spineless. Not good enough for this badge. Reaction needed and FAST.",
+  "{manager} is taking us NOWHERE. Same mistakes, same result. Fuming 🤬",
+  "{player} had a shocker but it's a team game — {manager} got the setup all wrong."
+];
+const T_PUNDIT=[
+  "TACTICAL NOTE: {manager}'s {club} were second best in midfield vs {opp}. Fixable, but a worry.",
+  "Neutral's view: {club} {verb} today. {score} vs {opp}. {manager} has a project on his hands.",
+  "The numbers don't lie — {club} {verb} against {opp}. One for the data heads 📊"
+];
+function socialAvatar(u){
+  let h=0; for(const c of u.h) h=(h*31+c.charCodeAt(0))>>>0;
+  const col=AVCOL[h%AVCOL.length];
+  const init=u.n.replace(/[^A-Za-z ]/g,"").trim().split(/\s+/).slice(0,2).map(w=>w[0]||"").join("").toUpperCase()||"?";
+  return `<span class="xav" style="background:${col}">${esc(init)}</span>`;
+}
+function fmtK(n){ return n>=1000 ? (n/1000).toFixed(1).replace(/\.0$/,"")+"K" : ""+n; }
+function showSocial(ctx, onDone){
+  const club=S.club.name, cshort=S.club.short, manager=S.manager;
+  const scorer = ctx.scorers.length ? surname(pick(ctx.scorers)) : null;
+  const xiP = S.xi.map(byId).filter(Boolean);
+  const scape = xiP.length ? surname(pick(xiP).n) : "the defence";
+  const verb = ctx.win>0?"deserved every bit of that":ctx.win<0?"were well below it":"just about earned their point";
+  const tone = ctx.win>0?T_WIN:ctx.win<0?T_LOSS:T_DRAW;
+  const fill = t => t.replace(/{club}/g,esc(club)).replace(/{opp}/g,esc(ctx.opp)).replace(/{manager}/g,esc(manager))
+    .replace(/{score}/g,esc(ctx.score)).replace(/{scorer}/g,esc(scorer||"the lads")).replace(/{player}/g,esc(scape)).replace(/{verb}/g,esc(verb));
+  const lines = tone.slice().sort(()=>Math.random()-.5).slice(0,4);
+  lines.splice(ri(1,3),0, pick(T_PUNDIT)); // drop a pundit take into the mix
+  const users = SOCIAL_USERS.slice().sort(()=>Math.random()-.5);
+  const posts = lines.map((t,i)=>{ const u=users[i%users.length]; const base=u.v?ri(400,5200):ri(8,900);
+    return {u, txt:fill(t), time:(i*4+1+ri(0,5))+"m", likes:base, rt:Math.floor(base/ (3+ri(0,4))), rep:ri(2,120)}; });
+  const sov=document.createElement("div"); sov.className="overlay socov"; sov.setAttribute("role","dialog"); sov.setAttribute("aria-label","Fan reaction");
+  sov.innerHTML=`<span class="eyebrow">Full time · the fans react</span>
+    <div class="phone">
+      <div class="phnotch"></div>
+      <div class="phhead"><span class="phback">‹</span><div style="min-width:0"><b>Match Chatter</b><span class="phsub">${esc(cshort)} ${esc(ctx.score)} ${esc(ctx.oppShort)} · trending now</span></div><span class="phlogo">𝕏</span></div>
+      <div class="phfeed">${posts.map(p=>`<article class="xp">${socialAvatar(p.u)}<div style="min-width:0">
+        <div class="xhead"><b>${esc(p.u.n)}</b>${p.u.v?'<span class="xver">✓</span>':''}<span class="xhandle">${esc(p.u.h)}</span><span class="xtime">· ${p.time}</span></div>
+        <div class="xtext">${p.txt}</div>
+        <div class="xacts"><span>🗨 ${p.rep}</span><span>🔁 ${fmtK(p.rt)}</span><span>♥ ${fmtK(p.likes)}</span><span>↗</span></div>
+      </div></article>`).join("")}</div>
+    </div>
+    <div class="row"><button class="btn primary" id="scont">Continue ▶</button></div>`;
+  document.body.appendChild(sov);
+  sov.querySelector("#scont").addEventListener("click",()=>{ sov.remove(); onDone(); });
+  sov.querySelector("#scont").focus();
+}
 function mDateObj(round){ const start=Date.UTC(2025+S.season,7,8); return new Date(start+Math.round(round*6.95)*864e5); }
 // Tick through the calendar days leading up to a match, then kick off.
 function runDays(r,h,a,done){
@@ -1238,8 +1336,8 @@ function playMatch(){
     sc.textContent=gh+"–"+ga; clk.textContent="FT";
     const k=mine>theirs?"Win":mine<theirs?"Defeat":"Draw";
     const row=ov.querySelector(".row");
-    row.innerHTML=`<span style="font-family:var(--display);font-size:28px;text-transform:uppercase;color:${mine>theirs?"var(--win)":mine<theirs?"var(--loss)":"var(--draw)"}">${k}</span><span class="muted">+${money(earn)}</span><button class="btn primary" id="cont">Continue</button>`;
-    ov.querySelector("#cont").addEventListener("click",()=>{ov.remove();render();if(byes)toast("Your club had no fixture on the next matchday. Those results are in the table.")});
+    row.innerHTML=`<span style="font-family:var(--display);font-size:28px;text-transform:uppercase;color:${mine>theirs?"var(--win)":mine<theirs?"var(--loss)":"var(--draw)"}">${k}</span><span class="muted">+${money(earn)}</span><button class="btn primary" id="cont">See the reaction 💬</button>`;
+    ov.querySelector("#cont").addEventListener("click",()=>{ showSocial({win:mine>theirs?1:mine<theirs?-1:0, score:gh+"–"+ga, scorers:events.filter(e=>e.goal&&e.team==="you").map(e=>e.who), opp:(h==="you"?A:H).name, oppShort:(h==="you"?A:H).short}, ()=>{ov.remove();render();if(byes)toast("Your club had no fixture on the next matchday. Those results are in the table.");}); });
     ov.querySelector("#cont").focus();
   };
   ov.querySelector("#skip").addEventListener("click",()=>{minute=89;step()});
