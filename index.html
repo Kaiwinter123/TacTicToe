@@ -359,7 +359,7 @@ const CLUBS = [
   ["Everton","EVE","#003399","#FFFFFF",77,"Jordan Pickford/GK/83 James Tarkowski/DEF/80 Jake O'Brien/DEF/78 Vitaliy Mykolenko/DEF/78 James Garner/MID/79 Kiernan Dewsbury-Hall/MID/79 Idrissa Gueye/MID/77 Iliman Ndiaye/FWD/81 Thierno Barry/FWD/77 Beto/FWD/76"],
   ["Fulham","FUL","#000000","#FFFFFF",78,"Bernd Leno/GK/81 Joachim Andersen/DEF/79 Antonee Robinson/DEF/79 Calvin Bassey/DEF/78 Emile Smith Rowe/MID/79 Alex Iwobi/MID/79 Sander Berge/MID/78 Saša Lukić/MID/78 Harry Wilson/FWD/78 Raúl Jiménez/FWD/77 Samuel Chukwueze/FWD/77"],
   ["Leeds United","LEE","#FFFFFF","#1D428A",75,"Lucas Perri/GK/77 Joe Rodon/DEF/77 Pascal Struijk/DEF/76 Jayden Bogle/DEF/75 Ethan Ampadu/MID/78 Anton Stach/MID/77 Brenden Aaronson/MID/76 Noah Okafor/FWD/77 Dominic Calvert-Lewin/FWD/77 Lukas Nmecha/FWD/75"],
-  ["Liverpool","LIV","#C8102E","#F6EB61",86,"Alisson/GK/86 Giorgi Mamardashvili/GK/82 Virgil van Dijk/DEF/87 Ibrahima Konaté/DEF/84 Jeremie Frimpong/DEF/82 Milos Kerkez/DEF/81 Alexis Mac Allister/MID/86 Florian Wirtz/MID/86 Ryan Gravenberch/MID/85 Dominik Szoboszlai/MID/85 Mohamed Salah/FWD/87 Alexander Isak/FWD/86 Bradley Barcola/FWD/84 Hugo Ekitiké/FWD/83 Cody Gakpo/FWD/83"],
+  ["Liverpool","LIV","#C8102E","#F6EB61",86,"Alisson/GK/86 Giorgi Mamardashvili/GK/82 Virgil van Dijk/DEF/87 Ibrahima Konaté/DEF/84 Jeremie Frimpong/DEF/82 Milos Kerkez/DEF/81 Alexis Mac Allister/MID/86 Florian Wirtz/MID/86 Ryan Gravenberch/MID/85 Dominik Szoboszlai/MID/85 Alexander Isak/FWD/86 Bradley Barcola/FWD/84 Hugo Ekitiké/FWD/83 Cody Gakpo/FWD/83"],
   ["Manchester City","MCI","#6CABDD","#1C2C5B",87,"Gianluigi Donnarumma/GK/87 Rúben Dias/DEF/85 Joško Gvardiol/DEF/85 Marc Guéhi/DEF/84 Rayan Aït-Nouri/DEF/81 Rodri/MID/88 Enzo Fernández/MID/86 Elliot Anderson/MID/85 Phil Foden/MID/85 Tijjani Reijnders/MID/84 Rayan Cherki/MID/84 Ayyoub Bouaddi/MID/80 Erling Haaland/FWD/91 Antoine Semenyo/FWD/83 Jérémy Doku/FWD/82 Omar Marmoush/FWD/82"],
   ["Manchester United","MUN","#DA291C","#FBE122",81,"Senne Lammens/GK/79 Lisandro Martínez/DEF/80 Matthijs de Ligt/DEF/80 Leny Yoro/DEF/79 Diogo Dalot/DEF/79 Bruno Fernandes/MID/86 Kobbie Mainoo/MID/79 Matheus Cunha/FWD/83 Bryan Mbeumo/FWD/83 Benjamin Šeško/FWD/81 Amad Diallo/FWD/80"],
   ["Newcastle United","NEW","#241F20","#FFFFFF",82,"Nick Pope/GK/82 Sven Botman/DEF/81 Malick Thiaw/DEF/80 Lewis Hall/DEF/79 Fabian Schär/DEF/79 Bruno Guimarães/MID/86 Joelinton/MID/81 Jacob Ramsey/MID/78 Anthony Gordon/FWD/83 Nick Woltemade/FWD/81 Anthony Elanga/FWD/80 Yoane Wissa/FWD/79"],
@@ -951,7 +951,7 @@ function vFixtures(){
 let draft = {manager:"",name:"",short:"",stadium:"",c1:"#e63946",c2:"#111111"};
 function gate(){
   const who = store.me;
-  const hero=["Erling Haaland","Bukayo Saka","Mohamed Salah"].map(n=>POOL.find(p=>p.n===n)).filter(Boolean).map(p=>{const q=makePlayer(p.ovr,p.pos);q.n=p.n;q.club=p.club;q.a=attrsFor(p.ovr,p.pos,p.rid);return q});
+  const hero=["Erling Haaland","Bukayo Saka","Cole Palmer"].map(n=>POOL.find(p=>p.n===n)).filter(Boolean).map(p=>{const q=makePlayer(p.ovr,p.pos);q.n=p.n;q.club=p.club;q.a=attrsFor(p.ovr,p.pos,p.rid);return q});
   return `<div class="wrap gate"><div class="gatecols"><div class="fan" aria-hidden="true">${hero.map(card).join("")}</div><div class="box">
     <div><span class="eyebrow">Premier League 2026/27 · pack-and-season game</span><h1>Tac<em>Tic</em>Toe</h1></div>
     ${store.kind==="db"&&who?`<div class="who"><img src="${esc(who.avatarUrl)}" alt=""><span>Signed in${who.name?" as <b>"+esc(who.name)+"</b>":""}. Your club saves to your account.</span></div>`
