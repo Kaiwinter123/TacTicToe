@@ -138,22 +138,33 @@ main{padding-block:22px 60px}
 .card.elite{--rim:var(--gold);box-shadow:0 0 0 2px var(--elite),0 0 26px rgba(233,196,92,.55),0 10px 30px rgba(0,0,0,.5)}
 .card::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.2) 44%,transparent 54%);background-size:250% 100%;background-position:100% 0}
 .card.elite::after{animation:sheen 3.2s ease-in-out infinite}
-.card.prospect{--rim:var(--c-teal);color:#eafffb;box-shadow:0 0 0 2px var(--c-teal),0 0 24px rgba(43,212,192,.5),0 10px 30px rgba(0,0,0,.5);
+.card.prospect{--rim:#9b5cff;color:#f3eaff;box-shadow:0 0 0 2px #7a3cff,0 0 24px rgba(123,60,255,.55),0 10px 30px rgba(0,0,0,.5);
   background:
-    linear-gradient(118deg,transparent 0 71.5%,rgba(190,255,244,.4) 71.5% 75.5%,transparent 75.5%) top/100% 58% no-repeat,
-    radial-gradient(ellipse 70% 46% at 50% 36%,rgba(140,255,238,.4),transparent 72%),
-    linear-gradient(160deg,#12807a 0%,#0c4f62 46%,#07293f 100%)}
-.card.prospect .rar{background:linear-gradient(90deg,var(--c-teal),#d8fff8,var(--c-teal));color:#06201d}
+    linear-gradient(118deg,transparent 0 71.5%,rgba(221,196,255,.42) 71.5% 75.5%,transparent 75.5%) top/100% 58% no-repeat,
+    radial-gradient(ellipse 70% 46% at 50% 36%,rgba(176,122,255,.42),transparent 72%),
+    linear-gradient(160deg,#4a1f86 0%,#2c1458 46%,#160a30 100%)}
+.card.prospect .rar{background:linear-gradient(90deg,#9b5cff,#e6d4ff,#9b5cff);color:#1a0b33}
 .card.prospect::after{animation:sheen 3.2s ease-in-out infinite}
-.card.prospect .ovr .rise{font-size:15px;color:#8dffe9;vertical-align:super;margin-left:1px;text-shadow:0 0 6px rgba(43,212,192,.7)}
-.card .pnote{font-family:var(--num);font-weight:700;font-size:8.5px;letter-spacing:.03em;text-align:center;background:rgba(3,22,20,.45);border:1px solid rgba(141,255,233,.55);color:#cffff6;border-radius:6px;padding:2px 4px;position:relative;z-index:1;line-height:1.25}
-.prospecttip{background:linear-gradient(120deg,rgba(43,212,192,.16),rgba(43,212,192,.05));border:1px solid rgba(43,212,192,.5);border-radius:12px;padding:12px 14px;font-size:14px;color:var(--ink,#eafffb)}
-.prospecttip b{color:var(--c-teal)}
-.futurebanner{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:30;writing-mode:vertical-rl;text-orientation:mixed;background:linear-gradient(180deg,var(--c-teal),#0c4f62);color:#06201d;font-family:var(--display);font-weight:900;letter-spacing:.16em;text-transform:uppercase;padding:18px 10px;border-radius:14px 0 0 14px;font-size:15px;box-shadow:0 0 22px rgba(43,212,192,.5),-4px 0 14px rgba(0,0,0,.4);border:2px solid rgba(141,255,233,.65);border-right:none;animation:fbglow 2.6s ease-in-out infinite}
-@keyframes fbglow{50%{box-shadow:0 0 34px rgba(43,212,192,.8),-4px 0 14px rgba(0,0,0,.4)}}
-@media (max-width:860px){.futurebanner{position:static;writing-mode:horizontal-tb;transform:none;border-radius:12px;border-right:2px solid rgba(141,255,233,.65);text-align:center;margin-bottom:2px}}
+.card.prospect .ovr .rise{font-size:15px;color:#d9b8ff;vertical-align:super;margin-left:1px;text-shadow:0 0 6px rgba(155,92,255,.75)}
+.card .pnote{font-family:var(--num);font-weight:700;font-size:8.5px;letter-spacing:.03em;text-align:center;background:rgba(20,8,40,.5);border:1px solid rgba(199,160,255,.6);color:#e9dcff;border-radius:6px;padding:2px 4px;position:relative;z-index:1;line-height:1.25}
+.prospecttip{background:linear-gradient(120deg,rgba(123,60,255,.18),rgba(123,60,255,.05));border:1px solid rgba(155,92,255,.5);border-radius:12px;padding:12px 14px;font-size:14px;color:#f3eaff}
+.prospecttip b{color:#b78cff}
+.ucltip{background:linear-gradient(120deg,rgba(58,160,255,.16),rgba(58,160,255,.05));border:1px solid rgba(58,160,255,.5);border-radius:12px;padding:12px 14px;font-size:14px;color:#eaf3ff;margin-top:10px}
+.ucltip b{color:var(--c-blue)}
+.futurebanner{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:30;writing-mode:vertical-rl;text-orientation:mixed;background:linear-gradient(180deg,#9b5cff,#3a1a70);color:#fff;font-family:var(--display);font-weight:900;letter-spacing:.16em;text-transform:uppercase;padding:18px 10px;border-radius:14px 0 0 14px;font-size:15px;box-shadow:0 0 22px rgba(123,60,255,.55),-4px 0 14px rgba(0,0,0,.4);border:2px solid rgba(199,160,255,.7);border-right:none;animation:fbglow 2.6s ease-in-out infinite}
+@keyframes fbglow{50%{box-shadow:0 0 34px rgba(123,60,255,.85),-4px 0 14px rgba(0,0,0,.4)}}
+@media (max-width:860px){.futurebanner{position:static;writing-mode:horizontal-tb;transform:none;border-radius:12px;border-right:2px solid rgba(199,160,255,.7);text-align:center;margin-bottom:2px}}
 @media (prefers-reduced-motion:reduce){.futurebanner{animation:none}}
 @media (prefers-reduced-motion:reduce){.card.prospect::after{animation:none}}
+.card.ucl{--rim:var(--c-blue);color:#eaf3ff;box-shadow:0 0 0 2px var(--c-blue),0 0 24px rgba(58,160,255,.55),0 10px 30px rgba(0,0,0,.5);
+  background:
+    linear-gradient(118deg,transparent 0 71.5%,rgba(200,224,255,.42) 71.5% 75.5%,transparent 75.5%) top/100% 58% no-repeat,
+    radial-gradient(ellipse 70% 46% at 50% 36%,rgba(120,180,255,.44),transparent 72%),
+    linear-gradient(160deg,#17387a 0%,#0e2c62 46%,#071633 100%)}
+.card.ucl .rar{background:linear-gradient(90deg,var(--c-blue),#dcebff,#dbeaff,var(--c-blue));color:#061634}
+.card.ucl::after{animation:sheen 3.2s ease-in-out infinite}
+.card.ucl .pnote{background:rgba(4,14,34,.5);border-color:rgba(141,190,255,.6);color:#d4e6ff}
+@media (prefers-reduced-motion:reduce){.card.ucl::after{animation:none}}
 @keyframes sheen{0%{background-position:100% 0}60%,100%{background-position:-60% 0}}
 .card .top{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1}
 .card .lhs{display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1}
@@ -493,26 +504,26 @@ input[type=text]{background:var(--night);border:1px solid var(--line);border-rad
 /* 2026/27 Premier League clubs: [name, short, kit colour, second colour, team strength, players "Name/POS/rating"].
    Ratings are this game's own estimates. Edit freely to keep squads current. */
 const CLUBS = [
-  ["Arsenal","ARS","#EF0107","#FFFFFF",87,"David Raya/GK/87 William Saliba/DEF/88 Gabriel Magalhães/DEF/87 Jurriën Timber/DEF/84 Piero Hincapié/DEF/82 Riccardo Calafiori/DEF/81 Declan Rice/MID/88 Martin Ødegaard/MID/86 Martín Zubimendi/MID/85 Eberechi Eze/MID/84 Bukayo Saka/FWD/88 Viktor Gyökeres/FWD/85 Gabriel Martinelli/FWD/81 Noni Madueke/FWD/81 Kai Havertz/FWD/81"],
-  ["Aston Villa","AVL","#670E36","#95BFE5",81,"Emiliano Martínez/GK/84 Ezri Konsa/DEF/82 Pau Torres/DEF/81 Matty Cash/DEF/79 Lucas Digne/DEF/78 Youri Tielemans/MID/82 Boubacar Kamara/MID/81 Johan Manzambi/MID/80 John McGinn/MID/80 Amadou Onana/MID/80 Ollie Watkins/FWD/84"],
-  ["Bournemouth","BOU","#DA291C","#000000",78,"Đorđe Petrović/GK/79 Adrien Truffert/DEF/77 Álex Jiménez/DEF/76 Marcos Senesi/DEF/78 Tyler Adams/MID/79 Marcus Tavernier/MID/79 Alex Scott/MID/78 Justin Kluivert/FWD/80 Evanilson/FWD/79"],
-  ["Brentford","BRE","#E30613","#FFFFFF",78,"Caoimhín Kelleher/GK/81 Nathan Collins/DEF/79 Sepp van den Berg/DEF/78 Kristoffer Ajer/DEF/76 Mikkel Damsgaard/MID/79 Mathias Jensen/MID/77 Jordan Henderson/MID/77 Igor Thiago/FWD/81 Kevin Schade/FWD/79 Dango Ouattara/FWD/78"],
-  ["Brighton","BHA","#0057B8","#FFFFFF",79,"Bart Verbruggen/GK/80 Jan Paul van Hecke/DEF/80 Lewis Dunk/DEF/78 Maxim De Cuyper/DEF/77 Carlos Baleba/MID/81 Diego Gómez/MID/78 Yasin Ayari/MID/77 Jack Hinshelwood/MID/77 Kaoru Mitoma/FWD/80 Yankuba Minteh/FWD/79 Danny Welbeck/FWD/77"],
-  ["Chelsea","CHE","#034694","#FFFFFF",85,"Robert Sánchez/GK/80 Reece James/DEF/83 Levi Colwill/DEF/82 Marc Cucurella/DEF/82 Wesley Fofana/DEF/80 Malo Gusto/DEF/80 Moisés Caicedo/MID/88 Cole Palmer/MID/87 Morgan Rogers/MID/85 Estêvão/FWD/83 João Pedro/FWD/83 Pedro Neto/FWD/81 Alejandro Garnacho/FWD/80 Liam Delap/FWD/79"],
-  ["Crystal Palace","CRY","#1B458F","#C4122E",79,"Dean Henderson/GK/82 Maxence Lacroix/DEF/81 Daniel Muñoz/DEF/81 Tyrick Mitchell/DEF/78 Chris Richards/DEF/78 Adam Wharton/MID/82 Daichi Kamada/MID/79 Jefferson Lerma/MID/77 Jean-Philippe Mateta/FWD/81 Ismaïla Sarr/FWD/81"],
-  ["Everton","EVE","#003399","#FFFFFF",77,"Jordan Pickford/GK/83 James Tarkowski/DEF/80 Jake O'Brien/DEF/78 Vitaliy Mykolenko/DEF/78 James Garner/MID/79 Kiernan Dewsbury-Hall/MID/79 Idrissa Gueye/MID/77 Iliman Ndiaye/FWD/81 Thierno Barry/FWD/77 Beto/FWD/76"],
-  ["Fulham","FUL","#000000","#FFFFFF",78,"Bernd Leno/GK/81 Joachim Andersen/DEF/79 Antonee Robinson/DEF/79 Calvin Bassey/DEF/78 Emile Smith Rowe/MID/79 Alex Iwobi/MID/79 Sander Berge/MID/78 Saša Lukić/MID/78 Harry Wilson/FWD/78 Raúl Jiménez/FWD/77 Samuel Chukwueze/FWD/77"],
-  ["Leeds United","LEE","#FFFFFF","#1D428A",75,"Lucas Perri/GK/77 Joe Rodon/DEF/77 Pascal Struijk/DEF/76 Jayden Bogle/DEF/75 Ethan Ampadu/MID/78 Anton Stach/MID/77 Brenden Aaronson/MID/76 Noah Okafor/FWD/77 Dominic Calvert-Lewin/FWD/77 Lukas Nmecha/FWD/75"],
-  ["Liverpool","LIV","#C8102E","#F6EB61",86,"Alisson/GK/86 Giorgi Mamardashvili/GK/82 Virgil van Dijk/DEF/87 Ibrahima Konaté/DEF/84 Jeremie Frimpong/DEF/82 Milos Kerkez/DEF/81 Alexis Mac Allister/MID/86 Florian Wirtz/MID/86 Ryan Gravenberch/MID/85 Dominik Szoboszlai/MID/85 Alexander Isak/FWD/86 Bradley Barcola/FWD/84 Hugo Ekitiké/FWD/83 Cody Gakpo/FWD/83"],
-  ["Manchester City","MCI","#6CABDD","#1C2C5B",87,"Gianluigi Donnarumma/GK/87 Rúben Dias/DEF/85 Joško Gvardiol/DEF/85 Marc Guéhi/DEF/84 Rayan Aït-Nouri/DEF/81 Rodri/MID/88 Enzo Fernández/MID/86 Elliot Anderson/MID/85 Phil Foden/MID/85 Tijjani Reijnders/MID/84 Rayan Cherki/MID/84 Ayyoub Bouaddi/MID/80 Erling Haaland/FWD/91 Antoine Semenyo/FWD/83 Jérémy Doku/FWD/82 Omar Marmoush/FWD/82"],
-  ["Manchester United","MUN","#DA291C","#FBE122",81,"Senne Lammens/GK/79 Lisandro Martínez/DEF/80 Matthijs de Ligt/DEF/80 Leny Yoro/DEF/79 Diogo Dalot/DEF/79 Bruno Fernandes/MID/86 Kobbie Mainoo/MID/79 Matheus Cunha/FWD/83 Bryan Mbeumo/FWD/83 Benjamin Šeško/FWD/81 Amad Diallo/FWD/80"],
-  ["Newcastle United","NEW","#241F20","#FFFFFF",82,"Nick Pope/GK/82 Sven Botman/DEF/81 Malick Thiaw/DEF/80 Lewis Hall/DEF/79 Fabian Schär/DEF/79 Bruno Guimarães/MID/86 Joelinton/MID/81 Jacob Ramsey/MID/78 Anthony Gordon/FWD/83 Nick Woltemade/FWD/81 Anthony Elanga/FWD/80 Yoane Wissa/FWD/79"],
-  ["Nottingham Forest","NFO","#DD0000","#FFFFFF",79,"Matz Sels/GK/80 Murillo/DEF/82 Nikola Milenković/DEF/81 Ola Aina/DEF/78 Morgan Gibbs-White/MID/83 Omari Hutchinson/MID/78 Ibrahim Sangaré/MID/77 Dan Ndoye/FWD/79 Callum Hudson-Odoi/FWD/79 Chris Wood/FWD/79"],
-  ["Sunderland","SUN","#EB172B","#FFFFFF",76,"Robin Roefs/GK/77 Omar Alderete/DEF/77 Nordi Mukiele/DEF/77 Dan Ballard/DEF/76 Trai Hume/DEF/76 Granit Xhaka/MID/81 Enzo Le Fée/MID/78 Habib Diarra/MID/77 Noah Sadiki/MID/77 Simon Adingra/FWD/77 Chemsdine Talbi/FWD/77 Wilson Isidor/FWD/76"],
-  ["Tottenham Hotspur","TOT","#132257","#FFFFFF",82,"Guglielmo Vicario/GK/82 Cristian Romero/DEF/84 Micky van de Ven/DEF/84 Pedro Porro/DEF/81 Destiny Udogie/DEF/79 Sandro Tonali/MID/85 Xavi Simons/MID/82 James Maddison/MID/81 Rodrigo Bentancur/MID/79 Mohammed Kudus/FWD/82 Brennan Johnson/FWD/80 Dominic Solanke/FWD/79 Richarlison/FWD/78"],
-  ["Coventry City","COV","#59CBE8","#FFFFFF",73,"Ben Wilson/GK/72 Bobby Thomas/DEF/72 Jay Dasilva/DEF/72 Milan van Ewijk/DEF/73 Victor Torp/MID/74 Jack Rudoni/MID/74 Matt Grimes/MID/73 Haji Wright/FWD/75 Ellis Simms/FWD/74 Tatsuhiro Sakamoto/FWD/73 Ephron Mason-Clark/FWD/73"],
-  ["Ipswich Town","IPS","#0044A9","#FFFFFF",73,"Christian Walton/GK/72 Jacob Greaves/DEF/73 Leif Davis/DEF/75 Dara O'Shea/DEF/73 Jens Cajuste/MID/74 Jack Clarke/MID/75 Sammie Szmodics/MID/73 Jaden Philogene/FWD/75 George Hirst/FWD/73"],
-  ["Hull City","HUL","#F5A12D","#000000",72,"Ivor Pandur/GK/72 Charlie Hughes/DEF/71 Lewie Coyle/DEF/71 Regan Slater/MID/72 Matt Crooks/MID/72 Kyle Joseph/FWD/73 Oli McBurnie/FWD/72"]
+  ["Arsenal","ARS","#EF0107","#FFFFFF",87,"David Raya/GK/87 William Saliba/DEF/88 Gabriel Magalhães/DEF/87 Jurriën Timber/DEF/84 Piero Hincapié/DEF/82 Riccardo Calafiori/DEF/81 Declan Rice/MID/88 Martin Ødegaard/MID/86 Martín Zubimendi/MID/85 Eberechi Eze/MID/84 Bukayo Saka/FWD/88 Viktor Gyökeres/FWD/85 Gabriel Martinelli/FWD/81 Noni Madueke/FWD/81 Kai Havertz/FWD/81 Leandro Trossard/FWD/80 Ben White/DEF/82 Gabriel Jesus/FWD/79 Mikel Merino/MID/81 Myles Lewis-Skelly/DEF/79"],
+  ["Aston Villa","AVL","#670E36","#95BFE5",81,"Emiliano Martínez/GK/84 Ezri Konsa/DEF/82 Pau Torres/DEF/81 Matty Cash/DEF/79 Lucas Digne/DEF/78 Youri Tielemans/MID/82 Boubacar Kamara/MID/81 Johan Manzambi/MID/80 John McGinn/MID/80 Amadou Onana/MID/80 Ollie Watkins/FWD/84 Ross Barkley/MID/78 Ian Maatsen/DEF/78 Tyrone Mings/DEF/78 Donyell Malen/FWD/78 Emiliano Buendía/MID/77"],
+  ["Bournemouth","BOU","#DA291C","#000000",78,"Đorđe Petrović/GK/79 Adrien Truffert/DEF/77 Álex Jiménez/DEF/76 Marcos Senesi/DEF/78 Tyler Adams/MID/79 Marcus Tavernier/MID/79 Alex Scott/MID/78 Justin Kluivert/FWD/80 Evanilson/FWD/79 Lewis Cook/MID/77 Ryan Christie/MID/77 David Brooks/FWD/76 Enes Ünal/FWD/75"],
+  ["Brentford","BRE","#E30613","#FFFFFF",78,"Caoimhín Kelleher/GK/81 Nathan Collins/DEF/79 Sepp van den Berg/DEF/78 Kristoffer Ajer/DEF/76 Mikkel Damsgaard/MID/79 Mathias Jensen/MID/77 Jordan Henderson/MID/77 Igor Thiago/FWD/81 Kevin Schade/FWD/79 Dango Ouattara/FWD/78 Yehor Yarmoliuk/MID/76 Michael Kayode/DEF/76 Fábio Carvalho/MID/76 Reiss Nelson/FWD/76 Keane Lewis-Potter/DEF/76"],
+  ["Brighton","BHA","#0057B8","#FFFFFF",79,"Bart Verbruggen/GK/80 Jan Paul van Hecke/DEF/80 Lewis Dunk/DEF/78 Maxim De Cuyper/DEF/77 Carlos Baleba/MID/81 Diego Gómez/MID/78 Yasin Ayari/MID/77 Jack Hinshelwood/MID/77 Kaoru Mitoma/FWD/80 Yankuba Minteh/FWD/79 Danny Welbeck/FWD/77 Georginio Rutter/FWD/78 Joël Veltman/DEF/77 Julio Enciso/FWD/76 Brajan Gruda/FWD/77 Adam Webster/DEF/76"],
+  ["Chelsea","CHE","#034694","#FFFFFF",85,"Robert Sánchez/GK/80 Reece James/DEF/83 Levi Colwill/DEF/82 Marc Cucurella/DEF/82 Wesley Fofana/DEF/80 Malo Gusto/DEF/80 Moisés Caicedo/MID/88 Cole Palmer/MID/87 Morgan Rogers/MID/85 Estêvão/FWD/83 João Pedro/FWD/83 Pedro Neto/FWD/81 Alejandro Garnacho/FWD/80 Liam Delap/FWD/79 Romeo Lavia/MID/79 Benoît Badiashile/DEF/78 Tosin Adarabioyo/DEF/78 Jamie Gittens/FWD/78 Andrey Santos/MID/78"],
+  ["Crystal Palace","CRY","#1B458F","#C4122E",79,"Dean Henderson/GK/82 Maxence Lacroix/DEF/81 Daniel Muñoz/DEF/81 Tyrick Mitchell/DEF/78 Chris Richards/DEF/78 Adam Wharton/MID/82 Daichi Kamada/MID/79 Jefferson Lerma/MID/77 Jean-Philippe Mateta/FWD/81 Ismaïla Sarr/FWD/81 Will Hughes/MID/76 Eddie Nketiah/FWD/77 Cheick Doucouré/MID/77 Chadi Riad/DEF/76 Borna Sosa/DEF/75"],
+  ["Everton","EVE","#003399","#FFFFFF",77,"Jordan Pickford/GK/83 James Tarkowski/DEF/80 Jake O'Brien/DEF/78 Vitaliy Mykolenko/DEF/78 James Garner/MID/79 Kiernan Dewsbury-Hall/MID/79 Idrissa Gueye/MID/77 Iliman Ndiaye/FWD/81 Thierno Barry/FWD/77 Beto/FWD/76 Michael Keane/DEF/76 Dwight McNeil/MID/78 Jack Harrison/MID/76 Jesper Lindstrøm/FWD/77 Tim Iroegbunam/MID/74"],
+  ["Fulham","FUL","#000000","#FFFFFF",78,"Bernd Leno/GK/81 Joachim Andersen/DEF/79 Antonee Robinson/DEF/79 Calvin Bassey/DEF/78 Emile Smith Rowe/MID/79 Alex Iwobi/MID/79 Sander Berge/MID/78 Saša Lukić/MID/78 Harry Wilson/FWD/78 Raúl Jiménez/FWD/77 Samuel Chukwueze/FWD/77 Tom Cairney/MID/76 Kenny Tete/DEF/77 Issa Diop/DEF/76 Adama Traoré/FWD/77 Rodrigo Muniz/FWD/77"],
+  ["Leeds United","LEE","#FFFFFF","#1D428A",75,"Lucas Perri/GK/77 Joe Rodon/DEF/77 Pascal Struijk/DEF/76 Jayden Bogle/DEF/75 Ethan Ampadu/MID/78 Anton Stach/MID/77 Brenden Aaronson/MID/76 Noah Okafor/FWD/77 Dominic Calvert-Lewin/FWD/77 Lukas Nmecha/FWD/75 Daniel James/FWD/76 Wilfried Gnonto/FWD/77 Manor Solomon/FWD/76 Ao Tanaka/MID/76 Sam Byram/DEF/73"],
+  ["Liverpool","LIV","#C8102E","#F6EB61",86,"Alisson/GK/86 Giorgi Mamardashvili/GK/82 Virgil van Dijk/DEF/87 Ibrahima Konaté/DEF/84 Jeremie Frimpong/DEF/82 Milos Kerkez/DEF/81 Alexis Mac Allister/MID/86 Florian Wirtz/MID/86 Ryan Gravenberch/MID/85 Dominik Szoboszlai/MID/85 Alexander Isak/FWD/86 Bradley Barcola/FWD/84 Hugo Ekitiké/FWD/83 Cody Gakpo/FWD/83 Curtis Jones/MID/81 Wataru Endo/MID/78 Federico Chiesa/FWD/78 Joe Gomez/DEF/79 Konstantinos Tsimikas/DEF/77"],
+  ["Manchester City","MCI","#6CABDD","#1C2C5B",87,"Gianluigi Donnarumma/GK/87 Rúben Dias/DEF/85 Joško Gvardiol/DEF/85 Marc Guéhi/DEF/84 Rayan Aït-Nouri/DEF/81 Rodri/MID/88 Enzo Fernández/MID/86 Elliot Anderson/MID/85 Phil Foden/MID/85 Tijjani Reijnders/MID/84 Rayan Cherki/MID/84 Ayyoub Bouaddi/MID/80 Erling Haaland/FWD/91 Antoine Semenyo/FWD/83 Jérémy Doku/FWD/82 Omar Marmoush/FWD/82 Bernardo Silva/MID/85 Matheus Nunes/MID/80 Nathan Aké/DEF/81 John Stones/DEF/82 Savinho/FWD/81 Rico Lewis/DEF/79"],
+  ["Manchester United","MUN","#DA291C","#FBE122",81,"Senne Lammens/GK/79 Lisandro Martínez/DEF/80 Matthijs de Ligt/DEF/80 Leny Yoro/DEF/79 Diogo Dalot/DEF/79 Bruno Fernandes/MID/86 Kobbie Mainoo/MID/79 Matheus Cunha/FWD/83 Bryan Mbeumo/FWD/83 Benjamin Šeško/FWD/81 Amad Diallo/FWD/80 Casemiro/MID/80 Mason Mount/MID/79 Manuel Ugarte/MID/79 Noussair Mazraoui/DEF/79 Harry Maguire/DEF/78 Joshua Zirkzee/FWD/78"],
+  ["Newcastle United","NEW","#241F20","#FFFFFF",82,"Nick Pope/GK/82 Sven Botman/DEF/81 Malick Thiaw/DEF/80 Lewis Hall/DEF/79 Fabian Schär/DEF/79 Bruno Guimarães/MID/86 Joelinton/MID/81 Jacob Ramsey/MID/78 Anthony Gordon/FWD/83 Nick Woltemade/FWD/81 Anthony Elanga/FWD/80 Yoane Wissa/FWD/79 Harvey Barnes/FWD/79 Jacob Murphy/FWD/78 Joe Willock/MID/78 Dan Burn/DEF/78 Tino Livramento/DEF/79 Kieran Trippier/DEF/78"],
+  ["Nottingham Forest","NFO","#DD0000","#FFFFFF",79,"Matz Sels/GK/80 Murillo/DEF/82 Nikola Milenković/DEF/81 Ola Aina/DEF/78 Morgan Gibbs-White/MID/83 Omari Hutchinson/MID/78 Ibrahim Sangaré/MID/77 Dan Ndoye/FWD/79 Callum Hudson-Odoi/FWD/79 Chris Wood/FWD/79 Ryan Yates/MID/76 Neco Williams/DEF/77 Nicolás Domínguez/MID/76 Taiwo Awoniyi/FWD/77 Morato/DEF/76"],
+  ["Sunderland","SUN","#EB172B","#FFFFFF",76,"Robin Roefs/GK/77 Omar Alderete/DEF/77 Nordi Mukiele/DEF/77 Dan Ballard/DEF/76 Trai Hume/DEF/76 Granit Xhaka/MID/81 Enzo Le Fée/MID/78 Habib Diarra/MID/77 Noah Sadiki/MID/77 Simon Adingra/FWD/77 Chemsdine Talbi/FWD/77 Wilson Isidor/FWD/76 Dennis Cirkin/DEF/75 Dan Neil/MID/76 Patrick Roberts/MID/75 Luke O'Nien/DEF/74 Chris Rigg/MID/74"],
+  ["Tottenham Hotspur","TOT","#132257","#FFFFFF",82,"Guglielmo Vicario/GK/82 Cristian Romero/DEF/84 Micky van de Ven/DEF/84 Pedro Porro/DEF/81 Destiny Udogie/DEF/79 Sandro Tonali/MID/85 Xavi Simons/MID/82 James Maddison/MID/81 Rodrigo Bentancur/MID/79 Mohammed Kudus/FWD/82 Brennan Johnson/FWD/80 Dominic Solanke/FWD/79 Richarlison/FWD/78 Dejan Kulusevski/MID/82 Pape Matar Sarr/MID/79 Yves Bissouma/MID/78 Wilson Odobert/FWD/77 Kevin Danso/DEF/78"],
+  ["Coventry City","COV","#59CBE8","#FFFFFF",73,"Ben Wilson/GK/72 Bobby Thomas/DEF/72 Jay Dasilva/DEF/72 Milan van Ewijk/DEF/73 Victor Torp/MID/74 Jack Rudoni/MID/74 Matt Grimes/MID/73 Haji Wright/FWD/75 Ellis Simms/FWD/74 Tatsuhiro Sakamoto/FWD/73 Ephron Mason-Clark/FWD/73 Josh Eccles/MID/72 Liam Kitching/DEF/72 Brandon Thomas-Asante/FWD/73"],
+  ["Ipswich Town","IPS","#0044A9","#FFFFFF",73,"Christian Walton/GK/72 Jacob Greaves/DEF/73 Leif Davis/DEF/75 Dara O'Shea/DEF/73 Jens Cajuste/MID/74 Jack Clarke/MID/75 Sammie Szmodics/MID/73 Jaden Philogene/FWD/75 George Hirst/FWD/73 Sam Morsy/MID/73 Wes Burns/FWD/72 Ben Johnson/DEF/72"],
+  ["Hull City","HUL","#F5A12D","#000000",72,"Ivor Pandur/GK/72 Charlie Hughes/DEF/71 Lewie Coyle/DEF/71 Regan Slater/MID/72 Matt Crooks/MID/72 Kyle Joseph/FWD/73 Oli McBurnie/FWD/72 Steven Alzate/MID/71 Joe Gelhardt/FWD/72"]
 ];
 const POOL = [];
 CLUBS.forEach((c,ci)=>{ for(const m of c[5].matchAll(/\s*([^/]+?)\/(GK|DEF|MID|FWD)\/(\d+)/g)) POOL.push({rid:ci+":"+m[1],n:m[1],pos:m[2],ovr:+m[3],club:ci}) });
@@ -528,6 +539,33 @@ const PROSPECTS = [
   ["Rio Ngumoha","LIV","FWD"],
   ["JJ Gabriel","MUN","FWD"]
 ].map(([n,sh,pos])=>({n,pos,club:CLUBS.findIndex(c=>c[1]===sh),rid:"P:"+n}));
+// --- Champions League cards: elite stars from Europe's other top leagues ---
+const EURO_CLUBS={
+  RMA:["#FFFFFF","#00529F","Real Madrid"], BAR:["#004D98","#A50044","Barcelona"],
+  BAY:["#DC052D","#FFFFFF","Bayern Munich"], PSG:["#0C1C3C","#DA291C","Paris Saint-Germain"],
+  INT:["#0068A8","#000000","Inter Milan"], NAP:["#12A0D7","#FFFFFF","Napoli"],
+  MIL:["#FB090B","#000000","AC Milan"], JUV:["#000000","#FFFFFF","Juventus"],
+  ATM:["#CB3524","#FFFFFF","Atl\u00e9tico Madrid"], DOR:["#FDE100","#000000","Borussia Dortmund"]
+};
+const UCL = [
+  ["Kylian Mbappé","RMA","FWD",92],["Vinícius Júnior","RMA","FWD",90],["Jude Bellingham","RMA","MID",89],
+  ["Federico Valverde","RMA","MID",88],["Thibaut Courtois","RMA","GK",89],["Rodrygo","RMA","FWD",86],
+  ["Aurélien Tchouaméni","RMA","MID",85],["Antonio Rüdiger","RMA","DEF",85],
+  ["Lamine Yamal","BAR","FWD",90],["Pedri","BAR","MID",88],["Raphinha","BAR","FWD",87],
+  ["Robert Lewandowski","BAR","FWD",86],["Frenkie de Jong","BAR","MID",86],["Marc-André ter Stegen","BAR","GK",86],
+  ["Gavi","BAR","MID",84],["Pau Cubarsí","BAR","DEF",83],
+  ["Harry Kane","BAY","FWD",90],["Jamal Musiala","BAY","MID",88],["Joshua Kimmich","BAY","MID",87],
+  ["Michael Olise","BAY","FWD",86],["Dayot Upamecano","BAY","DEF",85],["Alphonso Davies","BAY","DEF",84],["Manuel Neuer","BAY","GK",85],
+  ["Ousmane Dembélé","PSG","FWD",89],["Khvicha Kvaratskhelia","PSG","FWD",87],["Vitinha","PSG","MID",87],
+  ["Achraf Hakimi","PSG","DEF",86],["Nuno Mendes","PSG","DEF",85],["João Neves","PSG","MID",85],["Désiré Doué","PSG","FWD",84],
+  ["Lautaro Martínez","INT","FWD",88],["Nicolò Barella","INT","MID",86],["Hakan Çalhanoğlu","INT","MID",85],
+  ["Marcus Thuram","INT","FWD",85],["Federico Dimarco","INT","DEF",84],
+  ["Kevin De Bruyne","NAP","MID",87],["Scott McTominay","NAP","MID",83],["Romelu Lukaku","NAP","FWD",83],
+  ["Rafael Leão","MIL","FWD",85],["Christian Pulisic","MIL","FWD",84],
+  ["Kenan Yıldız","JUV","FWD",84],["Dušan Vlahović","JUV","FWD",83],
+  ["Julián Álvarez","ATM","FWD",87],["Antoine Griezmann","ATM","FWD",84],
+  ["Serhou Guirassy","DOR","FWD",84]
+].map(([n,sh,pos,ovr])=>{const e=EURO_CLUBS[sh];return {n,pos,ovr,rid:"U:"+n,csh:sh,k1:e[0],k2:e[1],cname:e[2]};});
 const FIRST = ["Jamal","Oliver","Mateo","Kofi","Luca","Ethan","Rafael","Tomás","Callum","Yusuf","Niko","Adebayo","Marcus","Leon","Kai","Theo","Ibrahim","Diego","Sami","Jonah","Ruben","Arlo","Emeka","Hugo","Finn","Dario","Kenji","Mateus","Ollie","Bilal","Andrés","Joel","Stellan","Idris","Ciaran","Malik","Pavel","Eli","Felix","Tariq","Nuno","Reece","Sander","Kwame","Elias","Jude","Iker","Milan","Bastian","Omar"];
 const LAST = ["Okafor","Hartley","Vidal","Mensah","Brennan","Castell","Lindqvist","Adeyemi","Moreau","Kowal","Ferreira","Ashby","Nakamura","Quinn","Duarte","Halloran","Sesay","Varga","Petrov","Whitlock","Osei","Marchetti","Rowe","Bakker","Iwobi","Santos","Fairley","Novak","Dembélé","Thorne","Kaya","Calloway","Ruiz","Holm","Abara","Lemaire","Prior","Szabo","Eriksen","Banda","Morrow","Takeda","Galván","Strand","Achebe","Pryce","Okoro","Lund","Mbeki","Doherty"];
 const POS = ["GK","DEF","MID","FWD"];
@@ -619,6 +657,15 @@ function drawProspect(){
   const b=pick(free), q=makePlayer(PROSPECT_BASE,b.pos);
   q.n=b.n; q.rid=b.rid; q.club=b.club; q.prospect=true; q.baseSeason=S.season;
   q.a=attrsFor(PROSPECT_BASE,b.pos,b.rid);
+  return q;
+}
+function drawUCL(){
+  const owned=new Set(S.squad.map(p=>p.rid).filter(Boolean));
+  const free=UCL.filter(x=>!owned.has(x.rid));
+  if(!free.length) return null;
+  const b=pick(free), q=makePlayer(b.ovr,b.pos);
+  q.n=b.n; q.rid=b.rid; q.ucl=true; q.k1=b.k1; q.k2=b.k2; q.csh=b.csh; q.cname=b.cname; q.club=null;
+  q.a=attrsFor(b.ovr,b.pos,b.rid);
   return q;
 }
 function rollOvr(lo,hi){ // skewed toward the low end
@@ -835,17 +882,17 @@ const surname = n => n.includes(" ") ? n.slice(n.indexOf(" ")+1) : n;
 function mix(a,b,t){const h=x=>{x=x.replace("#","");if(x.length===3)x=x.split("").map(c=>c+c).join("");return [0,2,4].map(i=>parseInt(x.slice(i,i+2),16))};const A=h(a),B=h(b);return "#"+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,"0")).join("")}
 const RLABEL={bronze:"Bronze",silver:"Silver",gold:"Gold",elite:"Elite"};
 function card(p,opts={}){
-  const r=p.prospect?"prospect":rarity(p.ovr), c=clubOf(p);
-  const k1 = c?c[2]:S?S.club.c1:"#888", k2 = c?c[3]:S?S.club.c2:"#444";
+  const r=p.ucl?"ucl":p.prospect?"prospect":rarity(p.ovr), c=clubOf(p);
+  const k1 = p.ucl?p.k1:(c?c[2]:S?S.club.c1:"#888"), k2 = p.ucl?p.k2:(c?c[3]:S?S.club.c2:"#444");
   const ink = readable(mix(k1,"#000000",.15)), panel = ink==="#ffffff"?"rgba(0,0,0,.3)":"rgba(255,255,255,.45)";
-  const at = Object.entries(p.a||{}), cr = c?crest(c[2],c[3],c[1],opts.sm?16:22):S?crest(S.club.c1,S.club.c2,S.club.short,opts.sm?16:22):"";
+  const at = Object.entries(p.a||{}), cr = p.ucl?crest(p.k1,p.k2,p.csh,opts.sm?16:22):(c?crest(c[2],c[3],c[1],opts.sm?16:22):S?crest(S.club.c1,S.club.c2,S.club.short,opts.sm?16:22):"");
   return `<button type="button" class="card ${r} ${opts.sm?"sm":""} ${opts.sel?"sel":""} ${opts.subin?"subin":""}" style="--k1:${esc(k1)};--k2:${esc(k2)};--k3:${esc(c?c3of(c[1])||k2:k2)};--ink:${ink};--panel:${panel}" ${opts.act?`data-act="${opts.act}" data-id="${p.id}"`:"tabindex=-1"} aria-label="${esc(p.n)}, ${p.pos}, rated ${p.ovr}${c?", "+esc(c[0]):""}">
-    <div class="top"><div class="lhs"><div class="ovr num">${p.ovr}${p.prospect?'<span class="rise">\u25b2</span>':''}</div><div class="pos">${p.pos}</div>${cr}</div><span class="rar">${p.prospect?"PROSPECT":RLABEL[r]}</span></div>
+    <div class="top"><div class="lhs"><div class="ovr num">${p.ovr}${p.prospect?'<span class="rise">\u25b2</span>':''}</div><div class="pos">${p.pos}</div>${cr}</div><span class="rar">${p.ucl?"FINEST":p.prospect?"PROSPECT":RLABEL[r]}</span></div>
     <div class="face">${shirt(k1,k2)}</div>
     <div class="pname" title="${esc(p.n)}">${esc(surname(p.n))}</div>
-    ${p.prospect&&!opts.sm?`<div class="pnote">\u2605 Future prospect \u00b7 +1 OVR every season</div>`:""}
+    ${(p.prospect||p.ucl)&&!opts.sm?`<div class="pnote">${p.prospect?"\u2605 Future prospect \u00b7 +1 OVR every season":"\u2605 Europe\u2019s Finest \u00b7 continental elite"}</div>`:""}
     <div class="attrs">${at.map(([k,v])=>`<div><b>${v}</b><span>${k}</span></div>`).join("")}</div>
-    <div class="foot"><span>${c?esc(c[0]):"Academy"}</span></div>
+    <div class="foot"><span>${p.ucl?esc(p.cname):c?esc(c[0]):"Academy"}</span></div>
     ${opts.tag?`<span class="tag">${opts.tag}</span>`:""}
   </button>`;
 }
@@ -1036,7 +1083,7 @@ function vPacks(){
         <ul>${p.desc.map(d=>`<li>${d}</li>`).join("")}</ul>
         <button class="btn primary" data-act="buy" data-pack="${p.id}" ${S.budget<p.price||S.squad.length+p.count>MAX_SQUAD?"disabled":""}>${S.budget<p.price?"Need "+money(p.price-S.budget)+" more":S.squad.length+p.count>MAX_SQUAD?"Squad full":"Open pack"}</button>
       </article>`).join("")}</div>
-    ${S.squad.length>=MAX_SQUAD?`<div class="panel row" style="justify-content:space-between"><span>Your squad is full (${MAX_SQUAD} players). Win matches to earn more, but you have a full roster to pick from.</span><button class="btn" data-view="squad">Go to squad</button></div>`:`<div class="prospecttip"><b>\u2b50 Future Prospect cards</b> \u2014 every pack has a rare chance to pull a teal Future Prospect (Kroupi, Rayan, Ant\u00f3nio Silva, Archie Gray, Diomande, Dowman, Ngumoha, JJ Gabriel). They start rated 82 and gain +1 overall every season you play \u2014 raw talent that grows with you.</div><p class="muted" style="margin:0">Players you pack are yours to keep — build the deepest squad you can across the season.</p>`}
+    ${S.squad.length>=MAX_SQUAD?`<div class="panel row" style="justify-content:space-between"><span>Your squad is full (${MAX_SQUAD} players). Win matches to earn more, but you have a full roster to pick from.</span><button class="btn" data-view="squad">Go to squad</button></div>`:`<div class="prospecttip"><b>\u2b50 Future Prospect cards</b> \u2014 every pack has a rare chance to pull a teal Future Prospect (Kroupi, Rayan, Ant\u00f3nio Silva, Archie Gray, Diomande, Dowman, Ngumoha, JJ Gabriel). They start rated 82 and gain +1 overall every season you play \u2014 raw talent that grows with you.</div><div class="ucltip"><b>\u2b50 Europe\u2019s Finest cards</b> \u2014 Gold and Elite packs can also pull a rare blue Europe\u2019s Finest superstar from the continent\u2019s top leagues \u2014 Mbapp\u00e9, Yamal, Kane, Demb\u00e9l\u00e9, Bellingham, Lautaro and more.</div><p class="muted" style="margin:0">Players you pack are yours to keep — build the deepest squad you can across the season.</p>`}
   </div>`;
 }
 
@@ -1371,13 +1418,16 @@ function openPack(pk){
   const PCH={bronze:.06,silver:.11,gold:.17,elite:.26};
   if(Math.random()<(PCH[pk.id]||0)){ const pr=drawProspect();
     if(pr){ const idx=pk.guar?ri(1,got.length-1):ri(0,got.length-1); const si=S.squad.indexOf(got[idx]); if(si>=0) S.squad.splice(si,1); got[idx]=pr; S.squad.push(pr); } }
+  const UCH={bronze:0,silver:.02,gold:.07,elite:.15};
+  if(Math.random()<(UCH[pk.id]||0)){ const uc=drawUCL();
+    if(uc){ const idx=pk.guar?ri(1,got.length-1):ri(0,got.length-1); const si=S.squad.indexOf(got[idx]); if(si>=0) S.squad.splice(si,1); got[idx]=uc; S.squad.push(uc); } }
   got.sort((a,b)=>a.ovr-b.ovr);
   const topPull=got[got.length-1]; if(topPull && topPull.ovr>=86) S.lastStar=topPull.n;
   save();
 
   const ov=document.createElement("div"); ov.className="overlay"; ov.setAttribute("role","dialog"); ov.setAttribute("aria-label",pk.name+" pack");
   const top=got[got.length-1];
-  ov.style.setProperty("--glow", top.ovr>=84?"rgba(198,60,92,.35)":top.ovr>=75?"rgba(233,196,92,.28)":"rgba(185,195,208,.18)");
+  ov.style.setProperty("--glow", got.some(x=>x.ucl)?"rgba(58,160,255,.42)":top.ovr>=84?"rgba(198,60,92,.35)":top.ovr>=75?"rgba(233,196,92,.28)":"rgba(185,195,208,.18)");
   ov.innerHTML=`<span class="eyebrow">${pk.name} pack</span><button class="sealed ${pk.foil}" id="seal" aria-label="Tear open the pack"><span>${pk.name}<br><small style="font-size:18px">Tap to open</small></span></button>`;
   document.body.appendChild(ov);
   const seal=ov.querySelector("#seal"); seal.focus();
@@ -1395,7 +1445,7 @@ function openPack(pk){
       flips.forEach((f,i)=>setTimeout(()=>f.classList.add("open"), reduce?0:350+i*(i===flips.length-1?700:520)));
       setTimeout(()=>{
         ov.querySelector("#pkact").hidden=false;
-        const b=top, prp=got.find(x=>x.prospect); ov.querySelector("#pkmsg").textContent = prp?`\u2b50 Future prospect signed: ${prp.n} \u2014 starts ${prp.ovr}, rises +1 every season!`:b.ovr>=86?`Elite signing: ${b.n}, rated ${b.ovr}.`:`Best pull: ${b.n} (${b.ovr} ${b.pos}).`;
+        const b=top, ucp=got.find(x=>x.ucl), prp=got.find(x=>x.prospect); ov.querySelector("#pkmsg").textContent = ucp?`\u2b50 EUROPE\u2019S FINEST card! ${ucp.n} (${ucp.ovr} ${ucp.pos}) \u2014 a European superstar joins you!`:prp?`\u2b50 Future prospect signed: ${prp.n} \u2014 starts ${prp.ovr}, rises +1 every season!`:b.ovr>=86?`Elite signing: ${b.n}, rated ${b.ovr}.`:`Best pull: ${b.n} (${b.ovr} ${b.pos}).`;
         ov.querySelector("#done").focus();
       }, reduce?50:350+flips.length*520+600);
       ov.querySelector("#done").addEventListener("click",()=>{ov.remove();autoPickIfBetter();render()});
