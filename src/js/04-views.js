@@ -250,7 +250,10 @@ function vAdmin(){
 }
 function ordinalPos(n){ return n>0?ordinal(n):"\u2014"; }
 const CHANGELOG = [
-  {tag:"NEW", accent:"var(--c-blue)", date:"Latest", title:"Europe’s Finest cards",
+  {tag:"NEW", accent:"var(--c-orange)", date:"Latest", title:"Matchday overhaul",
+   body:"The live match is richer and more interactive than ever before.",
+   items:["Choose your approach before kick-off — Defensive, Balanced or Attacking — and it changes how the match actually plays out.","Live commentary with named players, assists, penalties, saves, woodwork, bookings and late-drama goals.","Live match stats: possession, shots, shots on target and corners.","A Player of the Match at full time, carried into the fan reactions."]},
+  {tag:"NEW", accent:"var(--c-blue)", date:"Recent", title:"Europe’s Finest cards",
    body:"A brand-new blue card type: 45 of the biggest names from Europe’s other top leagues — Mbappé, Vinícius and Bellingham (Real Madrid), Yamal, Pedri and Lewandowski (Barcelona), Kane and Musiala (Bayern), Dembélé and Kvaratskhelia (PSG), Lautaro, De Bruyne, Yıldız and more.",
    items:["Rated 83–92 — genuine world-class signings.","The rarest pull in the game: only Elite packs can contain one, roughly 1 in every 10.","Each shows its real club crest, kit colours and name."]},
   {tag:"NEW", accent:"#9b5cff", date:"Latest", title:"Future Prospect cards (now purple)",

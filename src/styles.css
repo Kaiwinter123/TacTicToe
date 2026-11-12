@@ -225,9 +225,40 @@ main{padding-block:22px 60px}
 .board .clk{font-family:var(--num);font-size:16px;color:var(--muted);text-align:center}
 .feed{width:min(560px,100%);max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
 .ev{display:grid;grid-template-columns:42px 1fr;gap:8px;padding:8px 12px;background:var(--stand);border-radius:8px;border-left:3px solid var(--line);animation:in .3s ease-out}
-.ev.goal{border-left-color:var(--flood)} .ev.goal.them{border-left-color:var(--loss)}
+.ev.goal{border-left-color:var(--flood);background:color-mix(in srgb,var(--flood) 12%,var(--stand))} .ev.goal.them{border-left-color:var(--loss);background:color-mix(in srgb,var(--loss) 12%,var(--stand))}
+.ev.goal b{color:var(--flood)} .ev.goal.them b{color:var(--loss)}
+.ev.save{border-left-color:var(--c-blue)} .ev.wood{border-left-color:var(--c-orange)} .ev.card{border-left-color:var(--gold)} .ev.corner{border-left-color:var(--muted)}
+.ev.late{box-shadow:0 0 0 1px var(--flood)}
+.ev .assist{color:var(--muted);font-size:12px} .ev .latetag{font-family:var(--num);font-size:9px;font-weight:700;background:var(--flood);color:var(--flood-ink);padding:1px 5px;border-radius:7px;letter-spacing:.06em;margin-left:4px}
+.ev .yc{display:inline-block;width:8px;height:11px;background:var(--gold);border-radius:1px;vertical-align:-1px;margin-right:3px}
 .ev .m{font-family:var(--num);font-weight:700;color:var(--muted)}
 @keyframes in{from{opacity:.2;transform:translateY(6px)}}
+/* live match stats */
+.mstats{width:min(560px,100%);display:grid;grid-template-columns:1fr auto 1fr;gap:4px 14px;align-items:center;background:#05080e;border:1px solid var(--line);border-radius:12px;padding:8px 14px}
+.mstats .mscol{display:grid;grid-template-rows:repeat(4,1fr);gap:4px;text-align:right}
+.mstats .mscol.r{text-align:left}
+.mstats .mscol b{font-family:var(--num);font-weight:700;font-size:15px;color:var(--chalk)}
+.mstats .mslab{display:grid;grid-template-rows:repeat(4,1fr);gap:4px;text-align:center}
+.mstats .mslab span{font-family:var(--num);font-size:10px;letter-spacing:.05em;color:var(--muted);text-transform:uppercase}
+/* goal flash on the scoreboard */
+.board.flash{animation:goalflash .9s ease-out} .board.flashT{animation:goalflashT .9s ease-out}
+@keyframes goalflash{0%{box-shadow:0 0 0 0 var(--flood);border-color:var(--flood)}30%{box-shadow:0 0 34px 2px var(--flood)}100%{box-shadow:none;border-color:var(--line)}}
+@keyframes goalflashT{0%{box-shadow:0 0 0 0 var(--loss);border-color:var(--loss)}30%{box-shadow:0 0 30px 2px var(--loss)}100%{box-shadow:none;border-color:var(--line)}}
+/* player of the match */
+.motm{width:min(560px,100%);display:flex;align-items:center;gap:10px;background:linear-gradient(120deg,rgba(244,200,74,.16),rgba(244,200,74,.04));border:1px solid var(--gold);border-radius:12px;padding:10px 14px}
+.motm .motmlab{font-family:var(--num);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+.motm .motmn{font-family:var(--display);font-size:20px;text-transform:uppercase;line-height:1}
+.motm .motmr{margin-left:auto;font-family:var(--num);font-weight:700;font-size:20px;color:var(--gold)}
+.motm .motmg{font-family:var(--num);font-weight:700;font-size:13px;color:var(--chalk);background:rgba(0,0,0,.3);padding:2px 7px;border-radius:7px}
+/* pre-match approach selector */
+.mentsel{width:100%;display:flex;flex-direction:column;align-items:stretch;gap:2px;margin-top:4px}
+.mentbtns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ment{font-family:var(--body);font-weight:600;font-size:14px;padding:9px 6px;border-radius:10px;border:1px solid var(--line);background:var(--stand);color:var(--chalk);cursor:pointer;transition:border-color .15s,background .15s}
+.ment:hover{border-color:var(--muted)}
+.ment.on{border-color:var(--flood);background:color-mix(in srgb,var(--flood) 16%,var(--stand));box-shadow:0 0 0 1px var(--flood)}
+.menthint{text-align:center;font-size:12.5px;color:var(--muted);margin-top:7px;min-height:1.2em}
+.cuptheme .ment.on{border-color:var(--win);background:color-mix(in srgb,var(--win) 16%,var(--stand));box-shadow:0 0 0 1px var(--win)}
+@media (max-width:460px){.mentbtns{grid-template-columns:1fr}.mstats{padding:8px 10px;gap:3px 8px}.mstats .mscol b{font-size:14px}}
 .pbar{width:min(560px,100%);height:6px;background:var(--line);border-radius:3px;overflow:hidden}
 .pbar i{display:block;height:100%;background:var(--flood);width:0}
 

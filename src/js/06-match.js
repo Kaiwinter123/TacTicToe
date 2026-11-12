@@ -60,6 +60,7 @@ function showSocial(ctx, onDone){
   const form=meRow.form||[]; let sv=form.length?form[form.length-1]:null, streak=0; for(let i=form.length-1;i>=0&&form[i]===sv;i--) streak++;
   const star = S.lastStar ? surname(S.lastStar) : null;
   const ctxLines=[];
+  if(ctx.motm) ctxLines.push("⭐ {motm} was the standout today — give that man the headlines. {manager} will be buzzing.");
   if(S.lastStar) ctxLines.push("BREAKING 📝 {club} have signed {star}! Proper statement of intent from {manager}.");
   if(ctx.january) ctxLines.push("💰 {club} hand {manager} a £30m January top-up. Spend it well, gaffer!");
   if(ctx.cup){ ctxLines.unshift(ctx.cup.won ? (ctx.cup.final?"WE'VE WON THE CUP \ud83c\udfc6\ud83c\udfc6 {manager} is a LEGEND. Get it in the cabinet!!":"Into the next round of the Cup \ud83c\udfc6 {club} march on. {manager} rotating like a pro.") : "OUT of the Cup to {opp} \ud83d\ude29 {manager} says we focus on the league now."); }
@@ -68,7 +69,7 @@ function showSocial(ctx, onDone){
   if(streak>=3 && sv==="W") ctxLines.push(streak+" wins on the spin!! {club} are UNREAL right now 🔥 {manager} magic.");
   if(streak>=3 && sv==="L") ctxLines.push(streak+" defeats in a row... is {manager} losing the dressing room? 😤");
   const fill = t => t.replace(/{club}/g,esc(club)).replace(/{opp}/g,esc(ctx.opp)).replace(/{manager}/g,esc(manager))
-    .replace(/{score}/g,esc(ctx.score)).replace(/{scorer}/g,esc(scorer||"the lads")).replace(/{player}/g,esc(scape)).replace(/{verb}/g,esc(verb)).replace(/{star}/g,esc(star||"a new face"));
+    .replace(/{score}/g,esc(ctx.score)).replace(/{scorer}/g,esc(scorer||"the lads")).replace(/{player}/g,esc(scape)).replace(/{verb}/g,esc(verb)).replace(/{star}/g,esc(star||"a new face")).replace(/{motm}/g,esc(ctx.motm?surname(ctx.motm):"the skipper"));
   S.lastStar=null; // consumed
   let lines = ctxLines.slice(0,2).concat(tone.slice().sort(()=>Math.random()-.5).slice(0,3));
   lines.splice(ri(1,Math.max(1,lines.length)),0, pick(T_PUNDIT));
@@ -168,10 +169,25 @@ function showMatchPreview(info, onKick){
     <div class="venue" style="justify-content:center">${vtag}</div>
     <div class="pvstats">${row("Attack",info.R.att,info.O.att)}${row("Defence",info.R.def,info.O.def)}${row("Overall",info.R.ovr,info.O.ovr)}</div>
     ${h2h}
+    <div class="mentsel">
+      <span class="eyebrow" style="text-align:center;display:block;margin-bottom:6px">Your approach</span>
+      <div class="mentbtns">
+        <button type="button" class="ment" data-ment="defend">\ud83d\udee1\ufe0f Defensive</button>
+        <button type="button" class="ment on" data-ment="balanced">\u2696\ufe0f Balanced</button>
+        <button type="button" class="ment" data-ment="attack">\u2694\ufe0f Attacking</button>
+      </div>
+      <span class="menthint" id="menthint">Balanced \u2014 a measured game plan.</span>
+    </div>
     <div class="row" style="justify-content:center"><button class="btn primary" id="pvkick">Kick off \u26bd</button><button class="btn" id="pvback">Back</button></div>
   </div>`;
   document.body.appendChild(ov);
-  ov.querySelector("#pvkick").addEventListener("click",()=>{ ov.remove(); onKick(); });
+  const MHINT={defend:"Defensive \u2014 soak up pressure, fewer goals, tighter at the back.",balanced:"Balanced \u2014 a measured game plan.",attack:"Attacking \u2014 chase the win, but you'll leave gaps."};
+  let ment="balanced";
+  const hint=ov.querySelector("#menthint");
+  ov.querySelectorAll(".ment").forEach(btn=>btn.addEventListener("click",()=>{
+    ment=btn.dataset.ment; ov.querySelectorAll(".ment").forEach(b=>b.classList.toggle("on",b===btn)); hint.textContent=MHINT[ment];
+  }));
+  ov.querySelector("#pvkick").addEventListener("click",()=>{ ov.remove(); onKick(ment); });
   ov.querySelector("#pvback").addEventListener("click",()=>{ ov.remove(); });
   ov.querySelector("#pvkick").focus();
 }
@@ -190,33 +206,100 @@ function showJanuaryNotice(onDone){
   ov.querySelector("#jok").focus();
 }
 // ---- shared match engine ----
-function simMatch(h,a){
-  const [lh,la]=lambdas(h,a), gh=poisson(lh), ga=poisson(la);
-  const events=[];
-  for(let k=0;k<gh;k++) events.push({min:ri(1,90),team:h,goal:true});
-  for(let k=0;k<ga;k++) events.push({min:ri(1,90),team:a,goal:true});
-  const chances=["fires just wide","forces a fine save","hits the post","has a header cleared off the line","sees a shot blocked"];
-  for(let k=0;k<ri(3,6);k++) events.push({min:ri(1,90),team:Math.random()<lh/(lh+la)?h:a,goal:false,txt:pick(chances)});
+const GOAL_TYPE=["slots it into the corner","rises highest to head home","curls one into the top corner","taps in from close range","drills it low past the keeper","lashes it in off the underside of the bar","finishes off a flowing move","volleys home first time"];
+const PEN_TYPE=["sends the keeper the wrong way from the spot","buries the penalty into the roof of the net"];
+const SAVE_TXT=["forces a brilliant save","is denied by a fingertip stop","sees a header tipped over the bar","draws a sharp stop at the near post"];
+const MISS_TXT=["fires just wide","drags it past the far post","blazes over from distance","scuffs it straight at the keeper","heads over from a good position"];
+const WOOD_TXT=["rattles the crossbar","clips the outside of the post","smashes it against the upright"];
+const CORNER_TXT=["wins a corner","forces a corner after a goalmouth scramble","swings in a dangerous corner"];
+const CARD_TXT=["is booked for a late challenge","goes into the book for dissent","picks up a yellow for a cynical foul"];
+function teamScorers(team){
+  if(team==="you") return S.xi.map(byId).filter(Boolean);
+  const ci=+String(team).slice(1);
+  return POOL.filter(p=>p.club===ci && !S.squad.some(q=>q.rid===p.rid));
+}
+function weightedOutfield(list){
+  const w=list.filter(p=>p.pos!=="GK").map(p=>[p,(p.pos==="FWD"?6:p.pos==="MID"?3:1)]);
+  if(!w.length) return null;
+  const tot=w.reduce((x,y)=>x+y[1],0); let r=Math.random()*tot;
+  for(const [p,x] of w){ r-=x; if(r<=0) return p; } return w[0][0];
+}
+function pickMOTM(h,a,gh,ga,events){
+  const xi=S.xi.map(byId).filter(Boolean); if(!xi.length) return null;
+  const youHome=h==="you", mine=youHome?gh:ga, theirs=youHome?ga:gh;
+  const myGoals=events.filter(e=>e.type==="goal"&&e.team==="you").map(e=>e.who);
+  const cnt={}; myGoals.forEach(n=>cnt[n]=(cnt[n]||0)+1);
+  let best=null,bs=-1;
+  xi.forEach(p=>{ let s=(effective(p,p.pos)||p.ovr)+(cnt[p.n]||0)*30;
+    if(mine>theirs && theirs===0 && (p.pos==="GK"||p.pos==="DEF")) s+=10;
+    s+=Math.random()*6; if(s>bs){bs=s;best=p;} });
+  if(!best) return null;
+  const g=cnt[best.n]||0;
+  const rating=clamp(6.6+g*1.1+(mine>theirs?0.7:mine<theirs?-0.3:0.1)+Math.random()*0.7,6,10).toFixed(1);
+  return {n:best.n,pos:best.pos,goals:g,rating};
+}
+// ment: "attack" | "balanced" | "defend" (your side's approach)
+function simMatch(h,a,ment){
+  let [lh,la]=lambdas(h,a);
+  const youHome=h==="you";
+  if(ment==="attack"){ if(youHome){lh*=1.2;la*=1.12;} else {la*=1.2;lh*=1.12;} }
+  else if(ment==="defend"){ if(youHome){lh*=0.8;la*=0.86;} else {la*=0.8;lh*=0.86;} }
+  const gh=poisson(lh), ga=poisson(la), events=[];
+  const addGoals=(team,n)=>{ const list=teamScorers(team);
+    for(let k=0;k<n;k++){ const pen=Math.random()<0.1, sc=weightedOutfield(list)||{n:"an own goal",pos:"FWD"};
+      let assist=null; if(!pen && Math.random()<0.62){ const a2=weightedOutfield(list.filter(p=>p!==sc)); if(a2) assist=a2.n; }
+      events.push({min:ri(1,90),team,type:"goal",who:sc.n,assist,pen,desc:pen?pick(PEN_TYPE):pick(GOAL_TYPE)}); } };
+  addGoals(h,gh); addGoals(a,ga);
+  const extra=ri(7,12);
+  for(let k=0;k<extra;k++){ const team=Math.random()<lh/(lh+la)?h:a, list=teamScorers(team), pl=weightedOutfield(list), who=pl?pl.n:null, roll=Math.random();
+    const kind = roll<0.30?"save":roll<0.56?"miss":roll<0.73?"corner":roll<0.87?"wood":"card";
+    let txt;
+    if(kind==="save") txt=(who?surname(who)+" ":"")+pick(SAVE_TXT);
+    else if(kind==="miss") txt=(who?surname(who)+" ":"")+pick(MISS_TXT);
+    else if(kind==="corner") txt=teamInfo(team).short+" "+pick(CORNER_TXT);
+    else if(kind==="wood") txt=(who?surname(who)+" ":"")+pick(WOOD_TXT);
+    else txt=(who?surname(who)+" ":"A "+teamInfo(team).short+" player ")+pick(CARD_TXT);
+    events.push({min:ri(1,90),team,type:kind,who,txt}); }
   events.sort((x,y)=>x.min-y.min);
-  events.forEach(e=>{ if(e.goal) e.who=scorer(e.team) });
-  return {lh,la,gh,ga,events};
+  const possH=clamp(Math.round(50+(lh-la)*9+(Math.random()*8-4)),30,70);
+  const motm=pickMOTM(h,a,gh,ga,events);
+  return {lh,la,gh,ga,events,poss:[possH,100-possH],motm,ment};
+}
+// shots/on-target/corners derived from the timeline so live totals match the summary
+function matchStats(events,h,a,poss){
+  const sh={}, st={}, co={}; sh[h]=sh[a]=st[h]=st[a]=co[h]=co[a]=0;
+  events.forEach(e=>{ if(e.type==="goal"){sh[e.team]++;st[e.team]++;}
+    else if(e.type==="save"){sh[e.team]++;st[e.team]++;}
+    else if(e.type==="miss"||e.type==="wood"){sh[e.team]++;}
+    else if(e.type==="corner"){co[e.team]++;} });
+  return {poss, shots:[sh[h],sh[a]], sot:[st[h],st[a]], corners:[co[h],co[a]]};
 }
 function showMatchOverlay(o, onDone){
   const H=teamInfo(o.h), A=teamInfo(o.a), events=o.events, gh=o.gh, ga=o.ga;
   const ov=document.createElement("div"); ov.className="overlay"+(o.theme==="cup"?" cuptheme":""); ov.setAttribute("role","dialog"); ov.setAttribute("aria-label","Match");
+  const stats=matchStats(events,o.h,o.a,o.poss||[50,50]);
   ov.innerHTML=`<span class="eyebrow">${esc(o.title)}</span>
     <div class="board"><div class="tm">${crest(H.c1,H.c2,H.short,48)}${esc(H.name)}</div><div><div class="sc" id="sc">0\u20130</div><div class="clk" id="clk">0'</div></div><div class="tm">${crest(A.c1,A.c2,A.short,48)}${esc(A.name)}</div></div>
     <div class="momrow"><span class="marr" id="marrL">\u25c0</span><div class="mbar"><span class="mcenter"></span><i id="mom"></i></div><span class="marr" id="marrR">\u25b6</span></div>
     <div class="momcap"><span>${esc(H.short)}</span><span id="momtxt">Momentum</span><span>${esc(A.short)}</span></div>
     <div class="pbar"><i id="pb"></i></div>
+    <div class="mstats" aria-hidden="true"><div class="mscol"><b id="poH">50%</b><b id="shH">0</b><b id="stH">0</b><b id="coH">0</b></div><div class="mslab"><span>Possession</span><span>Shots</span><span>On target</span><span>Corners</span></div><div class="mscol r"><b id="poA">50%</b><b id="shA">0</b><b id="stA">0</b><b id="coA">0</b></div></div>
     <div class="led"><span>UpNorthPlumbing</span><span>\u00b7</span><span>Official Sponsor</span><span>\u00b7</span><span>UpNorthPlumbing</span></div>
     <div class="feed" id="feed" aria-live="polite"></div>
     <div class="row"><button class="btn" id="skip">Skip to full time</button></div>`;
   document.body.appendChild(ov);
-  const feed=ov.querySelector("#feed"), sc=ov.querySelector("#sc"), clk=ov.querySelector("#clk"), pb=ov.querySelector("#pb");
+  const feed=ov.querySelector("#feed"), sc=ov.querySelector("#sc"), clk=ov.querySelector("#clk"), pb=ov.querySelector("#pb"), board=ov.querySelector(".board");
   const momEl=ov.querySelector("#mom"), marrL=ov.querySelector("#marrL"), marrR=ov.querySelector("#marrR"), momtxt=ov.querySelector("#momtxt");
+  const el={shH:ov.querySelector("#shH"),stH:ov.querySelector("#stH"),coH:ov.querySelector("#coH"),poH:ov.querySelector("#poH"),shA:ov.querySelector("#shA"),stA:ov.querySelector("#stA"),coA:ov.querySelector("#coA"),poA:ov.querySelector("#poA")};
+  const live={sh:[0,0],st:[0,0],co:[0,0]};
   let minute=0, s=[0,0], ei=0, timer, mom=0;
   const base=(o.lh-o.la)*0.05;
+  const paintStats=()=>{ const t=minute/90, pH=Math.round(50+(stats.poss[0]-50)*t), pA=100-pH;
+    el.poH.textContent=pH+"%"; el.poA.textContent=pA+"%";
+    el.shH.textContent=live.sh[0]; el.shA.textContent=live.sh[1];
+    el.stH.textContent=live.st[0]; el.stA.textContent=live.st[1];
+    el.coH.textContent=live.co[0]; el.coA.textContent=live.co[1]; };
+  paintStats();
   const drawMom=()=>{
     const pct=50-clamp(mom,-1,1)*46;
     momEl.style.left=pct+"%";
@@ -231,14 +314,23 @@ function showMatchOverlay(o, onDone){
     minute++;
     mom = clamp(mom*0.9 + base*0.1 + (Math.random()-0.5)*0.05, -1, 1);
     while(ei<events.length && events[ei].min<=minute){
-      const e=events[ei++], tn=teamInfo(e.team), us=e.team==="you", homeSide=e.team===o.h;
-      if(e.goal){ s[homeSide?0:1]++; sc.textContent=s[0]+"\u2013"+s[1]; mom=clamp(mom+(homeSide?0.6:-0.6),-1,1); }
-      else { mom=clamp(mom+(homeSide?0.28:-0.28),-1,1); }
-      const d=document.createElement("div"); d.className="ev"+(e.goal?" goal"+(us?"":" them"):"");
-      d.innerHTML=`<span class="m">${e.min}'</span><span>${e.goal?`<b>GOAL!</b> ${esc(e.who)} scores for ${esc(tn.name)}.`:`${esc(tn.short)} ${esc(e.txt)}.`}</span>`;
+      const e=events[ei++], tn=teamInfo(e.team), us=e.team==="you", si=e.team===o.h?0:1;
+      if(e.type==="goal"){ s[si]++; sc.textContent=s[0]+"\u2013"+s[1]; mom=clamp(mom+(si===0?0.6:-0.6),-1,1);
+        live.sh[si]++; live.st[si]++;
+        board.classList.remove("flash","flashT"); void board.offsetWidth; board.classList.add(us?"flash":"flashT"); }
+      else if(e.type==="save"){ live.sh[si]++; live.st[si]++; mom=clamp(mom+(si===0?0.24:-0.24),-1,1); }
+      else if(e.type==="miss"||e.type==="wood"){ live.sh[si]++; mom=clamp(mom+(si===0?0.2:-0.2),-1,1); }
+      else if(e.type==="corner"){ live.co[si]++; mom=clamp(mom+(si===0?0.12:-0.12),-1,1); }
+      const late=e.type==="goal"&&e.min>=85;
+      const d=document.createElement("div"); d.className="ev "+e.type+(e.type==="goal"?(us?" goal":" goal them"):"")+(late?" late":"");
+      let body;
+      if(e.type==="goal"){ body=`<b>${e.pen?"PENALTY \u2014 GOAL!":"GOAL!"}</b> ${esc(surname(e.who))} ${esc(e.desc)} for ${esc(tn.name)}.${e.assist?` <span class="assist">Assist: ${esc(surname(e.assist))}</span>`:""}${late?` <span class="latetag">LATE DRAMA</span>`:""}`; }
+      else if(e.type==="card"){ body=`<span class="yc">\u25ac</span> ${esc(e.txt)}.`; }
+      else { body=`${esc(e.txt)}.`; }
+      d.innerHTML=`<span class="m">${e.min}'</span><span>${body}</span>`;
       feed.prepend(d);
     }
-    drawMom();
+    drawMom(); paintStats();
     clk.textContent=minute+"'"; pb.style.width=(minute/90*100)+"%";
     if(minute===45){const d=document.createElement("div");d.className="ev";d.innerHTML=`<span class="m">HT</span><span>Half time: ${s[0]}\u2013${s[1]}</span>`;feed.prepend(d)}
     if(minute>=90) finish();
@@ -246,7 +338,11 @@ function showMatchOverlay(o, onDone){
   const finish=()=>{
     clearInterval(timer);
     while(ei<events.length){minute=90;step()}
+    minute=90; paintStats();
     sc.textContent=gh+"\u2013"+ga; clk.textContent="FT";
+    if(o.motm){ const mo=document.createElement("div"); mo.className="motm";
+      mo.innerHTML=`<span class="motmlab">\u2b50 Player of the match</span><b class="motmn">${esc(o.motm.n)}</b><span class="motmr">${o.motm.rating}</span>${o.motm.goals?`<span class="motmg">\u26bd ${o.motm.goals}</span>`:""}`;
+      ov.insertBefore(mo, ov.querySelector(".row")); }
     const row=ov.querySelector(".row");
     row.innerHTML=`<span style="font-family:var(--display);font-size:26px;text-transform:uppercase;color:${o.color}">${esc(o.word)}</span><span class="muted">${esc(o.note)}</span><button class="btn primary" id="cont">${o.social?"See the reaction \ud83d\udcac":"Continue \u25b6"}</button>`;
     ov.querySelector("#cont").addEventListener("click",()=>{
@@ -263,10 +359,10 @@ function showMatchOverlay(o, onDone){
 function playMatch(){
   const r=S.round, {i,m}=myFixture(r), [h,a]=m;
   const home=h==="you", oppId=home?a:h;
-  const sim=simMatch(h,a);
   const info=previewInfo({comp:"Premier League", roundLabel:"Matchday "+(r+1), date:mDateObj(r), home, oppId, theme:"league", finalNeutral:false});
-  const kick=()=>{
-    const {gh,ga,events,lh,la}=sim;
+  const kick=(ment)=>{
+    const sim=simMatch(h,a,ment);
+    const {gh,ga,events,lh,la,poss,motm}=sim;
     const res=simRound(r,i); res[i]=[gh,ga];
     const mine=home?gh:ga, theirs=home?ga:gh;
     let earn=(mine>theirs?4:mine===theirs?2:1)+mine*.5; if(mine>theirs) earn=earn*0.7;
@@ -283,8 +379,8 @@ function playMatch(){
     const title="Premier League \u00b7 Matchday "+(r+1)+" \u00b7 "+venue;
     const word=mine>theirs?"Win":mine<theirs?"Defeat":"Draw";
     const color=mine>theirs?"var(--win)":mine<theirs?"var(--loss)":"var(--draw)";
-    const social={win:mine>theirs?1:mine<theirs?-1:0, score:gh+"\u2013"+ga, scorers:events.filter(e=>e.goal&&e.team==="you").map(e=>e.who), opp:teamInfo(oppId).name, oppShort:teamInfo(oppId).short, january:januaryBoost};
-    showMatchOverlay({h,a,lh,la,events,gh,ga,title,word,color,note:"+"+money(earn),social}, ()=>{
+    const social={win:mine>theirs?1:mine<theirs?-1:0, score:gh+"\u2013"+ga, scorers:events.filter(e=>e.type==="goal"&&e.team==="you").map(e=>e.who), opp:teamInfo(oppId).name, oppShort:teamInfo(oppId).short, january:januaryBoost, motm:motm&&(mine>=theirs)?motm.n:null};
+    showMatchOverlay({h,a,lh,la,events,gh,ga,poss,motm,title,word,color,note:"+"+money(earn),social}, ()=>{
       const fin=()=>{ render(); if(byes) toast("Your club had no fixture on that matchday. Those results are in the table."); };
       if(januaryBoost) showJanuaryNotice(fin); else fin();
     });
@@ -304,10 +400,10 @@ function cupDate(week){ return seasonStart()+(week*7+3)*864e5; }
 function playCup(){
   const c=S.cup, tie=c.rounds[c.idx], isFinal=tie.name==="Final";
   const h=tie.home?"you":tie.opp, a=tie.home?tie.opp:"you", home=tie.home, oppId=tie.opp;
-  const sim=simMatch(h,a);
   const info=previewInfo({comp:"League Cup", roundLabel:tie.name, date:new Date(cupDate(tie.week)), home, oppId, theme:"cup", finalNeutral:isFinal});
-  const kick=()=>{
-    const {gh,ga,events,lh,la}=sim;
+  const kick=(ment)=>{
+    const sim=simMatch(h,a,ment);
+    const {gh,ga,events,lh,la,poss,motm}=sim;
     const mine=home?gh:ga, theirs=home?ga:gh;
     let won=mine>theirs, pens=null;
     if(mine===theirs){ const Rm=teamRatings().ovr, Ro=ratingsFor(oppId).ovr; won=Math.random()<Rm/(Rm+Ro); pens=won?[ri(4,5),ri(2,4)]:[ri(2,4),ri(4,5)]; if(pens[0]===pens[1]) pens[won?0:1]++; }
@@ -322,8 +418,8 @@ function playCup(){
     const word=won?(isFinal?"CUP WINNERS \ud83c\udfc6":"Through \u2714"):"Knocked out";
     const color=won?"var(--win)":"var(--loss)";
     const pensTxt=pens?(won?"Won "+pens[0]+"\u2013"+pens[1]+" on pens \u00b7 ":"Lost "+pens[1]+"\u2013"+pens[0]+" on pens \u00b7 "):"";
-    const social={win:won?1:-1, score:gh+"\u2013"+ga, scorers:events.filter(e=>e.goal&&e.team==="you").map(e=>e.who), opp:teamInfo(oppId).name, oppShort:teamInfo(oppId).short, cup:{won, final:isFinal, round:tie.name}};
-    showMatchOverlay({h,a,lh,la,events,gh,ga,title,word,color,note:pensTxt+"+"+money(earn),social,theme:"cup"}, ()=> render());
+    const social={win:won?1:-1, score:gh+"\u2013"+ga, scorers:events.filter(e=>e.type==="goal"&&e.team==="you").map(e=>e.who), opp:teamInfo(oppId).name, oppShort:teamInfo(oppId).short, cup:{won, final:isFinal, round:tie.name}, motm:motm&&won?motm.n:null};
+    showMatchOverlay({h,a,lh,la,events,gh,ga,poss,motm,title,word,color,note:pensTxt+"+"+money(earn),social,theme:"cup"}, ()=> render());
   };
   showMatchPreview(info, kick);
 }
