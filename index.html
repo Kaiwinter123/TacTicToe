@@ -43,6 +43,11 @@ h1,h2,h3{font-family:var(--display);font-weight:900;letter-spacing:.01em;line-he
 .btn.danger{border-color:var(--loss);color:var(--loss);background:transparent}
 .btn.coffee{background:#ffdd00;color:#1a1405;border-color:#ffdd00;font-weight:700;text-decoration:none}
 .btn.coffee:hover{filter:brightness(1.05);border-color:#ffdd00}
+.btn.coffee.tiny{padding:3px 9px;font-size:11px;border-radius:7px;align-self:flex-start}
+.brand{display:flex;flex-direction:column;gap:5px;min-width:0}
+.brandname{font-family:var(--display);font-weight:900;font-size:26px;text-transform:uppercase;line-height:.85;letter-spacing:.01em}
+.brandname span{color:var(--flood)}
+@media (max-width:560px){.brandname{font-size:22px}}
 .coffee-link{display:inline-block;margin-top:4px;color:var(--muted);font-size:13px;text-decoration:underline;text-underline-offset:3px}
 .coffee-link:hover{color:var(--flood)}
 
@@ -793,6 +798,7 @@ function render(){
   const tbl=table(), pos=tbl.findIndex(r=>r.id==="you")+1;
   app.innerHTML = `
   <header class="bar"><div class="wrap">
+    <div class="brand"><div class="brandname">Tac<span>Tic</span>Toe</div><a class="btn coffee tiny" href="https://buymeacoffee.com/tictactoekai" target="_blank" rel="noopener">\u2615 Buy me a coffee</a></div>
     <div class="club-id">${crest(S.club.c1,S.club.c2,S.club.short,34)}<div style="min-width:0"><div class="nm">${esc(S.club.name)}</div><div class="sub">Manager ${esc(S.manager)} · Season ${S.season}</div></div></div>
     <div class="stats">
       <div class="stat"><div class="eyebrow">Budget</div><div class="v money">${money(S.budget)}</div></div>
