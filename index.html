@@ -1273,7 +1273,7 @@ function showSocial(ctx, onDone){
   const star = S.lastStar ? surname(S.lastStar) : null;
   const ctxLines=[];
   if(S.lastStar) ctxLines.push("BREAKING 📝 {club} have signed {star}! Proper statement of intent from {manager}.");
-  if(ctx.january) ctxLines.push("💰 {club} hand {manager} a £70m January war chest. Spend it well, gaffer!");
+  if(ctx.january) ctxLines.push("💰 {club} hand {manager} a £70m January board investment. Spend it well, gaffer!");
   if(ctx.cup){ ctxLines.unshift(ctx.cup.won ? (ctx.cup.final?"WE'VE WON THE CUP \ud83c\udfc6\ud83c\udfc6 {manager} is a LEGEND. Get it in the cabinet!!":"Into the next round of the Cup \ud83c\udfc6 {club} march on. {manager} rotating like a pro.") : "OUT of the Cup to {opp} \ud83d\ude29 {manager} says we focus on the league now."); }
   if(meRow.p>5 && pos<=4) ctxLines.push(pos===1?"TOP OF THE LEAGUE 🏆 pinch me. {manager} is building something special at {club}.":"{club} in the TOP FOUR 🌟 {manager} has us dreaming of Europe.");
   else if(meRow.p>5 && pos>=N-2) ctxLines.push("{club} in the drop zone 😬 {manager}, it's squeaky-bum time.");
@@ -1359,7 +1359,7 @@ function showJanuaryNotice(onDone){
   ov.innerHTML=`<div class="jancard">
     <div class="janicon">\ud83d\udcb0</div>
     <span class="eyebrow">Transfer window open</span>
-    <h2>January\u00a0War Chest</h2>
+    <h2>January Board\u00a0Investment</h2>
     <p>The board has backed you with a <b>\u00a370m</b> transfer budget. Open packs now to strengthen for the title run-in.</p>
     <div class="row" style="justify-content:center"><button class="btn primary" id="jok">Open packs \u2192</button><button class="btn" id="jlater">Maybe later</button></div>
   </div>`;
