@@ -406,6 +406,18 @@ tr.rel td:first-child{box-shadow:inset 3px 0 0 var(--loss)}
 .achcard .achico{font-size:26px;line-height:1}
 .achcard .achv{font-family:var(--num);font-weight:700;font-size:30px;color:var(--flood);line-height:1}
 .achcard .achl{font-size:12px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;font-family:var(--num)}
+/* sponsor */
+.sponsor{display:flex;align-items:center;gap:14px;text-decoration:none;color:var(--chalk);background:linear-gradient(100deg,rgba(58,160,255,.22),rgba(43,212,192,.12) 60%,transparent);border:1px solid rgba(58,160,255,.5);border-radius:12px;padding:12px 16px;margin-bottom:18px}
+.sponsor .sp-badge{font-size:26px;line-height:1;background:rgba(58,160,255,.2);border-radius:10px;padding:6px 8px}
+.sponsor .sp-text{display:flex;flex-direction:column;line-height:1.1;min-width:0}
+.sponsor .sp-label{font-family:var(--num);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--c-blue)}
+.sponsor .sp-name{font-family:var(--display);font-weight:900;font-size:24px;text-transform:uppercase;letter-spacing:.01em}
+.sponsor .sp-tag{margin-left:auto;font-size:12px;color:var(--muted);text-align:right}
+@media (max-width:560px){.sponsor .sp-tag{display:none}.sponsor .sp-name{font-size:20px}}
+.led{overflow:hidden;white-space:nowrap;width:min(560px,100%);background:#06101f;border:1px solid rgba(58,160,255,.4);border-radius:6px;padding:6px 0}
+.led span{display:inline-block;font-family:var(--num);font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:13px;color:#7fc4ff;padding:0 14px;animation:ledscroll 14s linear infinite}
+@keyframes ledscroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.led span{animation:none}}
 /* how-to */
 .howto{background:var(--stand);border:1px solid var(--line);border-radius:12px;padding:4px 16px;margin-bottom:18px}
 .howto[open]{border-color:var(--flood)}
@@ -824,7 +836,8 @@ function render(){
     ${[["club","Club"],["packs","Packs"],["squad","Squad"],["table","Table"],["calendar","Calendar"],["history","History"]].concat(isAdmin?[["admin","Admin"]]:[]).map(([k,l])=>`<button class="tab ${k==="admin"?"owner":""}" data-view="${k}" ${view===k?'aria-current="page"':""}>${l}</button>`).join("")}
   </div></nav></header>
   <main class="wrap">${(({club:vClub,packs:vPacks,squad:vSquad,table:vTable,calendar:vCalendar,history:vHistory,admin:vAdmin})[view]||vClub)(tbl,pos)}
-  <div style="margin-top:30px;text-align:center"><a class="btn coffee" href="https://buymeacoffee.com/tictactoekai" target="_blank" rel="noopener">\u2615 Enjoying TacTicToe? Buy me a coffee</a></div>
+  <p class="muted" style="margin:28px 0 0;text-align:center;font-size:13px">Official sponsor \u2014 <a href="https://upnorthplumbing.com/" target="_blank" rel="noopener sponsored" style="color:var(--c-blue);font-weight:700;text-decoration:underline;text-underline-offset:3px">UpNorthPlumbing</a></p>
+  <div style="margin-top:14px;text-align:center"><a class="btn coffee" href="https://buymeacoffee.com/tictactoekai" target="_blank" rel="noopener">\u2615 Enjoying TacTicToe? Buy me a coffee</a></div>
   <p class="muted" style="margin:16px 0 0;font-size:12px">© 2026 Kai Winterbottom. All rights reserved. Unofficial fan game, not affiliated with the Premier League or its clubs. Player ratings are this game's own estimates.</p></main>`;
   bind();
 }
@@ -843,7 +856,7 @@ function vClub(tbl,pos){
   const last=S.last;
   const newish = S.round<=1 && S.packs<2;
   const janSoon = !S.januaryDone && S.round<S.fixtures.length && mDateObj(S.round).getUTCMonth()===11;
-  return `${howTo(newish)}${janSoon?`<div class="janbanner"><b>\ud83d\udcb0 January transfer window opens next month.</b> The board will hand you \u00a370m to spend \u2014 start planning your signings.</div>`:""}<div class="grid2">
+  return `${howTo(newish)}${sponsorBanner()}${janSoon?`<div class="janbanner"><b>\ud83d\udcb0 January transfer window opens next month.</b> The board will hand you \u00a370m to spend \u2014 start planning your signings.</div>`:""}<div class="grid2">
     <section class="panel stack" aria-labelledby="nm">
       <div class="row" style="justify-content:space-between"><span class="eyebrow" id="nm">Next up · <b style="color:${isCup?"var(--elite)":"var(--flood)"}">${esc(compLabel)}</b> · ${esc(roundLabel)}</span><span class="eyebrow">${isCup&&cupRound==="Final"?"Neutral":home?"Home":"Away"}</span></div>
       <div class="fixture">
@@ -917,6 +930,9 @@ function upcoming(){
 function miniTable(tbl){
   const i=tbl.findIndex(r=>r.id==="you"), a=clamp(i-2,0,tbl.length-5);
   return tbl.slice(a,a+5).map((r,k)=>{const t=teamInfo(r.id);return `<div class="mini ${r.id==="you"?"me":""}"><span class="num muted">${a+k+1}</span>${crest(t.c1,t.c2,t.short,16)}<span class="grow">${esc(t.name)}</span><b class="num">${r.pts}</b></div>`}).join("");
+}
+function sponsorBanner(){
+  return `<a class="sponsor" href="https://upnorthplumbing.com/" target="_blank" rel="noopener sponsored" aria-label="Official sponsor UpNorthPlumbing \u2014 opens upnorthplumbing.com"><span class="sp-badge">\ud83d\udd27</span><span class="sp-text"><span class="sp-label">Official club sponsor</span><span class="sp-name">UpNorthPlumbing</span></span><span class="sp-tag">Proud sponsor of TacTicToe</span></a>`;
 }
 function howTo(open){
   return `<details class="howto" ${open?"open":""}>
@@ -1553,6 +1569,7 @@ function showMatchOverlay(o, onDone){
     <div class="momrow"><span class="marr" id="marrL">\u25c0</span><div class="mbar"><span class="mcenter"></span><i id="mom"></i></div><span class="marr" id="marrR">\u25b6</span></div>
     <div class="momcap"><span>${esc(H.short)}</span><span id="momtxt">Momentum</span><span>${esc(A.short)}</span></div>
     <div class="pbar"><i id="pb"></i></div>
+    <div class="led"><span>UpNorthPlumbing</span><span>\u00b7</span><span>Official Sponsor</span><span>\u00b7</span><span>UpNorthPlumbing</span></div>
     <div class="feed" id="feed" aria-live="polite"></div>
     <div class="row"><button class="btn" id="skip">Skip to full time</button></div>`;
   document.body.appendChild(ov);
