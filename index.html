@@ -522,7 +522,7 @@ function realisticVenues(fx){
 }
 function newGame(form){
   const squad=[];
-  S = {v:2, manager:form.manager, club:{name:form.name,short:form.short,c1:form.c1,c2:form.c2}, h2h:{},
+  S = {v:2, manager:form.manager, club:{name:form.name,short:form.short,stadium:form.stadium,c1:form.c1,c2:form.c2}, h2h:{},
     budget:START_BUDGET, season:1, round:0, squad, formation:"4-3-3", xi:[],
     teams:newSeasonTeams(), fixtures:null, results:[], history:[], packs:0, trophies:0, last:null, ended:false};
   S.fixtures = makeFixtures(["you"].concat(S.teams.map(t=>t.id)));
@@ -727,7 +727,7 @@ function vClub(tbl,pos){
         <div class="vs">V</div>
         <div class="side">${crest(home?opp.c1:S.club.c1,home?opp.c2:S.club.c2,home?opp.short:S.club.short,64)}<b>${esc(home?opp.name:S.club.name)}</b></div>
       </div>
-      <div class="venue">${home?`<span class="vtag home">HOME</span> At your home ground`:`<span class="vtag away">AWAY</span> At ${esc(stadiumFor(opp.short)||opp.name)}`}</div>
+      <div class="venue">${home?`<span class="vtag home">HOME</span> At ${esc(S.club.stadium)}`:`<span class="vtag away">AWAY</span> At ${esc(stadiumFor(opp.short)||opp.name)}`}</div>
       <div class="strength">
         <span class="muted">You</span><div class="meter"><i style="width:${clamp((R.ovr-40)/55*100,2,100)}%"></i></div><b class="num">${R.ovr.toFixed(0)}</b>
         <span class="muted">${esc(opp.short)}</span><div class="meter"><i style="width:${clamp((O.ovr-40)/55*100,2,100)}%;background:var(--muted)"></i></div><b class="num">${O.ovr}</b>
@@ -948,7 +948,7 @@ function vFixtures(){
 }
 
 /* ---------- gate (sign in + create club) ---------- */
-let draft = {manager:"",name:"",short:"",c1:"#e63946",c2:"#111111"};
+let draft = {manager:"",name:"",short:"",stadium:"",c1:"#e63946",c2:"#111111"};
 function gate(){
   const who = store.me;
   const hero=["Erling Haaland","Bukayo Saka","Mohamed Salah"].map(n=>POOL.find(p=>p.n===n)).filter(Boolean).map(p=>{const q=makePlayer(p.ovr,p.pos);q.n=p.n;q.club=p.club;q.a=attrsFor(p.ovr,p.pos,p.rid);return q});
@@ -963,6 +963,7 @@ function gate(){
         <label for="cname">Club name<input type="text" id="cname" maxlength="26" placeholder="e.g. Harbour Lane FC" value="${esc(draft.name)}" required></label>
         <label for="cshort">Short name (3 letters)<input type="text" id="cshort" maxlength="3" placeholder="HLF" value="${esc(draft.short)}"></label>
       </div>
+      <label for="cstad">Stadium name<input type="text" id="cstad" maxlength="34" placeholder="e.g. Harbour Park" value="${esc(draft.stadium)}"></label>
       <div class="formrow">
         <div class="stack" style="gap:6px"><span class="eyebrow">Home colour</span><div class="swatches">${SWATCHES.map(c=>`<button type="button" class="sw" style="background:${c}" data-c="c1" data-v="${c}" aria-label="Home colour ${c}" aria-pressed="${draft.c1===c}"></button>`).join("")}</div></div>
         <div class="stack" style="gap:6px"><span class="eyebrow">Second colour</span><div class="swatches">${SWATCHES.map(c=>`<button type="button" class="sw" style="background:${c}" data-c="c2" data-v="${c}" aria-label="Second colour ${c}" aria-pressed="${draft.c2===c}"></button>`).join("")}</div></div>
@@ -981,14 +982,14 @@ function paintPreview(){
 function bindGate(){
   const f=$("#create"); if(!f) return;
   paintPreview();
-  f.addEventListener("input",()=>{draft.manager=$("#mgr").value;draft.name=$("#cname").value;draft.short=$("#cshort").value.toUpperCase();paintPreview()});
+  f.addEventListener("input",()=>{draft.manager=$("#mgr").value;draft.name=$("#cname").value;draft.short=$("#cshort").value.toUpperCase();draft.stadium=$("#cstad").value;paintPreview()});
   f.querySelectorAll(".sw").forEach(b=>b.addEventListener("click",()=>{draft[b.dataset.c]=b.dataset.v;f.querySelectorAll(`.sw[data-c="${b.dataset.c}"]`).forEach(x=>x.setAttribute("aria-pressed",x===b));paintPreview()}));
   f.addEventListener("submit",e=>{
     e.preventDefault();
     const m=$("#mgr").value.trim(), n=$("#cname").value.trim(), err=$("#err");
     if(!m||!n){err.textContent="Enter your name and a club name to continue.";err.hidden=false;return}
     if(draft.c1===draft.c2){err.textContent="Pick two different colours so your kit stands out.";err.hidden=false;return}
-    newGame({manager:m,name:n,short:($("#cshort").value.trim()||shortFrom(n)).toUpperCase(),c1:draft.c1,c2:draft.c2});
+    newGame({manager:m,name:n,short:($("#cshort").value.trim()||shortFrom(n)).toUpperCase(),stadium:($("#cstad").value.trim()||n+" Stadium"),c1:draft.c1,c2:draft.c2});
     view="club"; render(); toast("Welcome to "+n+". Head to Packs to strengthen the squad.");
   });
 }
@@ -1058,7 +1059,7 @@ async function resetClub(){
   }catch(e){}
   S=null; view="club"; rosterCache=null;
   ui={slot:null, filter:"ALL", sel:null, confirmReset:false};
-  draft={manager:"",name:"",short:"",c1:"#e63946",c2:"#111111"};
+  draft={manager:"",name:"",short:"",stadium:"",c1:"#e63946",c2:"#111111"};
   render(); toast("Everything reset — create your new club.");
 }
 function nextSeason(){
@@ -1130,7 +1131,7 @@ function runDays(r,h,a,done){
   if(reduce){ done(); return; }
   const flavor=["Training session","Recovery & gym","Rest day","Tactics meeting","Light session","Set-piece drills","Travel & scouting"];
   const ov=document.createElement("div"); ov.className="overlay dayov"; ov.setAttribute("role","dialog"); ov.setAttribute("aria-label","Countdown to the match");
-  ov.innerHTML=`<span class="eyebrow">Matchday ${r+1} · ${home?"Home":"Away at "+esc(stadiumFor(opp.short)||opp.name)}</span>
+  ov.innerHTML=`<span class="eyebrow">Matchday ${r+1} · ${home?"Home at "+esc(S.club.stadium):"Away at "+esc(stadiumFor(opp.short)||opp.name)}</span>
     <div class="daycard" id="dc"><div class="dayweek" id="dw"></div><div class="daybig" id="db"></div><div class="daymon" id="dm"></div></div>
     <div class="daylabel" id="dl"></div>
     <div class="daydots" id="dd"></div>
@@ -1143,7 +1144,7 @@ function runDays(r,h,a,done){
   const show=()=>{
     const d=days[idx], last=idx===days.length-1;
     dw.textContent=CAL_WD[d.getUTCDay()]; db.textContent=d.getUTCDate(); dm.textContent=CAL_MO[d.getUTCMonth()]+" "+d.getUTCFullYear();
-    dl.innerHTML = last ? `<b class="md">MATCHDAY</b> · ${home?"vs "+esc(opp.name):"away at "+esc(stadiumFor(opp.short)||opp.name)}` : esc(flavor[idx%flavor.length]);
+    dl.innerHTML = last ? `<b class="md">MATCHDAY</b> · ${home?"vs "+esc(opp.name)+" at "+esc(S.club.stadium):"away at "+esc(stadiumFor(opp.short)||opp.name)}` : esc(flavor[idx%flavor.length]);
     dc.classList.toggle("match",last); dots.forEach((x,k)=>x.classList.toggle("on",k<=idx));
     dc.classList.remove("flip"); void dc.offsetWidth; dc.classList.add("flip");
   };
@@ -1191,7 +1192,7 @@ function playMatch(){
   const H=teamInfo(h), A=teamInfo(a);
   const kickoff=()=>{
   const ov=document.createElement("div"); ov.className="overlay"; ov.setAttribute("role","dialog"); ov.setAttribute("aria-label","Match");
-  ov.innerHTML=`<span class="eyebrow">Matchday ${r+1} · ${h==="you"?"Home":"Away · "+esc(stadiumFor(teamInfo(h).short)||teamInfo(h).name)}</span>
+  ov.innerHTML=`<span class="eyebrow">Matchday ${r+1} · ${h==="you"?"Home · "+esc(S.club.stadium):"Away · "+esc(stadiumFor(teamInfo(h).short)||teamInfo(h).name)}</span>
     <div class="board"><div class="tm">${crest(H.c1,H.c2,H.short,48)}${esc(H.name)}</div><div><div class="sc" id="sc">0–0</div><div class="clk" id="clk">0'</div></div><div class="tm">${crest(A.c1,A.c2,A.short,48)}${esc(A.name)}</div></div>
     <div class="momrow"><span class="marr" id="marrL">◀</span><div class="mbar"><span class="mcenter"></span><i id="mom"></i></div><span class="marr" id="marrR">▶</span></div>
     <div class="momcap"><span>${esc(H.short)}</span><span id="momtxt">Momentum</span><span>${esc(A.short)}</span></div>
@@ -1306,6 +1307,7 @@ let loaded=false;
 async function finishLoad(){
   if(loaded) return; loaded=true;
   try{ const saved=await load(); if(saved && saved.v===2){ if(!saved.h2h) saved.h2h={}; saved.squad.forEach(p=>{ if(!p.a||Object.keys(p.a).length<6) p.a=attrsFor(p.ovr,p.pos,p.rid) }); }
+    if(saved && saved.v===2){ if(!saved.club.stadium) saved.club.stadium=saved.club.name+" Stadium"; }
     if(saved && saved.v===2 && (!S || (saved.round+saved.season*100)>=(S.round+S.season*100))) S=saved; }
   catch(e){ toast("Couldn't load your saved club. Try reloading the page.") }
   // if this season hasn't been played yet, rebuild the fixtures with the mixed home/away schedule
