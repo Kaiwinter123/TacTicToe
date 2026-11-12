@@ -149,6 +149,10 @@ main{padding-block:22px 60px}
 .card .pnote{font-family:var(--num);font-weight:700;font-size:8.5px;letter-spacing:.03em;text-align:center;background:rgba(3,22,20,.45);border:1px solid rgba(141,255,233,.55);color:#cffff6;border-radius:6px;padding:2px 4px;position:relative;z-index:1;line-height:1.25}
 .prospecttip{background:linear-gradient(120deg,rgba(43,212,192,.16),rgba(43,212,192,.05));border:1px solid rgba(43,212,192,.5);border-radius:12px;padding:12px 14px;font-size:14px;color:var(--ink,#eafffb)}
 .prospecttip b{color:var(--c-teal)}
+.futurebanner{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:30;writing-mode:vertical-rl;text-orientation:mixed;background:linear-gradient(180deg,var(--c-teal),#0c4f62);color:#06201d;font-family:var(--display);font-weight:900;letter-spacing:.16em;text-transform:uppercase;padding:18px 10px;border-radius:14px 0 0 14px;font-size:15px;box-shadow:0 0 22px rgba(43,212,192,.5),-4px 0 14px rgba(0,0,0,.4);border:2px solid rgba(141,255,233,.65);border-right:none;animation:fbglow 2.6s ease-in-out infinite}
+@keyframes fbglow{50%{box-shadow:0 0 34px rgba(43,212,192,.8),-4px 0 14px rgba(0,0,0,.4)}}
+@media (max-width:860px){.futurebanner{position:static;writing-mode:horizontal-tb;transform:none;border-radius:12px;border-right:2px solid rgba(141,255,233,.65);text-align:center;margin-bottom:2px}}
+@media (prefers-reduced-motion:reduce){.futurebanner{animation:none}}
 @media (prefers-reduced-motion:reduce){.card.prospect::after{animation:none}}
 @keyframes sheen{0%{background-position:100% 0}60%,100%{background-position:-60% 0}}
 .card .top{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1}
@@ -1023,6 +1027,7 @@ const prizeFor = pos => (22-pos)*2 + (pos===1?25:0);
 
 function vPacks(){
   return `<div class="stack">
+    <aside class="futurebanner" aria-hidden="true"><span>⭐ The future starts now</span></aside>
     <div class="row" style="justify-content:space-between"><h2 style="font-size:36px">Pack store</h2><span class="muted">Squad ${S.squad.length}/${MAX_SQUAD}</span></div>
     <div class="packs">${PACKS.map(p=>`
       <article class="pack">
