@@ -289,6 +289,13 @@ tr.rel td:first-child{box-shadow:inset 3px 0 0 var(--loss)}
 
 .credit{position:fixed;left:max(10px,env(safe-area-inset-left,0px));bottom:max(8px,env(safe-area-inset-bottom,0px));z-index:4;font-family:var(--num);font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--muted);background:rgba(12,19,32,.72);backdrop-filter:blur(4px);padding:3px 9px;border:1px solid var(--line);border-radius:20px;pointer-events:none}
 @media (max-width:460px){.credit{font-size:10px;padding:2px 7px}}
+/* January notification */
+.jancard{background:var(--stand);border:2px solid var(--flood);border-radius:16px;padding:26px 24px;text-align:center;max-width:380px;box-shadow:0 22px 64px rgba(0,0,0,.6)}
+.jancard .janicon{font-size:52px;line-height:1}
+.jancard h2{font-family:var(--display);font-weight:900;font-size:36px;text-transform:uppercase;color:var(--flood);line-height:.95;margin:4px 0 10px}
+.jancard p{margin:0 0 18px;color:var(--chalk);font-size:15px}
+.janbanner{background:linear-gradient(90deg,rgba(244,200,75,.18),rgba(244,200,75,.06));border:1px solid var(--flood);border-radius:10px;padding:11px 14px;margin-bottom:18px;font-size:14px;color:var(--chalk)}
+.janbanner b{color:var(--flood)}
 /* the 5-minute check-in */
 .enjoy{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:rgba(5,9,16,.82);backdrop-filter:blur(3px);padding:20px;animation:efade .25s}
 .enjoy.bye{opacity:0;transition:opacity .3s}
@@ -775,7 +782,8 @@ function vClub(tbl,pos){
   const me=tbl.find(r=>r.id==="you"), filled=S.xi.filter(Boolean).length;
   const last=S.last;
   const newish = S.round<=1 && S.packs<2;
-  return `${howTo(newish)}<div class="grid2">
+  const janSoon = !S.januaryDone && S.round<S.fixtures.length && mDateObj(S.round).getUTCMonth()===11;
+  return `${howTo(newish)}${janSoon?`<div class="janbanner"><b>\ud83d\udcb0 January transfer window opens next month.</b> The board will hand you \u00a370m to spend \u2014 start planning your signings.</div>`:""}<div class="grid2">
     <section class="panel stack" aria-labelledby="nm">
       <div class="row" style="justify-content:space-between"><span class="eyebrow" id="nm">Next up · <b style="color:${isCup?"var(--elite)":"var(--flood)"}">${esc(compLabel)}</b> · ${esc(roundLabel)}</span><span class="eyebrow">${isCup&&cupRound==="Final"?"Neutral":home?"Home":"Away"}</span></div>
       <div class="fixture">
@@ -810,7 +818,7 @@ function vClub(tbl,pos){
       ${last?`<div class="panel stack"><span class="eyebrow">Last result</span><div class="row" style="justify-content:space-between"><b>${esc(teamInfo(last.h).short)} <span class="num" style="font-size:22px;color:var(--flood)">${last.sc[0]}–${last.sc[1]}</span> ${esc(teamInfo(last.a).short)}</b><span class="muted">+${money(last.earn)}</span></div></div>`:""}
       <div class="panel stack">
         <span class="eyebrow">Earnings</span>
-        <p class="muted" style="margin:0">Win £4m · Draw £2m · Loss £1m · £0.5m per goal. Prize money at season end for every place, plus £25m for the title.</p>
+        <p class="muted" style="margin:0">Win ~£2.8m · Draw £2m · Loss £1m · £0.5m per goal (win bonus trimmed). Cup runs and season-end prize money for every place, plus £25m for the title.</p>
         <button class="btn" data-view="packs">Spend ${money(S.budget)} on packs</button>
       </div>
       <div class="panel stack">
@@ -1346,6 +1354,20 @@ function scorer(team){
   for(const [p,k] of w){x-=k;if(x<=0)return p.n}
   return "Own goal";
 }
+function showJanuaryNotice(onDone){
+  const ov=document.createElement("div"); ov.className="overlay jannote"; ov.setAttribute("role","dialog"); ov.setAttribute("aria-label","January transfer window");
+  ov.innerHTML=`<div class="jancard">
+    <div class="janicon">\ud83d\udcb0</div>
+    <span class="eyebrow">Transfer window open</span>
+    <h2>January\u00a0War Chest</h2>
+    <p>The board has backed you with a <b>\u00a370m</b> transfer budget. Open packs now to strengthen for the title run-in.</p>
+    <div class="row" style="justify-content:center"><button class="btn primary" id="jok">Open packs \u2192</button><button class="btn" id="jlater">Maybe later</button></div>
+  </div>`;
+  document.body.appendChild(ov);
+  ov.querySelector("#jok").addEventListener("click",()=>{ ov.remove(); view="packs"; onDone(); });
+  ov.querySelector("#jlater").addEventListener("click",()=>{ ov.remove(); onDone(); });
+  ov.querySelector("#jok").focus();
+}
 // ---- shared match engine ----
 function simMatch(h,a){
   const [lh,la]=lambdas(h,a), gh=poisson(lh), ga=poisson(la);
@@ -1421,7 +1443,8 @@ function playMatch(){
   const sim=simMatch(h,a); const {gh,ga,events,lh,la}=sim;
   const res=simRound(r,i); res[i]=[gh,ga];
   const mine=h==="you"?gh:ga, theirs=h==="you"?ga:gh;
-  const earn=(mine>theirs?4:mine===theirs?2:1)+mine*.5;
+  let earn=(mine>theirs?4:mine===theirs?2:1)+mine*.5;
+  if(mine>theirs) earn=earn*0.7; // winning-match prize pool reduced 30%
   S.results[r]=res; S.round++; S.budget+=earn; S.last={h,a,sc:[gh,ga],earn};
   const oppId=h==="you"?a:h;
   if(!S.h2h) S.h2h={};
@@ -1433,13 +1456,15 @@ function playMatch(){
   if(!S.januaryDone && mDateObj(r).getUTCMonth()===0){ S.budget+=70; S.januaryDone=true; januaryBoost=true; }
   const byes=advanceByes();
   save();
-  if(januaryBoost) toast("January transfer window \u2014 \u00a370m added to your budget! \ud83d\udcb0");
   const venue = h==="you" ? "Home \u00b7 "+S.club.stadium : "Away \u00b7 "+(stadiumFor(teamInfo(h).short)||teamInfo(h).name);
   const title = "Premier League \u00b7 Matchday "+(r+1)+" \u00b7 "+venue;
   const word = mine>theirs?"Win":mine<theirs?"Defeat":"Draw";
   const color = mine>theirs?"var(--win)":mine<theirs?"var(--loss)":"var(--draw)";
   const social = {win:mine>theirs?1:mine<theirs?-1:0, score:gh+"\u2013"+ga, scorers:events.filter(e=>e.goal&&e.team==="you").map(e=>e.who), opp:teamInfo(oppId).name, oppShort:teamInfo(oppId).short, january:januaryBoost};
-  runDays(r,h,a, ()=> showMatchOverlay({h,a,lh,la,events,gh,ga,title,word,color,note:"+"+money(earn),social}, ()=>{ render(); if(byes) toast("Your club had no fixture on that matchday. Those results are in the table."); }));
+  runDays(r,h,a, ()=> showMatchOverlay({h,a,lh,la,events,gh,ga,title,word,color,note:"+"+money(earn),social}, ()=>{
+    const fin=()=>{ render(); if(byes) toast("Your club had no fixture on that matchday. Those results are in the table."); };
+    if(januaryBoost) showJanuaryNotice(fin); else fin();
+  }));
 }
 
 function makeCup(base){
