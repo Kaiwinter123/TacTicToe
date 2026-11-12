@@ -15,9 +15,9 @@ function render(){
     </div>
   </div>
   <nav class="tabs" aria-label="Sections"><div class="wrap">
-    ${[["club","Club"],["packs","Packs"],["squad","Squad"],["table","Table"],["calendar","Calendar"],["history","History"],["updates","Updates"]].concat(isAdmin?[["admin","Admin"]]:[]).map(([k,l])=>`<button class="tab ${k==="admin"?"owner":k==="updates"?"fresh":""}" data-view="${k}" ${view===k?'aria-current="page"':""}>${l}${k==="updates"?'<span class="newdot">NEW</span>':""}</button>`).join("")}
+    ${[["club","Club"],["packs","Packs"],["squad","Squad"],["table","Table"],["calendar","Calendar"],["news","News"],["history","History"],["updates","Updates"]].concat(isAdmin?[["admin","Admin"]]:[]).map(([k,l])=>`<button class="tab ${k==="admin"?"owner":k==="updates"?"fresh":""}" data-view="${k}" ${view===k?'aria-current="page"':""}>${l}${k==="updates"?'<span class="newdot">NEW</span>':""}</button>`).join("")}
   </div></nav></header>
-  <main class="wrap">${(({club:vClub,packs:vPacks,squad:vSquad,table:vTable,calendar:vCalendar,history:vHistory,updates:vUpdates,admin:vAdmin})[view]||vClub)(tbl,pos)}
+  <main class="wrap">${(({club:vClub,packs:vPacks,squad:vSquad,table:vTable,calendar:vCalendar,news:vNews,history:vHistory,updates:vUpdates,admin:vAdmin})[view]||vClub)(tbl,pos)}
   <p class="muted" style="margin:28px 0 0;text-align:center;font-size:13px">Official sponsor \u2014 <a href="https://upnorthplumbing.com/" target="_blank" rel="noopener sponsored" style="color:var(--c-blue);font-weight:700;text-decoration:underline;text-underline-offset:3px">UpNorthPlumbing</a></p>
   <div style="margin-top:14px;text-align:center"><a class="btn coffee" href="https://buymeacoffee.com/tictactoekai" target="_blank" rel="noopener">\u2615 Enjoying TacTicToe? Buy me a coffee</a></div>
   <p class="muted" style="margin:16px 0 0;font-size:12px">© 2026 Kai Winterbottom. All rights reserved. Unofficial fan game, not affiliated with the Premier League or its clubs. Player ratings are this game's own estimates.</p></main>`;
@@ -171,6 +171,7 @@ const prizeFor = pos => (22-pos)*2 + (pos===1?25:0);
 function vPacks(){
   return `<div class="stack">
     <aside class="futurebanner" aria-hidden="true"><span>⭐ Future starts now in packs</span></aside>
+    <aside class="finestbanner" aria-hidden="true"><span>⭐ Europe’s Finest now in packs</span></aside>
     <div class="row" style="justify-content:space-between"><h2 style="font-size:36px">Pack store</h2><span class="muted">Squad ${S.squad.length}/${MAX_SQUAD}</span></div>
     <div class="packs">${PACKS.map(p=>`
       <article class="pack">
@@ -261,7 +262,10 @@ function vAdmin(){
 }
 function ordinalPos(n){ return n>0?ordinal(n):"\u2014"; }
 const CHANGELOG = [
-  {tag:"NEW", accent:"var(--loss)", date:"Latest", title:"Injuries & the Treatment Room",
+  {tag:"NEW", accent:"var(--c-blue)", date:"Latest", title:"News tab",
+   body:"A matchday news hub that brings the rest of the football world into your season.",
+   items:["Every other Premier League result from the latest matchday, plus a live top-of-the-table story.","League talking points — the title race, the relegation scrap and the division’s top scorers.","Around Europe: continental headlines starring the names you can pull as Europe’s Finest cards."]},
+  {tag:"NEW", accent:"var(--loss)", date:"Recent", title:"Injuries & the Treatment Room",
    body:"Your players can now pick up injuries during matches — about one every six games.",
    items:["Four severities, from a one-game Knock to a serious injury that sidelines a player for 8–12 matches.","Injuries show live in the match feed; injured players can’t be picked until they recover — one game closer each match.","A new Treatment Room on the Squad screen lists everyone currently injured and their return time.","A fit sub is pulled into your XI automatically when someone goes down, and season’s end clears the lot."]},
   {tag:"NEW", accent:"var(--c-orange)", date:"Recent", title:"Matchday overhaul",
@@ -315,6 +319,72 @@ function vUpdates(){
       ${ROADMAP.map(rm=>`<div class="roadcard"><b>${esc(rm.title)}</b><span>${esc(rm.body)}</span></div>`).join("")}
     </div>
     <p class="muted" style="margin:6px 0 0;font-size:13px">Got an idea or found a bug? These updates come from player feedback — keep it coming.</p>
+  </section>`;
+}
+const NEWS_OUTLETS_PL=["The Matchday Wire","Prem Report","Touchline Times","Back Page","The Byline","Ninety Minutes"];
+const NEWS_OUTLETS_EU=["Continental Football","European Scout","Matchday Europe","World Football Wire","The Continental","Golden Ball Daily"];
+const EU_LEAGUE={RMA:"La Liga",BAR:"La Liga",ATM:"La Liga",BAY:"Bundesliga",DOR:"Bundesliga",PSG:"Ligue 1",INT:"Serie A",NAP:"Serie A",MIL:"Serie A",JUV:"Serie A"};
+function vNews(tbl){
+  const rng=seeded("news_"+S.season+"_"+S.round);
+  const rp=a=>a[Math.floor(rng()*a.length)];
+  const rr=(a,b)=>a+Math.floor(rng()*(b-a+1));
+  const sc=()=>rr(1,4)+"–"+rr(0,2);
+  const T=tbl||table(), N=T.length, mePos=T.findIndex(r=>r.id==="you")+1;
+  const leader=T[0], second=T[1]||leader, lInfo=teamInfo(leader.id);
+  const gap=leader.pts-second.pts;
+  // ---- hero: biggest league story ----
+  const heroSub = gap<=0 ? `${esc(teamInfo(second.id).name)} are level on points at the top — the title race is wide open.`
+    : `${esc(lInfo.name)} are ${gap} point${gap>1?"s":""} clear at the summit after ${leader.p} game${leader.p>1?"s":""}.`;
+  const hero=`<div class="newshero">${crest(lInfo.c1,lInfo.c2,lInfo.short,46)}
+    <div style="min-width:0"><span class="eyebrow">Premier League · top story</span>
+    <h2 class="nherohead">${esc(lInfo.name)} ${gap<=0?"cling to top spot":"set the pace"}</h2>
+    <p class="nherosub">${heroSub}</p></div></div>`;
+  // ---- other PL results this matchday ----
+  const last=S.round-1; let resHTML="";
+  if(last>=0 && S.results[last]){
+    const fx=S.fixtures[last], res=S.results[last];
+    resHTML = fx.map((pair,i)=>{ if(!pair||pair.includes("bye")) return ""; const s=res[i]; if(!s) return "";
+      const [h,a]=pair, H=teamInfo(h), A=teamInfo(a), mine=h==="you"||a==="you";
+      return `<div class="plrow${mine?" me":""}">${crest(H.c1,H.c2,H.short,16)}<span class="pn">${esc(H.short)}</span><b class="sc">${s[0]}–${s[1]}</b><span class="pn r">${esc(A.short)}</span>${crest(A.c1,A.c2,A.short,16)}</div>`;
+    }).join("");
+  }
+  // ---- league talking points ----
+  const pts=[];
+  const topN = mePos<=4 ? "in the hunt for Europe" : mePos>=N-2 ? "in a relegation scrap" : "in mid-table";
+  pts.push({src:rp(NEWS_OUTLETS_PL),acc:"var(--flood)",head:`Your club sit ${ordinal(mePos)}`,body:`${esc(S.club.name)} are ${topN} after ${leader.p} rounds. ${mePos===1?"Dare to dream of the title.":mePos<=4?"Keep this up and it’s continental football next year.":mePos>=N-2?"Points are needed, and fast.":"Steady progress — push on."}`});
+  const relg=T.slice(-3).map(r=>teamInfo(r.id).name);
+  pts.push({src:rp(NEWS_OUTLETS_PL),acc:"var(--loss)",head:"Trouble at the bottom",body:`${esc(relg.join(", "))} make up the current bottom three and face a battle to beat the drop.`});
+  const topScorerClub=[...T].sort((a,b)=>b.gf-a.gf)[0];
+  pts.push({src:rp(NEWS_OUTLETS_PL),acc:"var(--c-orange)",head:"Goal machines",body:`${esc(teamInfo(topScorerClub.id).name)} have scored the most in the division (${topScorerClub.gf}) — free-scoring and fearless.`});
+  // ---- continental / Europe's Finest news ----
+  const shorts=Object.keys(EURO_CLUBS);
+  const playerOf=s=>{const l=UCL.filter(u=>u.csh===s); return l.length?rp(l).n:"their talisman";};
+  const two=()=>{ const a=rp(shorts); let b; do{ b=rp(shorts);}while(b===a); return [a,b]; };
+  const eu=[];
+  { const[a,b]=two(), pa=playerOf(a); eu.push({a,head:`${pa} fires ${EURO_CLUBS[a][2]} past ${EURO_CLUBS[b][2]}`,body:`A ${sc()} win in ${EU_LEAGUE[a]||"Europe"} as ${EURO_CLUBS[a][2]} keep up the pressure at the top. ${pa} was once again the difference.`}); }
+  { const[a,b]=two(), pa=playerOf(a); eu.push({a:b,head:`${EURO_CLUBS[b][2]} eyeing ${pa}`,body:`Reports across ${EU_LEAGUE[b]||"the continent"} claim ${EURO_CLUBS[b][2]} are lining up a blockbuster move for ${EURO_CLUBS[a][2]}’s ${pa} in the next window.`}); }
+  { const[a,b]=two(), pa=playerOf(a), pb=playerOf(b); eu.push({a,head:`Champions League classic: ${EURO_CLUBS[a][2]} ${sc()} ${EURO_CLUBS[b][2]}`,body:`A breathless European night under the lights, with ${pa} and ${pb} both on the scoresheet.`}); }
+  { const a=rp(shorts), pa=playerOf(a); eu.push({a,head:`Ballon d’Or watch: ${pa} stakes his claim`,body:`Another standout display for ${EURO_CLUBS[a][2]} has pundits talking up ${pa} as a genuine contender for the game’s top prize.`}); }
+  { const a=rp(shorts); eu.push({a,head:`${EURO_CLUBS[a][2]} on an unbeaten run`,body:`${rr(6,14)} games without defeat in ${EU_LEAGUE[a]||"their league"} — ${EURO_CLUBS[a][2]} are the team nobody in Europe wants to face right now.`}); }
+  const euShuf=eu.map(x=>[rng(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
+  const euCards=euShuf.map(n=>{const c=EURO_CLUBS[n.a];return `<article class="newscard" style="--acc:var(--c-blue)"><div class="nctop">${crest(c[0],c[1],n.a,20)}<span class="nsrc">${esc(rp(NEWS_OUTLETS_EU))}</span><span class="newstag eu">Europe</span></div><h3 class="nhead">${esc(n.head)}</h3><p class="nbody">${esc(n.body)}</p></article>`;}).join("");
+  return `<section class="stack newswrap">
+    <div class="row" style="justify-content:space-between"><h2 style="font-size:40px">News</h2><span class="muted">Season ${S.season} · Matchday ${Math.min(S.round+1,S.fixtures.length)}</span></div>
+    ${hero}
+    <div class="newscols">
+      <div class="stack">
+        <div class="panel stack"><span class="eyebrow">Premier League · latest results</span>
+          <div class="plres">${resHTML||`<p class="muted" style="margin:0">Play your first match to see results come in across the league.</p>`}</div>
+          <button class="btn small" data-view="table" style="align-self:flex-start">Full table →</button></div>
+        <span class="eyebrow">Talking points</span>
+        <div class="newsgrid">${pts.map(p=>`<article class="newscard" style="--acc:${p.acc}"><div class="nctop"><span class="nsrc">${esc(p.src)}</span><span class="newstag pl">Prem</span></div><h3 class="nhead">${esc(p.head)}</h3><p class="nbody">${p.body}</p></article>`).join("")}</div>
+      </div>
+      <div class="stack">
+        <span class="eyebrow">⭐ Around Europe</span>
+        <div class="newsgrid">${euCards}</div>
+        <p class="muted" style="margin:0;font-size:12px">Continental coverage featuring the stars you can pull as Europe’s Finest cards.</p>
+      </div>
+    </div>
   </section>`;
 }
 function vHistory(tbl,pos){
