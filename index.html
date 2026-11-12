@@ -541,7 +541,7 @@ function realisticVenues(fx){
 }
 function newGame(form){
   const squad=[];
-  S = {v:2, manager:form.manager, club:{name:form.name,short:form.short,stadium:form.stadium,c1:form.c1,c2:form.c2}, h2h:{},
+  S = {v:2, manager:form.manager, club:{name:form.name,short:form.short,stadium:form.stadium,c1:form.c1,c2:form.c2}, h2h:{}, januaryDone:false, lastStar:null,
     budget:START_BUDGET, season:1, round:0, squad, formation:"4-3-3", xi:[],
     teams:newSeasonTeams(), fixtures:null, results:[], history:[], packs:0, trophies:0, last:null, ended:false};
   S.fixtures = makeFixtures(["you"].concat(S.teams.map(t=>t.id)));
@@ -919,7 +919,8 @@ function vTable(tbl){
   </tbody></table></div><p class="muted" style="margin:0;font-size:13px">Green: top four. Red: bottom three.</p></section>`;
 }
 const CAL_WD=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], CAL_MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-function mDate(round){ const start=Date.UTC(2025+S.season,7,8); const d=new Date(start+Math.round(round*6.95)*864e5); return {wd:CAL_WD[d.getUTCDay()],day:d.getUTCDate(),mo:CAL_MO[d.getUTCMonth()],yr:d.getUTCFullYear()}; }
+function seasonStart(){ const y=2025+S.season; let d=Date.UTC(y,7,15); while(new Date(d).getUTCDay()!==6) d+=864e5; return d; } // first Saturday on/after 15 Aug
+function mDate(round){ const d=mDateObj(round); return {wd:CAL_WD[d.getUTCDay()],day:d.getUTCDate(),mo:CAL_MO[d.getUTCMonth()],yr:d.getUTCFullYear()}; }
 function vCalendar(tbl){
   const over = S.round>=S.fixtures.length;
   // advance header
@@ -1085,7 +1086,7 @@ function nextSeason(){
   const tbl=table(), pos=tbl.findIndex(r=>r.id==="you")+1, prize=prizeFor(pos);
   S.history.push({season:S.season,pos,pts:tbl[pos-1].pts});
   if(pos===1) S.trophies++;
-  S.budget+=prize; S.season++; S.round=0; S.results=[]; S.last=null;
+  S.budget+=prize; S.season++; S.round=0; S.results=[]; S.last=null; S.januaryDone=false; S.lastStar=null;
   S.teams=newSeasonTeams(S.teams);
   S.fixtures=makeFixtures(["you"].concat(S.teams.map(t=>t.id)));
   advanceByes(); save(); render(); toast(`${money(prize)} prize money added. Season ${S.season} begins.`);
@@ -1101,6 +1102,7 @@ function openPack(pk){
   if(pk.guar) add(ri(pk.guar,pk.hi),pk.guar,null,gapPos());
   while(got.length<pk.count) add(rollOvr(pk.lo,pk.hi),null,null,gapPos());
   got.sort((a,b)=>a.ovr-b.ovr);
+  const topPull=got[got.length-1]; if(topPull && topPull.ovr>=86) S.lastStar=topPull.n;
   save();
 
   const ov=document.createElement("div"); ov.className="overlay"; ov.setAttribute("role","dialog"); ov.setAttribute("aria-label",pk.name+" pack");
@@ -1193,10 +1195,23 @@ function showSocial(ctx, onDone){
   const scape = xiP.length ? surname(pick(xiP).n) : "the defence";
   const verb = ctx.win>0?"deserved every bit of that":ctx.win<0?"were well below it":"just about earned their point";
   const tone = ctx.win>0?T_WIN:ctx.win<0?T_LOSS:T_DRAW;
+  // wider context: league position, streak, title / relegation, signings, windfalls
+  const tbl=table(), meRow=tbl.find(x=>x.id==="you")||{form:[],p:0}, pos=tbl.findIndex(x=>x.id==="you")+1, N=tbl.length;
+  const form=meRow.form||[]; let sv=form.length?form[form.length-1]:null, streak=0; for(let i=form.length-1;i>=0&&form[i]===sv;i--) streak++;
+  const star = S.lastStar ? surname(S.lastStar) : null;
+  const ctxLines=[];
+  if(S.lastStar) ctxLines.push("BREAKING 📝 {club} have signed {star}! Proper statement of intent from {manager}.");
+  if(ctx.january) ctxLines.push("💰 {club} hand {manager} a £70m January war chest. Spend it well, gaffer!");
+  if(meRow.p>5 && pos<=4) ctxLines.push(pos===1?"TOP OF THE LEAGUE 🏆 pinch me. {manager} is building something special at {club}.":"{club} in the TOP FOUR 🌟 {manager} has us dreaming of Europe.");
+  else if(meRow.p>5 && pos>=N-2) ctxLines.push("{club} in the drop zone 😬 {manager}, it's squeaky-bum time.");
+  if(streak>=3 && sv==="W") ctxLines.push(streak+" wins on the spin!! {club} are UNREAL right now 🔥 {manager} magic.");
+  if(streak>=3 && sv==="L") ctxLines.push(streak+" defeats in a row... is {manager} losing the dressing room? 😤");
   const fill = t => t.replace(/{club}/g,esc(club)).replace(/{opp}/g,esc(ctx.opp)).replace(/{manager}/g,esc(manager))
-    .replace(/{score}/g,esc(ctx.score)).replace(/{scorer}/g,esc(scorer||"the lads")).replace(/{player}/g,esc(scape)).replace(/{verb}/g,esc(verb));
-  const lines = tone.slice().sort(()=>Math.random()-.5).slice(0,4);
-  lines.splice(ri(1,3),0, pick(T_PUNDIT)); // drop a pundit take into the mix
+    .replace(/{score}/g,esc(ctx.score)).replace(/{scorer}/g,esc(scorer||"the lads")).replace(/{player}/g,esc(scape)).replace(/{verb}/g,esc(verb)).replace(/{star}/g,esc(star||"a new face"));
+  S.lastStar=null; // consumed
+  let lines = ctxLines.slice(0,2).concat(tone.slice().sort(()=>Math.random()-.5).slice(0,3));
+  lines.splice(ri(1,Math.max(1,lines.length)),0, pick(T_PUNDIT));
+  lines = lines.slice(0,6);
   const users = SOCIAL_USERS.slice().sort(()=>Math.random()-.5);
   const posts = lines.map((t,i)=>{ const u=users[i%users.length]; const base=u.v?ri(400,5200):ri(8,900);
     return {u, txt:fill(t), time:(i*4+1+ri(0,5))+"m", likes:base, rt:Math.floor(base/ (3+ri(0,4))), rep:ri(2,120)}; });
@@ -1216,7 +1231,7 @@ function showSocial(ctx, onDone){
   sov.querySelector("#scont").addEventListener("click",()=>{ sov.remove(); onDone(); });
   sov.querySelector("#scont").focus();
 }
-function mDateObj(round){ const start=Date.UTC(2025+S.season,7,8); return new Date(start+Math.round(round*6.95)*864e5); }
+function mDateObj(round){ return new Date(seasonStart()+round*7*864e5); } // one round per week
 // Tick through the calendar days leading up to a match, then kick off.
 function runDays(r,h,a,done){
   const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -1284,8 +1299,11 @@ function playMatch(){
   if(mine>theirs) rec.w++; else if(mine<theirs) rec.l++; else rec.d++;
   rec.log.push({s:S.season, md:r+1, home:h==="you", m:mine, t:theirs});
   if(rec.log.length>12) rec.log=rec.log.slice(-12);
+  let januaryBoost=false;
+  if(!S.januaryDone && mDateObj(r).getUTCMonth()===0){ S.budget+=70; S.januaryDone=true; januaryBoost=true; }
   const byes=advanceByes();
   save();
+  if(januaryBoost) toast("January transfer window — £70m added to your budget! 💰");
 
   const H=teamInfo(h), A=teamInfo(a);
   const kickoff=()=>{
@@ -1337,7 +1355,7 @@ function playMatch(){
     const k=mine>theirs?"Win":mine<theirs?"Defeat":"Draw";
     const row=ov.querySelector(".row");
     row.innerHTML=`<span style="font-family:var(--display);font-size:28px;text-transform:uppercase;color:${mine>theirs?"var(--win)":mine<theirs?"var(--loss)":"var(--draw)"}">${k}</span><span class="muted">+${money(earn)}</span><button class="btn primary" id="cont">See the reaction 💬</button>`;
-    ov.querySelector("#cont").addEventListener("click",()=>{ showSocial({win:mine>theirs?1:mine<theirs?-1:0, score:gh+"–"+ga, scorers:events.filter(e=>e.goal&&e.team==="you").map(e=>e.who), opp:(h==="you"?A:H).name, oppShort:(h==="you"?A:H).short}, ()=>{ov.remove();render();if(byes)toast("Your club had no fixture on the next matchday. Those results are in the table.");}); });
+    ov.querySelector("#cont").addEventListener("click",()=>{ showSocial({win:mine>theirs?1:mine<theirs?-1:0, score:gh+"–"+ga, scorers:events.filter(e=>e.goal&&e.team==="you").map(e=>e.who), opp:(h==="you"?A:H).name, oppShort:(h==="you"?A:H).short, january:januaryBoost}, ()=>{ov.remove();render();if(byes)toast("Your club had no fixture on the next matchday. Those results are in the table.");}); });
     ov.querySelector("#cont").focus();
   };
   ov.querySelector("#skip").addEventListener("click",()=>{minute=89;step()});
@@ -1404,7 +1422,7 @@ function start(data){
 let loaded=false;
 async function finishLoad(){
   if(loaded) return; loaded=true;
-  try{ const saved=await load(); if(saved && saved.v===2){ if(!saved.h2h) saved.h2h={}; saved.squad.forEach(p=>{ if(!p.a||Object.keys(p.a).length<6) p.a=attrsFor(p.ovr,p.pos,p.rid) }); }
+  try{ const saved=await load(); if(saved && saved.v===2){ if(!saved.h2h) saved.h2h={}; if(saved.januaryDone===undefined) saved.januaryDone=false; saved.squad.forEach(p=>{ if(!p.a||Object.keys(p.a).length<6) p.a=attrsFor(p.ovr,p.pos,p.rid) }); }
     if(saved && saved.v===2){ if(!saved.club.stadium) saved.club.stadium=saved.club.name+" Stadium"; }
     if(saved && saved.v===2 && (!S || (saved.round+saved.season*100)>=(S.round+S.season*100))) S=saved; }
   catch(e){ toast("Couldn't load your saved club. Try reloading the page.") }
