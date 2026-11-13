@@ -217,6 +217,21 @@ main{padding-block:22px 60px}
 .acadrow .acstatus{margin-left:auto;font-family:var(--num);font-size:11px;font-weight:700;letter-spacing:.04em;padding:3px 9px;border-radius:8px;white-space:nowrap}
 .acadrow .acstatus.in{background:rgba(67,195,131,.18);color:var(--c-money)}
 .acadrow .acstatus.out{background:rgba(255,255,255,.06);color:var(--muted)}
+/* academy prospect profiles */
+.ppgenflag{font-family:var(--num);font-size:11px;font-weight:700;color:var(--gold)}
+.ppgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.ppcard{background:var(--stand2);border:1px solid var(--line);border-top:3px solid var(--muted);border-radius:12px;padding:13px 14px;display:flex;flex-direction:column;gap:9px}
+.ppcard.good{border-top-color:var(--c-money)} .ppcard.elite{border-top-color:var(--c-blue)}
+.ppcard.gen{border-top-color:var(--gold);box-shadow:0 0 0 1px rgba(244,200,74,.4),0 0 18px rgba(244,200,74,.12)}
+.ppcard .pp-head{display:flex;align-items:center;gap:11px}
+.ppcard .pp-ovr{font-family:var(--num);font-weight:700;font-size:26px;min-width:40px;text-align:center;line-height:1}
+.ppcard .pp-head b{font-size:16px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ppcard .pp-meta{font-size:12px;color:var(--muted)}
+.ppcard .pp-pot{font-family:var(--num);font-size:11px;font-weight:700;letter-spacing:.03em;padding:4px 9px;border-radius:8px;align-self:flex-start;background:rgba(255,255,255,.06);color:var(--muted)}
+.ppcard .pp-pot.good{background:rgba(67,195,131,.16);color:var(--c-money)}
+.ppcard .pp-pot.elite{background:rgba(58,160,255,.16);color:var(--c-blue)}
+.ppcard .pp-pot.gen{background:linear-gradient(90deg,rgba(244,200,74,.9),rgba(255,230,150,.9));color:#2a2000}
+.ppcard .pp-bg{margin:0;font-size:13px;line-height:1.5;color:var(--chalk);opacity:.9}
 /* club reputation */
 .stats .v.rep{color:var(--c-purple)}
 .repbox{border:1px solid color-mix(in srgb,var(--c-purple) 30%,var(--line))}

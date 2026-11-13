@@ -91,8 +91,11 @@ function nextSeason(){
   addRep(pos===1?50 : pos<=4?24 : pos<=Math.ceil(tbl.length/2)?10 : 3);
   if(pos===1) S.trophies++;
   const summer=50; S.budget+=prize+summer; S.season++; S.round=0; S.results=[]; S.last=null; S.januaryDone=false; S.lastStar=null;
-  S.squad.forEach(p=>{ if(p.inj) delete p.inj; if(p.prospect && p.ovr<PROSPECT_CAP){ p.ovr=Math.min(PROSPECT_CAP,p.ovr+1); p.a=attrsFor(p.ovr,p.pos,p.rid); } });
-  graduateYouth(2, "Season "+S.season+" intake");
+  S.squad.forEach(p=>{ if(p.inj) delete p.inj;
+    if(p.prospect && p.ovr<PROSPECT_CAP){ p.ovr=Math.min(PROSPECT_CAP,p.ovr+1); p.a=attrsFor(p.ovr,p.pos,p.rid); }
+    if(p.academy && p.potential && p.ovr<p.potential){ p.ovr=Math.min(p.potential, p.ovr+(p.ovr<p.potential-8?2:1)); p.a=attrsFor(p.ovr,p.pos); }
+  });
+  academySeason();
   S.teams=newSeasonTeams(S.teams);
   S.fixtures=makeFixtures(["you"].concat(S.teams.map(t=>t.id)));
   S.cup=makeCup(4); S.schedFixed=true;

@@ -45,20 +45,46 @@ function drawRealPack(target,lo,hi,minOvr,pos){
 }
 // ---------- youth academy ----------
 const isAcademy = p => !!(p && !p.rid && !p.prospect && !p.ucl);
-function rollYouthOvr(){ const t=Math.pow(Math.random(),2.2); return Math.round(70 + t*14); } // 70–84, skewed young
-// Bring `count` youngsters through the academy: they join the squad and are logged.
-function graduateYouth(count, label){
+const YFIRST=["Alfie","Charlie","Jacob","Harrison","Finley","Tyler","Kian","Reuben","Bobby","Kaide","Rio","Louie","Ezra","Micah","Dexter","Cole","Sonny","Ashton","Rhys","Marley","Nye","Corey","Freddie","Arthur","Spike","Roman","Zak","Elliot"];
+function youthName(){ return pick(YFIRST)+" "+pick(LAST); }
+// ~1 in 5 youngsters has a 90+ ceiling.
+function genPotential(){ return Math.random()<0.2 ? ri(90,94) : ri(78,89); }
+function potBand(p){ return p>=90?"gen":p>=85?"elite":p>=80?"good":"squad"; }
+function potLabel(p){ return p>=90?"⭐ Generational · can reach 90+":p>=85?"Elite potential ("+p+")":p>=80?"Promising ("+p+")":"Squad depth ("+p+")"; }
+const BG_JOIN=["joined the academy aged 8","was spotted at a grassroots tournament aged 9","came up through the local district setup","was snapped up from a rival youth side as a schoolboy","walked in off a public trial day and never looked back","was recommended by a club legend after a one-off trial"];
+const BG_TRAIT=["a tireless {w} with a huge engine","a composed {w} who plays beyond his years","an explosive {w} defenders can’t live with","a cultured {w} who dictates the tempo","a brave, commanding {w} who drags team-mates with him","a quick, fearless {w} full of tricks"];
+const BG_RISE=["captained the U18s to the league title","top-scored for the youth side two years running","jumped up to the U21s a full year early","has trained with the first team several times this season","was named the club’s academy player of the year","lit up the youth cup run with a string of standout displays"];
+const POS_WORD={GK:"keeper",DEF:"defender",MID:"midfielder",FWD:"forward"};
+function makeProspect(age){
+  const pos=pick(["GK","DEF","DEF","DEF","MID","MID","MID","MID","FWD","FWD","FWD"]);
+  const potential=genPotential(), ovr=clamp(potential-ri(10,18),60,79), n=youthName(), fn=n.split(" ")[0];
+  const bg=`${fn} ${pick(BG_JOIN)}. Now ${pick(BG_TRAIT).replace("{w}",POS_WORD[pos])}, he ${pick(BG_RISE)} and is knocking on the first-team door.`;
+  return {id:uid(), n, pos, age:age||15, ovr, potential, bg};
+}
+// A 16-year-old signs for the first team and is logged.
+function promoteProspect(pr){
   if(!S.academy) S.academy=[];
-  const out=[];
-  for(let k=0;k<count;k++){
-    if(S.squad.length>=MAX_SQUAD) break;
-    const pos=pick(["GK","DEF","DEF","MID","MID","MID","FWD","FWD"]);
-    const p=makePlayer(rollYouthOvr(),pos); p.academy=true;
-    S.squad.push(p);
-    S.academy.push({id:p.id, n:p.n, pos:p.pos, ovr:p.ovr, season:S.season, when:label||("Season "+S.season)});
-    out.push(p);
-  }
-  return out;
+  const p=makePlayer(pr.ovr,pr.pos); p.n=pr.n; p.academy=true; p.potential=pr.potential; p.a=attrsFor(pr.ovr,pr.pos);
+  if(S.squad.length<MAX_SQUAD) S.squad.push(p);
+  S.academy.push({id:p.id, n:p.n, pos:p.pos, ovr:p.ovr, potential:pr.potential, season:S.season, when:"Season "+S.season});
+  return p;
+}
+function refillAcademy(n){ if(!S.academyProspects) S.academyProspects=[]; for(let k=0;k<n;k++) S.academyProspects.push(makeProspect(15)); }
+// New club: four graduates straight into the squad, four more coming through.
+function academyStart(){
+  S.academy=[]; S.academyProspects=[];
+  for(let k=0;k<4;k++) promoteProspect(makeProspect(16));
+  refillAcademy(4);
+}
+// Each season: this year's crop turns 16 and signs, then a fresh crop arrives.
+function academySeason(){
+  if(!S.academyProspects) S.academyProspects=[];
+  S.academyProspects.forEach(pr=>pr.age++);
+  const coming=S.academyProspects.filter(pr=>pr.age>=16), promoted=[];
+  coming.forEach(pr=>promoted.push(promoteProspect(pr)));
+  S.academyProspects=S.academyProspects.filter(pr=>pr.age<16);
+  refillAcademy(4);
+  return promoted;
 }
 // Third kit colour (by short code) for clubs that have one.
 const CLUB_C3 = {ARS:"#0A2A5E", AVL:"#F6E500", CRY:"#FFFFFF", LEE:"#FFCD00", MCI:"#FFFFFF", MUN:"#000000", FUL:"#CC0000", BOU:"#FFFFFF", SUN:"#111111"};
@@ -166,10 +192,10 @@ function newGame(form){
   const squad=[];
   S = {v:2, manager:form.manager, club:{name:form.name,short:form.short,stadium:form.stadium,c1:form.c1,c2:form.c2}, h2h:{}, januaryDone:false, lastStar:null, records:{bestWin:null}, cupTrophies:0, schedFixed:true,
     budget:START_BUDGET, season:1, round:0, squad, formation:"4-3-3", xi:[], collected:[], repPts:0,
-    teams:newSeasonTeams(), fixtures:null, results:[], history:[], packs:0, trophies:0, euro:null, euroTrophies:0, proBump:true, academy:[], last:null, ended:false};
+    teams:newSeasonTeams(), fixtures:null, results:[], history:[], packs:0, trophies:0, euro:null, euroTrophies:0, proBump:true, academy:[], academyProspects:[], last:null, ended:false};
   S.fixtures = makeFixtures(["you"].concat(S.teams.map(t=>t.id)));
   S.cup = makeCup(4);
-  graduateYouth(3, "Opening intake");
+  academyStart();
   autoPick();
   advanceByes();
   save();

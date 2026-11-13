@@ -230,6 +230,21 @@ main{padding-block:22px 60px}
 .acadrow .acstatus{margin-left:auto;font-family:var(--num);font-size:11px;font-weight:700;letter-spacing:.04em;padding:3px 9px;border-radius:8px;white-space:nowrap}
 .acadrow .acstatus.in{background:rgba(67,195,131,.18);color:var(--c-money)}
 .acadrow .acstatus.out{background:rgba(255,255,255,.06);color:var(--muted)}
+/* academy prospect profiles */
+.ppgenflag{font-family:var(--num);font-size:11px;font-weight:700;color:var(--gold)}
+.ppgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.ppcard{background:var(--stand2);border:1px solid var(--line);border-top:3px solid var(--muted);border-radius:12px;padding:13px 14px;display:flex;flex-direction:column;gap:9px}
+.ppcard.good{border-top-color:var(--c-money)} .ppcard.elite{border-top-color:var(--c-blue)}
+.ppcard.gen{border-top-color:var(--gold);box-shadow:0 0 0 1px rgba(244,200,74,.4),0 0 18px rgba(244,200,74,.12)}
+.ppcard .pp-head{display:flex;align-items:center;gap:11px}
+.ppcard .pp-ovr{font-family:var(--num);font-weight:700;font-size:26px;min-width:40px;text-align:center;line-height:1}
+.ppcard .pp-head b{font-size:16px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ppcard .pp-meta{font-size:12px;color:var(--muted)}
+.ppcard .pp-pot{font-family:var(--num);font-size:11px;font-weight:700;letter-spacing:.03em;padding:4px 9px;border-radius:8px;align-self:flex-start;background:rgba(255,255,255,.06);color:var(--muted)}
+.ppcard .pp-pot.good{background:rgba(67,195,131,.16);color:var(--c-money)}
+.ppcard .pp-pot.elite{background:rgba(58,160,255,.16);color:var(--c-blue)}
+.ppcard .pp-pot.gen{background:linear-gradient(90deg,rgba(244,200,74,.9),rgba(255,230,150,.9));color:#2a2000}
+.ppcard .pp-bg{margin:0;font-size:13px;line-height:1.5;color:var(--chalk);opacity:.9}
 /* club reputation */
 .stats .v.rep{color:var(--c-purple)}
 .repbox{border:1px solid color-mix(in srgb,var(--c-purple) 30%,var(--line))}
@@ -904,20 +919,46 @@ function drawRealPack(target,lo,hi,minOvr,pos){
 }
 // ---------- youth academy ----------
 const isAcademy = p => !!(p && !p.rid && !p.prospect && !p.ucl);
-function rollYouthOvr(){ const t=Math.pow(Math.random(),2.2); return Math.round(70 + t*14); } // 70–84, skewed young
-// Bring `count` youngsters through the academy: they join the squad and are logged.
-function graduateYouth(count, label){
+const YFIRST=["Alfie","Charlie","Jacob","Harrison","Finley","Tyler","Kian","Reuben","Bobby","Kaide","Rio","Louie","Ezra","Micah","Dexter","Cole","Sonny","Ashton","Rhys","Marley","Nye","Corey","Freddie","Arthur","Spike","Roman","Zak","Elliot"];
+function youthName(){ return pick(YFIRST)+" "+pick(LAST); }
+// ~1 in 5 youngsters has a 90+ ceiling.
+function genPotential(){ return Math.random()<0.2 ? ri(90,94) : ri(78,89); }
+function potBand(p){ return p>=90?"gen":p>=85?"elite":p>=80?"good":"squad"; }
+function potLabel(p){ return p>=90?"⭐ Generational · can reach 90+":p>=85?"Elite potential ("+p+")":p>=80?"Promising ("+p+")":"Squad depth ("+p+")"; }
+const BG_JOIN=["joined the academy aged 8","was spotted at a grassroots tournament aged 9","came up through the local district setup","was snapped up from a rival youth side as a schoolboy","walked in off a public trial day and never looked back","was recommended by a club legend after a one-off trial"];
+const BG_TRAIT=["a tireless {w} with a huge engine","a composed {w} who plays beyond his years","an explosive {w} defenders can’t live with","a cultured {w} who dictates the tempo","a brave, commanding {w} who drags team-mates with him","a quick, fearless {w} full of tricks"];
+const BG_RISE=["captained the U18s to the league title","top-scored for the youth side two years running","jumped up to the U21s a full year early","has trained with the first team several times this season","was named the club’s academy player of the year","lit up the youth cup run with a string of standout displays"];
+const POS_WORD={GK:"keeper",DEF:"defender",MID:"midfielder",FWD:"forward"};
+function makeProspect(age){
+  const pos=pick(["GK","DEF","DEF","DEF","MID","MID","MID","MID","FWD","FWD","FWD"]);
+  const potential=genPotential(), ovr=clamp(potential-ri(10,18),60,79), n=youthName(), fn=n.split(" ")[0];
+  const bg=`${fn} ${pick(BG_JOIN)}. Now ${pick(BG_TRAIT).replace("{w}",POS_WORD[pos])}, he ${pick(BG_RISE)} and is knocking on the first-team door.`;
+  return {id:uid(), n, pos, age:age||15, ovr, potential, bg};
+}
+// A 16-year-old signs for the first team and is logged.
+function promoteProspect(pr){
   if(!S.academy) S.academy=[];
-  const out=[];
-  for(let k=0;k<count;k++){
-    if(S.squad.length>=MAX_SQUAD) break;
-    const pos=pick(["GK","DEF","DEF","MID","MID","MID","FWD","FWD"]);
-    const p=makePlayer(rollYouthOvr(),pos); p.academy=true;
-    S.squad.push(p);
-    S.academy.push({id:p.id, n:p.n, pos:p.pos, ovr:p.ovr, season:S.season, when:label||("Season "+S.season)});
-    out.push(p);
-  }
-  return out;
+  const p=makePlayer(pr.ovr,pr.pos); p.n=pr.n; p.academy=true; p.potential=pr.potential; p.a=attrsFor(pr.ovr,pr.pos);
+  if(S.squad.length<MAX_SQUAD) S.squad.push(p);
+  S.academy.push({id:p.id, n:p.n, pos:p.pos, ovr:p.ovr, potential:pr.potential, season:S.season, when:"Season "+S.season});
+  return p;
+}
+function refillAcademy(n){ if(!S.academyProspects) S.academyProspects=[]; for(let k=0;k<n;k++) S.academyProspects.push(makeProspect(15)); }
+// New club: four graduates straight into the squad, four more coming through.
+function academyStart(){
+  S.academy=[]; S.academyProspects=[];
+  for(let k=0;k<4;k++) promoteProspect(makeProspect(16));
+  refillAcademy(4);
+}
+// Each season: this year's crop turns 16 and signs, then a fresh crop arrives.
+function academySeason(){
+  if(!S.academyProspects) S.academyProspects=[];
+  S.academyProspects.forEach(pr=>pr.age++);
+  const coming=S.academyProspects.filter(pr=>pr.age>=16), promoted=[];
+  coming.forEach(pr=>promoted.push(promoteProspect(pr)));
+  S.academyProspects=S.academyProspects.filter(pr=>pr.age<16);
+  refillAcademy(4);
+  return promoted;
 }
 // Third kit colour (by short code) for clubs that have one.
 const CLUB_C3 = {ARS:"#0A2A5E", AVL:"#F6E500", CRY:"#FFFFFF", LEE:"#FFCD00", MCI:"#FFFFFF", MUN:"#000000", FUL:"#CC0000", BOU:"#FFFFFF", SUN:"#111111"};
@@ -1025,10 +1066,10 @@ function newGame(form){
   const squad=[];
   S = {v:2, manager:form.manager, club:{name:form.name,short:form.short,stadium:form.stadium,c1:form.c1,c2:form.c2}, h2h:{}, januaryDone:false, lastStar:null, records:{bestWin:null}, cupTrophies:0, schedFixed:true,
     budget:START_BUDGET, season:1, round:0, squad, formation:"4-3-3", xi:[], collected:[], repPts:0,
-    teams:newSeasonTeams(), fixtures:null, results:[], history:[], packs:0, trophies:0, euro:null, euroTrophies:0, proBump:true, academy:[], last:null, ended:false};
+    teams:newSeasonTeams(), fixtures:null, results:[], history:[], packs:0, trophies:0, euro:null, euroTrophies:0, proBump:true, academy:[], academyProspects:[], last:null, ended:false};
   S.fixtures = makeFixtures(["you"].concat(S.teams.map(t=>t.id)));
   S.cup = makeCup(4);
-  graduateYouth(3, "Opening intake");
+  academyStart();
   autoPick();
   advanceByes();
   save();
@@ -1487,9 +1528,9 @@ const CHANGELOG = [
   {tag:"CHANGED", accent:"var(--c-orange)", date:"Latest", title:"Slower progression — reworked packs",
    body:"Packs now give lower-rated players on average, so building an elite squad takes longer.",
    items:["Elite packs are now three 79–84, one 85 and one 86+.","Bronze, Silver and Gold all pull lower than before.","Top-end quality still comes through — just rarer — making titles a genuine long-term goal."]},
-  {tag:"NEW", accent:"var(--c-money)", date:"Recent", title:"Youth Academy",
-   body:"Home-grown players now come through their own academy instead of packs.",
-   items:["A new Academy tab with a full graduate log — every youngster, their rating and exactly when they came through.","A fresh intake joins your squad automatically each season, plus an opening group.","Academy players can no longer be found in packs — packs give real players only."]},
+  {tag:"NEW", accent:"var(--c-money)", date:"Recent", title:"Youth Academy & scouting profiles",
+   body:"A proper youth pipeline with scouting reports on the next crop coming through.",
+   items:["Four youngsters come through every season, signing for the first team at 16; each has a scouting profile with their age, background and potential.","Around 1 in 5 can become a 90+ world-beater — ceilings are shown on their profiles, and academy players grow towards them season by season.","A graduate log tracks everyone who’s come through, and academy players can no longer be found in packs."]},
   {tag:"NEW", accent:"var(--gold)", date:"Recent", title:"Trophy celebrations",
    body:"Win any trophy and the whole screen erupts.",
    items:["A big animated celebration — confetti, a glowing trophy and your club’s name in lights — for the league title, the League Cup and all three European cups.","Each comes with a chunky winners’ bonus on top of the usual prize money, up to £60m for the title.","Themed to the trophy you’ve just lifted."]},
@@ -1713,23 +1754,37 @@ function vCompetitions(tbl){
     ${honours}
   </section>`;
 }
+function academyProfile(pr){
+  const band=potBand(pr.potential);
+  return `<article class="ppcard ${band}">
+    <div class="pp-head"><span class="pp-ovr num">${pr.ovr}</span><div style="min-width:0"><b>${esc(pr.n)}</b><span class="pp-meta">${pr.pos} · Age ${pr.age} · signs at 16</span></div></div>
+    <div class="pp-pot ${band}">${esc(potLabel(pr.potential))}</div>
+    <p class="pp-bg">${esc(pr.bg)}</p>
+  </article>`;
+}
 function vAcademy(){
+  const pipeline=S.academyProspects||[];
   const log=(S.academy||[]).slice().reverse();
   const inSquad=new Set(S.squad.map(p=>p.id));
   const current=S.squad.filter(p=>isAcademy(p));
+  const gen=pipeline.filter(pr=>pr.potential>=90).length;
   return `<section class="stack">
     <div class="ehead none"><span class="ebadge">🎓</span><div><h2 style="margin:0;font-size:34px">Youth Academy</h2><span class="muted">Home-grown talent — not available in packs.</span></div></div>
     <div class="panel stack"><span class="eyebrow">How the academy works</span>
-      <p class="muted" style="margin:0;font-size:13px">Young players come through your academy and join your squad automatically — a <b>fresh intake every season</b>, plus your opening group. You <b>can’t pack them</b>; they’re yours alone. Every graduate is logged below with exactly when they came through and whether they’re still at the club.</p>
+      <p class="muted" style="margin:0;font-size:13px"><b>Four youngsters</b> come through your academy every season. They develop in the youth setup and <b>sign for the first team when they turn 16</b>. Around <b>1 in 5</b> has the potential to become a 90+ world-beater — each prospect’s ceiling is shown on their profile, and they grow towards it season by season once they’re at the club. You can’t pack them; they’re yours alone.</p>
       <div class="row" style="gap:22px">
+        <div class="stat"><div class="eyebrow">Coming through</div><div class="v" style="color:var(--c-blue)">${pipeline.length}</div></div>
         <div class="stat"><div class="eyebrow">Graduates</div><div class="v" style="color:var(--c-money)">${log.length}</div></div>
         <div class="stat"><div class="eyebrow">In squad</div><div class="v" style="color:var(--flood)">${current.length}</div></div>
       </div>
     </div>
+    <div class="panel stack"><div class="row" style="justify-content:space-between"><span class="eyebrow">⏳ Coming through next season</span>${gen?`<span class="ppgenflag">⭐ ${gen} potential 90+</span>`:""}</div>
+      <div class="ppgrid">${pipeline.length?pipeline.map(academyProfile).join(""):'<p class="muted" style="margin:0;grid-column:1/-1">No prospects in the pipeline right now.</p>'}</div>
+    </div>
     <div class="panel stack"><span class="eyebrow">Graduate log — newest first</span>
       ${log.length?`<div class="acadlist">${log.map(r=>{const still=inSquad.has(r.id); return `<div class="acadrow ${still?"":"gone"}">
         <span class="acovr num">${r.ovr}</span>
-        <div style="min-width:0"><b>${esc(surname(r.n))}</b><span class="acmeta">${r.pos} · came through · <b>${esc(r.when)}</b></span></div>
+        <div style="min-width:0"><b>${esc(surname(r.n))}</b><span class="acmeta">${r.pos} · ${esc(r.when)}${r.potential?` · ceiling ${r.potential}`:""}</span></div>
         <span class="acstatus ${still?"in":"out"}">${still?"✓ In squad":"Departed"}</span></div>`;}).join("")}</div>`
       :`<p class="muted" style="margin:0">No graduates yet — your first intake arrives when you start.</p>`}
     </div>
@@ -1999,8 +2054,11 @@ function nextSeason(){
   addRep(pos===1?50 : pos<=4?24 : pos<=Math.ceil(tbl.length/2)?10 : 3);
   if(pos===1) S.trophies++;
   const summer=50; S.budget+=prize+summer; S.season++; S.round=0; S.results=[]; S.last=null; S.januaryDone=false; S.lastStar=null;
-  S.squad.forEach(p=>{ if(p.inj) delete p.inj; if(p.prospect && p.ovr<PROSPECT_CAP){ p.ovr=Math.min(PROSPECT_CAP,p.ovr+1); p.a=attrsFor(p.ovr,p.pos,p.rid); } });
-  graduateYouth(2, "Season "+S.season+" intake");
+  S.squad.forEach(p=>{ if(p.inj) delete p.inj;
+    if(p.prospect && p.ovr<PROSPECT_CAP){ p.ovr=Math.min(PROSPECT_CAP,p.ovr+1); p.a=attrsFor(p.ovr,p.pos,p.rid); }
+    if(p.academy && p.potential && p.ovr<p.potential){ p.ovr=Math.min(p.potential, p.ovr+(p.ovr<p.potential-8?2:1)); p.a=attrsFor(p.ovr,p.pos); }
+  });
+  academySeason();
   S.teams=newSeasonTeams(S.teams);
   S.fixtures=makeFixtures(["you"].concat(S.teams.map(t=>t.id)));
   S.cup=makeCup(4); S.schedFixed=true;
@@ -2702,7 +2760,7 @@ function start(data){
 let loaded=false;
 async function finishLoad(){
   if(loaded) return; loaded=true;
-  try{ const saved=await load(); if(saved && saved.v===2){ if(!saved.h2h) saved.h2h={}; if(saved.januaryDone===undefined) saved.januaryDone=false; if(!saved.records) saved.records={bestWin:null}; if(saved.cupTrophies===undefined) saved.cupTrophies=0; if(!saved.cup) saved.cup=makeCup(Math.max(4, saved.round+2)); if(!saved.collected){ saved.collected=[...new Set(saved.squad.map(p=>p.rid).filter(Boolean))]; } if(saved.repPts===undefined){ saved.repPts=(saved.trophies||0)*45+(saved.cupTrophies||0)*20+(saved.history?saved.history.length*5:0); } if(saved.euro===undefined) saved.euro=null; if(saved.euroTrophies===undefined) saved.euroTrophies=0; if(!saved.proBump){ saved.squad.forEach(p=>{ if(p.prospect){ p.ovr=Math.min(PROSPECT_CAP,p.ovr+3); p.a=attrsFor(p.ovr,p.pos,p.rid); } }); saved.proBump=true; } if(!saved.academy){ saved.academy=(saved.squad||[]).filter(p=>!p.rid&&!p.prospect&&!p.ucl).map(p=>{ p.academy=true; return {id:p.id,n:p.n,pos:p.pos,ovr:p.ovr,season:saved.season,when:"Came through earlier"}; }); } saved.squad.forEach(p=>{ if(!p.a||Object.keys(p.a).length<6) p.a=attrsFor(p.ovr,p.pos,p.rid) }); }
+  try{ const saved=await load(); if(saved && saved.v===2){ if(!saved.h2h) saved.h2h={}; if(saved.januaryDone===undefined) saved.januaryDone=false; if(!saved.records) saved.records={bestWin:null}; if(saved.cupTrophies===undefined) saved.cupTrophies=0; if(!saved.cup) saved.cup=makeCup(Math.max(4, saved.round+2)); if(!saved.collected){ saved.collected=[...new Set(saved.squad.map(p=>p.rid).filter(Boolean))]; } if(saved.repPts===undefined){ saved.repPts=(saved.trophies||0)*45+(saved.cupTrophies||0)*20+(saved.history?saved.history.length*5:0); } if(saved.euro===undefined) saved.euro=null; if(saved.euroTrophies===undefined) saved.euroTrophies=0; if(!saved.proBump){ saved.squad.forEach(p=>{ if(p.prospect){ p.ovr=Math.min(PROSPECT_CAP,p.ovr+3); p.a=attrsFor(p.ovr,p.pos,p.rid); } }); saved.proBump=true; } if(!saved.academy){ saved.academy=(saved.squad||[]).filter(p=>!p.rid&&!p.prospect&&!p.ucl).map(p=>{ p.academy=true; return {id:p.id,n:p.n,pos:p.pos,ovr:p.ovr,season:saved.season,when:"Came through earlier"}; }); } if(!saved.academyProspects){ saved.academyProspects=Array.from({length:4},()=>makeProspect(15)); saved.squad.forEach(p=>{ if(!p.rid&&!p.prospect&&!p.ucl&&p.potential===undefined) p.potential=ri(82,90); }); } saved.squad.forEach(p=>{ if(!p.a||Object.keys(p.a).length<6) p.a=attrsFor(p.ovr,p.pos,p.rid) }); }
     if(saved && saved.v===2){ if(!saved.club.stadium) saved.club.stadium=saved.club.name+" Stadium"; }
     if(saved && saved.v===2 && (!S || (saved.round+saved.season*100)>=(S.round+S.season*100))) S=saved; }
   catch(e){ toast("Couldn't load your saved club. Try reloading the page.") }

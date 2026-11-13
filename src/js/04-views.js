@@ -269,9 +269,9 @@ const CHANGELOG = [
   {tag:"CHANGED", accent:"var(--c-orange)", date:"Latest", title:"Slower progression — reworked packs",
    body:"Packs now give lower-rated players on average, so building an elite squad takes longer.",
    items:["Elite packs are now three 79–84, one 85 and one 86+.","Bronze, Silver and Gold all pull lower than before.","Top-end quality still comes through — just rarer — making titles a genuine long-term goal."]},
-  {tag:"NEW", accent:"var(--c-money)", date:"Recent", title:"Youth Academy",
-   body:"Home-grown players now come through their own academy instead of packs.",
-   items:["A new Academy tab with a full graduate log — every youngster, their rating and exactly when they came through.","A fresh intake joins your squad automatically each season, plus an opening group.","Academy players can no longer be found in packs — packs give real players only."]},
+  {tag:"NEW", accent:"var(--c-money)", date:"Recent", title:"Youth Academy & scouting profiles",
+   body:"A proper youth pipeline with scouting reports on the next crop coming through.",
+   items:["Four youngsters come through every season, signing for the first team at 16; each has a scouting profile with their age, background and potential.","Around 1 in 5 can become a 90+ world-beater — ceilings are shown on their profiles, and academy players grow towards them season by season.","A graduate log tracks everyone who’s come through, and academy players can no longer be found in packs."]},
   {tag:"NEW", accent:"var(--gold)", date:"Recent", title:"Trophy celebrations",
    body:"Win any trophy and the whole screen erupts.",
    items:["A big animated celebration — confetti, a glowing trophy and your club’s name in lights — for the league title, the League Cup and all three European cups.","Each comes with a chunky winners’ bonus on top of the usual prize money, up to £60m for the title.","Themed to the trophy you’ve just lifted."]},
@@ -495,23 +495,37 @@ function vCompetitions(tbl){
     ${honours}
   </section>`;
 }
+function academyProfile(pr){
+  const band=potBand(pr.potential);
+  return `<article class="ppcard ${band}">
+    <div class="pp-head"><span class="pp-ovr num">${pr.ovr}</span><div style="min-width:0"><b>${esc(pr.n)}</b><span class="pp-meta">${pr.pos} · Age ${pr.age} · signs at 16</span></div></div>
+    <div class="pp-pot ${band}">${esc(potLabel(pr.potential))}</div>
+    <p class="pp-bg">${esc(pr.bg)}</p>
+  </article>`;
+}
 function vAcademy(){
+  const pipeline=S.academyProspects||[];
   const log=(S.academy||[]).slice().reverse();
   const inSquad=new Set(S.squad.map(p=>p.id));
   const current=S.squad.filter(p=>isAcademy(p));
+  const gen=pipeline.filter(pr=>pr.potential>=90).length;
   return `<section class="stack">
     <div class="ehead none"><span class="ebadge">🎓</span><div><h2 style="margin:0;font-size:34px">Youth Academy</h2><span class="muted">Home-grown talent — not available in packs.</span></div></div>
     <div class="panel stack"><span class="eyebrow">How the academy works</span>
-      <p class="muted" style="margin:0;font-size:13px">Young players come through your academy and join your squad automatically — a <b>fresh intake every season</b>, plus your opening group. You <b>can’t pack them</b>; they’re yours alone. Every graduate is logged below with exactly when they came through and whether they’re still at the club.</p>
+      <p class="muted" style="margin:0;font-size:13px"><b>Four youngsters</b> come through your academy every season. They develop in the youth setup and <b>sign for the first team when they turn 16</b>. Around <b>1 in 5</b> has the potential to become a 90+ world-beater — each prospect’s ceiling is shown on their profile, and they grow towards it season by season once they’re at the club. You can’t pack them; they’re yours alone.</p>
       <div class="row" style="gap:22px">
+        <div class="stat"><div class="eyebrow">Coming through</div><div class="v" style="color:var(--c-blue)">${pipeline.length}</div></div>
         <div class="stat"><div class="eyebrow">Graduates</div><div class="v" style="color:var(--c-money)">${log.length}</div></div>
         <div class="stat"><div class="eyebrow">In squad</div><div class="v" style="color:var(--flood)">${current.length}</div></div>
       </div>
     </div>
+    <div class="panel stack"><div class="row" style="justify-content:space-between"><span class="eyebrow">⏳ Coming through next season</span>${gen?`<span class="ppgenflag">⭐ ${gen} potential 90+</span>`:""}</div>
+      <div class="ppgrid">${pipeline.length?pipeline.map(academyProfile).join(""):'<p class="muted" style="margin:0;grid-column:1/-1">No prospects in the pipeline right now.</p>'}</div>
+    </div>
     <div class="panel stack"><span class="eyebrow">Graduate log — newest first</span>
       ${log.length?`<div class="acadlist">${log.map(r=>{const still=inSquad.has(r.id); return `<div class="acadrow ${still?"":"gone"}">
         <span class="acovr num">${r.ovr}</span>
-        <div style="min-width:0"><b>${esc(surname(r.n))}</b><span class="acmeta">${r.pos} · came through · <b>${esc(r.when)}</b></span></div>
+        <div style="min-width:0"><b>${esc(surname(r.n))}</b><span class="acmeta">${r.pos} · ${esc(r.when)}${r.potential?` · ceiling ${r.potential}`:""}</span></div>
         <span class="acstatus ${still?"in":"out"}">${still?"✓ In squad":"Departed"}</span></div>`;}).join("")}</div>`
       :`<p class="muted" style="margin:0">No graduates yet — your first intake arrives when you start.</p>`}
     </div>
