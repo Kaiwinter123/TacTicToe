@@ -49,6 +49,29 @@ function socialAvatar(u){
 }
 function fmtK(n){ return n>=1000 ? (n/1000).toFixed(1).replace(/\.0$/,"")+"K" : ""+n; }
 function themeClass(t){ return ({cup:"cuptheme",ucl:"ucltheme",uel:"ueltheme",uecl:"uecltheme"})[t]||""; }
+// Big animated trophy celebration (any trophy won).
+function runChain(fns){ let i=0; const step=()=>{ if(i>=fns.length) return; fns[i++](step); }; step(); }
+function showTrophy(o, onDone){
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const cols=["#f4c84b","#4f7cff","#ff5c8a","#36d97a","#ff8a2a","#a579ff","#ffffff"];
+  const conf = reduce?"":Array.from({length:70},()=>{const l=Math.random()*100,d=(Math.random()*2.6).toFixed(2),dur=(2.3+Math.random()*2.4).toFixed(2),c=cols[Math.floor(Math.random()*cols.length)],w=6+Math.floor(Math.random()*7);return `<i style="left:${l}%;width:${w}px;height:${w+5}px;background:${c};animation-delay:${d}s;animation-duration:${dur}s"></i>`;}).join("");
+  const ov=document.createElement("div"); ov.className="overlay trophyroom"; ov.style.setProperty("--tc",o.color); ov.setAttribute("role","dialog"); ov.setAttribute("aria-label","Trophy won");
+  ov.innerHTML=`<div class="confetti" aria-hidden="true">${conf}</div>
+    <div class="trophy-card">
+      <div class="trophy-glow"></div>
+      <div class="trophy-icon">${o.icon||"🏆"}</div>
+      <span class="trophy-eyebrow">${esc(o.eyebrow||"Champions")}</span>
+      <h1 class="trophy-name">${esc(o.name)}</h1>
+      <p class="trophy-sub">${esc(o.sub)}</p>
+      <div class="trophy-reward"><span>💰 Winners’ bonus</span><b>+${money(o.reward)}</b></div>
+      <button class="btn primary" id="tcont">Lift the trophy 🎉</button>
+    </div>`;
+  document.body.appendChild(ov);
+  const btn=ov.querySelector("#tcont");
+  btn.addEventListener("click",()=>{ ov.remove(); onDone&&onDone(); });
+  btn.focus();
+}
+const TROPHY_BONUS={title:60, ucl:50, uel:35, uecl:25, cup:25};
 function showEuroCongrats(comp, onDone){
   const m=EURO_META[comp];
   const ov=document.createElement("div"); ov.className="overlay "+themeClass(comp); ov.setAttribute("role","dialog"); ov.setAttribute("aria-label","European qualification");
@@ -479,7 +502,11 @@ function playCup(){
     const color=won?"var(--win)":"var(--loss)";
     const pensTxt=pens?(won?"Won "+pens[0]+"\u2013"+pens[1]+" on pens \u00b7 ":"Lost "+pens[1]+"\u2013"+pens[0]+" on pens \u00b7 "):"";
     const social={win:won?1:-1, score:gh+"\u2013"+ga, scorers:events.filter(e=>e.type==="goal"&&e.team==="you").map(e=>e.who), opp:teamInfo(oppId).name, oppShort:teamInfo(oppId).short, cup:{won, final:isFinal, round:tie.name}, motm:motm&&won?motm.n:null, injury:injRes.injured?injRes.injured.who:null, recovered:injRes.recovered};
-    showMatchOverlay({h,a,lh,la,events,gh,ga,poss,motm,title,word,color,note:pensTxt+"+"+money(earn),social,theme:"cup"}, ()=>{ render(); injuryToast(injRes); });
+    const cupWon=won&&isFinal;
+    showMatchOverlay({h,a,lh,la,events,gh,ga,poss,motm,title,word,color,note:pensTxt+"+"+money(earn),social,theme:"cup"}, ()=>{
+      if(cupWon){ S.budget+=TROPHY_BONUS.cup; save(); showTrophy({name:"League Cup Winners",eyebrow:"Champions",sub:`${S.club.name} lift the League Cup — silverware in the cabinet!`,color:"#2bc46e",reward:TROPHY_BONUS.cup}, ()=>{ render(); injuryToast(injRes); }); }
+      else { render(); injuryToast(injRes); }
+    });
   };
   showMatchPreview(info, kick);
 }
@@ -522,7 +549,11 @@ function playEuro(){
     const color=won?"var(--win)":"var(--loss)";
     const pensTxt=pens?(won?"Won "+pens[0]+"–"+pens[1]+" on pens · ":"Lost "+pens[1]+"–"+pens[0]+" on pens · "):"";
     const social={win:won?1:-1, score:gh+"–"+ga, scorers:events.filter(x=>x.type==="goal"&&x.team==="you").map(x=>x.who), opp:teamInfo(oppId).name, oppShort:teamInfo(oppId).short, euro:{won,final:isFinal,round:tie.name,name:e.name}, theme:e.theme, motm:motm&&won?motm.n:null, injury:injRes.injured?injRes.injured.who:null, recovered:injRes.recovered};
-    showMatchOverlay({h,a,lh,la,events,gh,ga,poss,motm,title,word,color,note:pensTxt+"+"+money(earn),social,theme:e.theme}, ()=>{ render(); injuryToast(injRes); });
+    const euroWon=won&&isFinal;
+    showMatchOverlay({h,a,lh,la,events,gh,ga,poss,motm,title,word,color,note:pensTxt+"+"+money(earn),social,theme:e.theme}, ()=>{
+      if(euroWon){ const bonus=TROPHY_BONUS[e.comp]; S.budget+=bonus; save(); showTrophy({name:EURO_META[e.comp].name+" Winners",eyebrow:"Champions of Europe",sub:`${S.club.name} are kings of Europe — ${EURO_META[e.comp].name} winners!`,color:({ucl:"#4f7cff",uel:"#ff8a2a",uecl:"#36d97a"})[e.comp],reward:bonus}, ()=>{ render(); injuryToast(injRes); }); }
+      else { render(); injuryToast(injRes); }
+    });
   };
   showMatchPreview(info, kick);
 }

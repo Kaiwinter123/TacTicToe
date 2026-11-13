@@ -98,9 +98,14 @@ function nextSeason(){
   // European qualification for the new season, from the finish just achieved
   const euroComp = pos<=5?"ucl":pos===6?"uel":pos===7?"uecl":null;
   S.euro = euroComp ? makeEuro(euroComp) : null;
+  const wasChampion = pos===1;
+  if(wasChampion) S.budget += TROPHY_BONUS.title;
   advanceByes(); save(); render();
   toast(`${money(prize)} prize money + ${money(summer)} summer budget added. Season ${S.season} begins.`);
-  if(euroComp) showEuroCongrats(euroComp);
+  const chain=[];
+  if(wasChampion) chain.push(done=>showTrophy({name:"Premier League Champions",eyebrow:"Champions of England",sub:`${S.club.name} win the title! Season ${S.season-1} belongs to you.`,color:"#f4c84b",reward:TROPHY_BONUS.title}, done));
+  if(euroComp) chain.push(done=>showEuroCongrats(euroComp, done));
+  if(chain.length) runChain(chain);
 }
 
 /* ---------- pack opening ---------- */

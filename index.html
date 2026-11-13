@@ -263,6 +263,25 @@ main{padding-block:22px 60px}
 .brd.trophy .brtroph{font-size:24px;line-height:1;filter:grayscale(.6);opacity:.55}
 .brd.trophy.won .brtroph{filter:drop-shadow(0 0 8px rgba(244,200,74,.8));opacity:1}
 .brd.trophy.out{opacity:.4}
+/* trophy celebration */
+.trophyroom{overflow:hidden}
+.trophyroom .confetti{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.trophyroom .confetti i{position:absolute;top:-20px;border-radius:2px;opacity:.95;animation-name:confFall;animation-timing-function:linear;animation-iteration-count:infinite}
+@keyframes confFall{0%{transform:translateY(-20px) rotate(0)}100%{transform:translateY(106vh) rotate(680deg)}}
+.trophy-card{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;max-width:470px;padding:10px}
+.trophy-glow{position:absolute;top:24px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,var(--tc,rgba(244,200,74,.55)),transparent 68%);filter:blur(26px);animation:glowPulse 2.4s ease-in-out infinite;z-index:-1}
+@keyframes glowPulse{0%,100%{transform:scale(.9);opacity:.55}50%{transform:scale(1.12);opacity:1}}
+.trophy-icon{font-size:clamp(84px,22vw,128px);line-height:1;filter:drop-shadow(0 8px 20px rgba(0,0,0,.5));animation:trophyPop .7s cubic-bezier(.2,1.5,.4,1) both,trophyFloat 2.8s ease-in-out 1s infinite}
+@keyframes trophyPop{0%{transform:scale(0) rotate(-25deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes trophyFloat{50%{transform:translateY(-12px)}}
+.trophy-eyebrow{font-family:var(--num);font-weight:700;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--tc,#f4c84b)}
+.trophy-name{font-family:var(--display);font-size:clamp(34px,8vw,56px);line-height:.95;margin:0;text-transform:uppercase;background:linear-gradient(120deg,#fff,var(--tc,#f4c84b));-webkit-background-clip:text;background-clip:text;color:transparent}
+.trophy-sub{margin:0;color:var(--chalk);font-size:16px;max-width:38ch}
+.trophy-reward{display:flex;align-items:center;gap:12px;margin-top:6px;background:color-mix(in srgb,var(--tc,#f4c84b) 16%,var(--stand));border:1px solid var(--tc,#f4c84b);border-radius:12px;padding:10px 18px}
+.trophy-reward span{font-family:var(--num);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.trophy-reward b{font-family:var(--num);font-weight:700;font-size:24px;color:var(--tc,#f4c84b)}
+.trophyroom .btn.primary{margin-top:10px}
+@media (prefers-reduced-motion:reduce){.trophy-icon,.trophy-glow{animation:none}}
 @media (max-width:560px){.qzones{grid-template-columns:1fr}.etie{grid-template-columns:88px 1fr auto}}
 @media (prefers-reduced-motion:reduce){.card.prospect::after{animation:none}}
 .card.ucl{--rim:var(--c-blue);color:#eaf3ff;box-shadow:0 0 0 2px var(--c-blue),0 0 24px rgba(58,160,255,.55),0 10px 30px rgba(0,0,0,.5);
@@ -1427,7 +1446,10 @@ function vAdmin(){
 }
 function ordinalPos(n){ return n>0?ordinal(n):"\u2014"; }
 const CHANGELOG = [
-  {tag:"NEW", accent:"#4f7cff", date:"Latest", title:"European competitions",
+  {tag:"NEW", accent:"var(--gold)", date:"Latest", title:"Trophy celebrations",
+   body:"Win any trophy and the whole screen erupts.",
+   items:["A big animated celebration — confetti, a glowing trophy and your club’s name in lights — for the league title, the League Cup and all three European cups.","Each comes with a chunky winners’ bonus on top of the usual prize money, up to £60m for the title.","Themed to the trophy you’ve just lifted."]},
+  {tag:"NEW", accent:"#4f7cff", date:"Recent", title:"European competitions",
    body:"Finish high in the league and your club now qualifies for Europe the next season.",
    items:["Top five reach the Champions League, 6th the Europa League, 7th the Conference League — with a celebration the moment you qualify.","A new Europe tab with your knockout run to the final against real continental clubs — Real Madrid, Bayern, Inter, PSG and more.","Each competition has its own on-brand theme: blue Champions League, orange Europa League, green Conference League.","Prize money and reputation for going deep, and a trophy for lifting it."]},
   {tag:"NEW", accent:"var(--c-purple)", date:"Recent", title:"Club reputation",
@@ -1918,9 +1940,14 @@ function nextSeason(){
   // European qualification for the new season, from the finish just achieved
   const euroComp = pos<=5?"ucl":pos===6?"uel":pos===7?"uecl":null;
   S.euro = euroComp ? makeEuro(euroComp) : null;
+  const wasChampion = pos===1;
+  if(wasChampion) S.budget += TROPHY_BONUS.title;
   advanceByes(); save(); render();
   toast(`${money(prize)} prize money + ${money(summer)} summer budget added. Season ${S.season} begins.`);
-  if(euroComp) showEuroCongrats(euroComp);
+  const chain=[];
+  if(wasChampion) chain.push(done=>showTrophy({name:"Premier League Champions",eyebrow:"Champions of England",sub:`${S.club.name} win the title! Season ${S.season-1} belongs to you.`,color:"#f4c84b",reward:TROPHY_BONUS.title}, done));
+  if(euroComp) chain.push(done=>showEuroCongrats(euroComp, done));
+  if(chain.length) runChain(chain);
 }
 
 /* ---------- pack opening ---------- */
@@ -2028,6 +2055,29 @@ function socialAvatar(u){
 }
 function fmtK(n){ return n>=1000 ? (n/1000).toFixed(1).replace(/\.0$/,"")+"K" : ""+n; }
 function themeClass(t){ return ({cup:"cuptheme",ucl:"ucltheme",uel:"ueltheme",uecl:"uecltheme"})[t]||""; }
+// Big animated trophy celebration (any trophy won).
+function runChain(fns){ let i=0; const step=()=>{ if(i>=fns.length) return; fns[i++](step); }; step(); }
+function showTrophy(o, onDone){
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const cols=["#f4c84b","#4f7cff","#ff5c8a","#36d97a","#ff8a2a","#a579ff","#ffffff"];
+  const conf = reduce?"":Array.from({length:70},()=>{const l=Math.random()*100,d=(Math.random()*2.6).toFixed(2),dur=(2.3+Math.random()*2.4).toFixed(2),c=cols[Math.floor(Math.random()*cols.length)],w=6+Math.floor(Math.random()*7);return `<i style="left:${l}%;width:${w}px;height:${w+5}px;background:${c};animation-delay:${d}s;animation-duration:${dur}s"></i>`;}).join("");
+  const ov=document.createElement("div"); ov.className="overlay trophyroom"; ov.style.setProperty("--tc",o.color); ov.setAttribute("role","dialog"); ov.setAttribute("aria-label","Trophy won");
+  ov.innerHTML=`<div class="confetti" aria-hidden="true">${conf}</div>
+    <div class="trophy-card">
+      <div class="trophy-glow"></div>
+      <div class="trophy-icon">${o.icon||"🏆"}</div>
+      <span class="trophy-eyebrow">${esc(o.eyebrow||"Champions")}</span>
+      <h1 class="trophy-name">${esc(o.name)}</h1>
+      <p class="trophy-sub">${esc(o.sub)}</p>
+      <div class="trophy-reward"><span>💰 Winners’ bonus</span><b>+${money(o.reward)}</b></div>
+      <button class="btn primary" id="tcont">Lift the trophy 🎉</button>
+    </div>`;
+  document.body.appendChild(ov);
+  const btn=ov.querySelector("#tcont");
+  btn.addEventListener("click",()=>{ ov.remove(); onDone&&onDone(); });
+  btn.focus();
+}
+const TROPHY_BONUS={title:60, ucl:50, uel:35, uecl:25, cup:25};
 function showEuroCongrats(comp, onDone){
   const m=EURO_META[comp];
   const ov=document.createElement("div"); ov.className="overlay "+themeClass(comp); ov.setAttribute("role","dialog"); ov.setAttribute("aria-label","European qualification");
@@ -2458,7 +2508,11 @@ function playCup(){
     const color=won?"var(--win)":"var(--loss)";
     const pensTxt=pens?(won?"Won "+pens[0]+"\u2013"+pens[1]+" on pens \u00b7 ":"Lost "+pens[1]+"\u2013"+pens[0]+" on pens \u00b7 "):"";
     const social={win:won?1:-1, score:gh+"\u2013"+ga, scorers:events.filter(e=>e.type==="goal"&&e.team==="you").map(e=>e.who), opp:teamInfo(oppId).name, oppShort:teamInfo(oppId).short, cup:{won, final:isFinal, round:tie.name}, motm:motm&&won?motm.n:null, injury:injRes.injured?injRes.injured.who:null, recovered:injRes.recovered};
-    showMatchOverlay({h,a,lh,la,events,gh,ga,poss,motm,title,word,color,note:pensTxt+"+"+money(earn),social,theme:"cup"}, ()=>{ render(); injuryToast(injRes); });
+    const cupWon=won&&isFinal;
+    showMatchOverlay({h,a,lh,la,events,gh,ga,poss,motm,title,word,color,note:pensTxt+"+"+money(earn),social,theme:"cup"}, ()=>{
+      if(cupWon){ S.budget+=TROPHY_BONUS.cup; save(); showTrophy({name:"League Cup Winners",eyebrow:"Champions",sub:`${S.club.name} lift the League Cup — silverware in the cabinet!`,color:"#2bc46e",reward:TROPHY_BONUS.cup}, ()=>{ render(); injuryToast(injRes); }); }
+      else { render(); injuryToast(injRes); }
+    });
   };
   showMatchPreview(info, kick);
 }
@@ -2501,7 +2555,11 @@ function playEuro(){
     const color=won?"var(--win)":"var(--loss)";
     const pensTxt=pens?(won?"Won "+pens[0]+"–"+pens[1]+" on pens · ":"Lost "+pens[1]+"–"+pens[0]+" on pens · "):"";
     const social={win:won?1:-1, score:gh+"–"+ga, scorers:events.filter(x=>x.type==="goal"&&x.team==="you").map(x=>x.who), opp:teamInfo(oppId).name, oppShort:teamInfo(oppId).short, euro:{won,final:isFinal,round:tie.name,name:e.name}, theme:e.theme, motm:motm&&won?motm.n:null, injury:injRes.injured?injRes.injured.who:null, recovered:injRes.recovered};
-    showMatchOverlay({h,a,lh,la,events,gh,ga,poss,motm,title,word,color,note:pensTxt+"+"+money(earn),social,theme:e.theme}, ()=>{ render(); injuryToast(injRes); });
+    const euroWon=won&&isFinal;
+    showMatchOverlay({h,a,lh,la,events,gh,ga,poss,motm,title,word,color,note:pensTxt+"+"+money(earn),social,theme:e.theme}, ()=>{
+      if(euroWon){ const bonus=TROPHY_BONUS[e.comp]; S.budget+=bonus; save(); showTrophy({name:EURO_META[e.comp].name+" Winners",eyebrow:"Champions of Europe",sub:`${S.club.name} are kings of Europe — ${EURO_META[e.comp].name} winners!`,color:({ucl:"#4f7cff",uel:"#ff8a2a",uecl:"#36d97a"})[e.comp],reward:bonus}, ()=>{ render(); injuryToast(injRes); }); }
+      else { render(); injuryToast(injRes); }
+    });
   };
   showMatchPreview(info, kick);
 }

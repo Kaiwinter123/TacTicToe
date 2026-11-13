@@ -267,7 +267,10 @@ function vAdmin(){
 }
 function ordinalPos(n){ return n>0?ordinal(n):"\u2014"; }
 const CHANGELOG = [
-  {tag:"NEW", accent:"#4f7cff", date:"Latest", title:"European competitions",
+  {tag:"NEW", accent:"var(--gold)", date:"Latest", title:"Trophy celebrations",
+   body:"Win any trophy and the whole screen erupts.",
+   items:["A big animated celebration — confetti, a glowing trophy and your club’s name in lights — for the league title, the League Cup and all three European cups.","Each comes with a chunky winners’ bonus on top of the usual prize money, up to £60m for the title.","Themed to the trophy you’ve just lifted."]},
+  {tag:"NEW", accent:"#4f7cff", date:"Recent", title:"European competitions",
    body:"Finish high in the league and your club now qualifies for Europe the next season.",
    items:["Top five reach the Champions League, 6th the Europa League, 7th the Conference League — with a celebration the moment you qualify.","A new Europe tab with your knockout run to the final against real continental clubs — Real Madrid, Bayern, Inter, PSG and more.","Each competition has its own on-brand theme: blue Champions League, orange Europa League, green Conference League.","Prize money and reputation for going deep, and a trophy for lifting it."]},
   {tag:"NEW", accent:"var(--c-purple)", date:"Recent", title:"Club reputation",
