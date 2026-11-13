@@ -1363,7 +1363,7 @@ function vPacks(){
         <ul>${p.desc.map(d=>`<li>${d}</li>`).join("")}</ul>
         <button class="btn primary" data-act="buy" data-pack="${p.id}" ${S.budget<p.price||S.squad.length+p.count>MAX_SQUAD?"disabled":""}>${S.budget<p.price?"Need "+money(p.price-S.budget)+" more":S.squad.length+p.count>MAX_SQUAD?"Squad full":"Open pack"}</button>
       </article>`).join("")}</div>
-    ${S.squad.length>=MAX_SQUAD?`<div class="panel row" style="justify-content:space-between"><span>Your squad is full (${MAX_SQUAD} players). Win matches to earn more, but you have a full roster to pick from.</span><button class="btn" data-view="squad">Go to squad</button></div>`:`<div class="prospecttip"><b>\u2b50 Future Prospect cards</b> \u2014 every pack has a rare chance to pull a purple Future Prospect (Kroupi, Rayan, Ant\u00f3nio Silva, Archie Gray, Diomande, Dowman, Ngumoha, JJ Gabriel). They start rated 85 and gain +1 overall every season you play \u2014 raw talent that grows with you.</div><div class="ucltip"><b>\u2b50 Europe\u2019s Finest cards</b> \u2014 the rarest pull of all. Only <b>Elite</b> packs can contain a blue Europe\u2019s Finest superstar \u2014 roughly one in every seven or eight Elite packs \u2014 with continental icons like Mbapp\u00e9, Yamal, Kane, Demb\u00e9l\u00e9, Bellingham and Lautaro.</div><p class="muted" style="margin:0">Players you pack are yours to keep — build the deepest squad you can across the season.</p>`}
+    ${S.squad.length>=MAX_SQUAD?`<div class="panel row" style="justify-content:space-between"><span>Your squad is full (${MAX_SQUAD} players). Win matches to earn more, but you have a full roster to pick from.</span><button class="btn" data-view="squad">Go to squad</button></div>`:`<div class="prospecttip"><b>\u2b50 Future Prospect cards</b> \u2014 every pack has a rare chance to pull a purple Future Prospect (Kroupi, Rayan, Ant\u00f3nio Silva, Archie Gray, Diomande, Dowman, Ngumoha, JJ Gabriel). They start rated 85 and gain +1 overall every season you play \u2014 raw talent that grows with you.</div><div class="ucltip"><b>\u2b50 Europe\u2019s Finest cards</b> \u2014 the rarest pull of all. Only <b>Elite</b> packs can contain a blue Europe\u2019s Finest superstar \u2014 roughly one in every five Elite packs \u2014 with continental icons like Mbapp\u00e9, Yamal, Kane, Demb\u00e9l\u00e9, Bellingham and Lautaro.</div><p class="muted" style="margin:0">Players you pack are yours to keep — build the deepest squad you can across the season.</p>`}
   </div>`;
 }
 
@@ -1961,7 +1961,7 @@ function openPack(pk){
   const PCH={bronze:.06,silver:.11,gold:.17,elite:.26};
   if(Math.random()<(PCH[pk.id]||0)){ const pr=drawProspect();
     if(pr){ const idx=pk.guar?ri(1,got.length-1):ri(0,got.length-1); const si=S.squad.indexOf(got[idx]); if(si>=0) S.squad.splice(si,1); got[idx]=pr; S.squad.push(pr); } }
-  const UCH={bronze:0,silver:0,gold:0,elite:.133};
+  const UCH={bronze:0,silver:0,gold:0,elite:.2};
   if(Math.random()<(UCH[pk.id]||0)){ const uc=drawUCL();
     if(uc){ const idx=pk.guar?ri(1,got.length-1):ri(0,got.length-1); const si=S.squad.indexOf(got[idx]); if(si>=0) S.squad.splice(si,1); got[idx]=uc; S.squad.push(uc); } }
   got.sort((a,b)=>a.ovr-b.ovr);
