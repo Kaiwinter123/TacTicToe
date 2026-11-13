@@ -39,6 +39,27 @@ function drawReal(target,lo,hi,minOvr,pos){
   p.n=best.n; p.rid=best.rid; p.club=best.club; p.a=attrsFor(best.ovr,best.pos,best.rid);
   return p;
 }
+// A pack always returns a REAL player: strict draw, then nearest unowned real player.
+function drawRealPack(target,lo,hi,minOvr,pos){
+  return drawReal(target,lo,hi,minOvr,pos) || drawReal(target,0,99,0,pos) || drawReal(target,0,99,0) || null;
+}
+// ---------- youth academy ----------
+const isAcademy = p => !!(p && !p.rid && !p.prospect && !p.ucl);
+function rollYouthOvr(){ const t=Math.pow(Math.random(),2.2); return Math.round(70 + t*14); } // 70–84, skewed young
+// Bring `count` youngsters through the academy: they join the squad and are logged.
+function graduateYouth(count, label){
+  if(!S.academy) S.academy=[];
+  const out=[];
+  for(let k=0;k<count;k++){
+    if(S.squad.length>=MAX_SQUAD) break;
+    const pos=pick(["GK","DEF","DEF","MID","MID","MID","FWD","FWD"]);
+    const p=makePlayer(rollYouthOvr(),pos); p.academy=true;
+    S.squad.push(p);
+    S.academy.push({id:p.id, n:p.n, pos:p.pos, ovr:p.ovr, season:S.season, when:label||("Season "+S.season)});
+    out.push(p);
+  }
+  return out;
+}
 // Third kit colour (by short code) for clubs that have one.
 const CLUB_C3 = {ARS:"#0A2A5E", AVL:"#F6E500", CRY:"#FFFFFF", LEE:"#FFCD00", MCI:"#FFFFFF", MUN:"#000000", FUL:"#CC0000", BOU:"#FFFFFF", SUN:"#111111"};
 // The club's emblem animal (or crest symbol), shown inside the shield badge.
@@ -143,9 +164,10 @@ function newGame(form){
   const squad=[];
   S = {v:2, manager:form.manager, club:{name:form.name,short:form.short,stadium:form.stadium,c1:form.c1,c2:form.c2}, h2h:{}, januaryDone:false, lastStar:null, records:{bestWin:null}, cupTrophies:0, schedFixed:true,
     budget:START_BUDGET, season:1, round:0, squad, formation:"4-3-3", xi:[], collected:[], repPts:0,
-    teams:newSeasonTeams(), fixtures:null, results:[], history:[], packs:0, trophies:0, euro:null, euroTrophies:0, proBump:true, last:null, ended:false};
+    teams:newSeasonTeams(), fixtures:null, results:[], history:[], packs:0, trophies:0, euro:null, euroTrophies:0, proBump:true, academy:[], last:null, ended:false};
   S.fixtures = makeFixtures(["you"].concat(S.teams.map(t=>t.id)));
   S.cup = makeCup(4);
+  graduateYouth(3, "Opening intake");
   autoPick();
   advanceByes();
   save();

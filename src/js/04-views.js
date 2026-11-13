@@ -16,9 +16,9 @@ function render(){
     </div>
   </div>
   <nav class="tabs" aria-label="Sections"><div class="wrap">
-    ${[["club","Club"],["packs","Packs"],["cards","Cards"],["squad","Squad"],["table","Table"],["calendar","Calendar"],["euro","Europe"],["news","News"],["history","History"],["updates","Updates"]].concat(isAdmin?[["admin","Admin"]]:[]).map(([k,l])=>`<button class="tab ${k==="admin"?"owner":k==="updates"?"fresh":""}" data-view="${k}" ${view===k?'aria-current="page"':""}>${l}${k==="updates"?'<span class="newdot">NEW</span>':""}</button>`).join("")}
+    ${[["club","Club"],["packs","Packs"],["cards","Cards"],["academy","Academy"],["squad","Squad"],["table","Table"],["calendar","Calendar"],["euro","Europe"],["news","News"],["history","History"],["updates","Updates"]].concat(isAdmin?[["admin","Admin"]]:[]).map(([k,l])=>`<button class="tab ${k==="admin"?"owner":k==="updates"?"fresh":""}" data-view="${k}" ${view===k?'aria-current="page"':""}>${l}${k==="updates"?'<span class="newdot">NEW</span>':""}</button>`).join("")}
   </div></nav></header>
-  <main class="wrap">${(({club:vClub,packs:vPacks,cards:vCollection,squad:vSquad,table:vTable,calendar:vCalendar,euro:vCompetitions,news:vNews,history:vHistory,updates:vUpdates,admin:vAdmin})[view]||vClub)(tbl,pos)}
+  <main class="wrap">${(({club:vClub,packs:vPacks,cards:vCollection,academy:vAcademy,squad:vSquad,table:vTable,calendar:vCalendar,euro:vCompetitions,news:vNews,history:vHistory,updates:vUpdates,admin:vAdmin})[view]||vClub)(tbl,pos)}
   <div style="margin-top:28px;text-align:center"><a class="btn coffee" href="https://buymeacoffee.com/tictactoekai" target="_blank" rel="noopener">\u2615 Enjoying TacTicToe? Buy me a coffee</a></div>
   <p class="muted" style="margin:16px 0 0;font-size:12px">© 2026 Kai Winterbottom. All rights reserved. Unofficial fan game, not affiliated with the Premier League or its clubs. Player ratings are this game's own estimates.</p></main>`;
   bind();
@@ -266,7 +266,10 @@ function vAdmin(){
 }
 function ordinalPos(n){ return n>0?ordinal(n):"\u2014"; }
 const CHANGELOG = [
-  {tag:"NEW", accent:"var(--gold)", date:"Latest", title:"Trophy celebrations",
+  {tag:"NEW", accent:"var(--c-money)", date:"Latest", title:"Youth Academy",
+   body:"Home-grown players now come through their own academy instead of packs.",
+   items:["A new Academy tab with a full graduate log — every youngster, their rating and exactly when they came through.","A fresh intake joins your squad automatically each season, plus an opening group.","Academy players can no longer be found in packs — packs give real players only."]},
+  {tag:"NEW", accent:"var(--gold)", date:"Recent", title:"Trophy celebrations",
    body:"Win any trophy and the whole screen erupts.",
    items:["A big animated celebration — confetti, a glowing trophy and your club’s name in lights — for the league title, the League Cup and all three European cups.","Each comes with a chunky winners’ bonus on top of the usual prize money, up to £60m for the title.","Themed to the trophy you’ve just lifted."]},
   {tag:"NEW", accent:"#4f7cff", date:"Recent", title:"European competitions",
@@ -487,6 +490,28 @@ function vCompetitions(tbl){
     ${euroSection}
     ${zone}
     ${honours}
+  </section>`;
+}
+function vAcademy(){
+  const log=(S.academy||[]).slice().reverse();
+  const inSquad=new Set(S.squad.map(p=>p.id));
+  const current=S.squad.filter(p=>isAcademy(p));
+  return `<section class="stack">
+    <div class="ehead none"><span class="ebadge">🎓</span><div><h2 style="margin:0;font-size:34px">Youth Academy</h2><span class="muted">Home-grown talent — not available in packs.</span></div></div>
+    <div class="panel stack"><span class="eyebrow">How the academy works</span>
+      <p class="muted" style="margin:0;font-size:13px">Young players come through your academy and join your squad automatically — a <b>fresh intake every season</b>, plus your opening group. You <b>can’t pack them</b>; they’re yours alone. Every graduate is logged below with exactly when they came through and whether they’re still at the club.</p>
+      <div class="row" style="gap:22px">
+        <div class="stat"><div class="eyebrow">Graduates</div><div class="v" style="color:var(--c-money)">${log.length}</div></div>
+        <div class="stat"><div class="eyebrow">In squad</div><div class="v" style="color:var(--flood)">${current.length}</div></div>
+      </div>
+    </div>
+    <div class="panel stack"><span class="eyebrow">Graduate log — newest first</span>
+      ${log.length?`<div class="acadlist">${log.map(r=>{const still=inSquad.has(r.id); return `<div class="acadrow ${still?"":"gone"}">
+        <span class="acovr num">${r.ovr}</span>
+        <div style="min-width:0"><b>${esc(surname(r.n))}</b><span class="acmeta">${r.pos} · came through · <b>${esc(r.when)}</b></span></div>
+        <span class="acstatus ${still?"in":"out"}">${still?"✓ In squad":"Departed"}</span></div>`;}).join("")}</div>`
+      :`<p class="muted" style="margin:0">No graduates yet — your first intake arrives when you start.</p>`}
+    </div>
   </section>`;
 }
 function vHistory(tbl,pos){

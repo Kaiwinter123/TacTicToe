@@ -207,6 +207,16 @@ main{padding-block:22px 60px}
 .collitem .cpos{font-family:var(--num);font-size:9px;color:var(--muted);margin-left:auto}
 .collitem .ctick{color:var(--win);font-weight:900;font-size:13px;flex:none}
 .collitem .clock{color:var(--muted);font-size:12px;flex:none}
+/* youth academy */
+.acadlist{display:flex;flex-direction:column;gap:7px}
+.acadrow{display:flex;align-items:center;gap:11px;background:var(--stand2);border-radius:10px;padding:9px 12px;border-left:3px solid var(--c-money)}
+.acadrow.gone{opacity:.55;border-left-color:var(--muted)}
+.acadrow .acovr{font-family:var(--num);font-weight:700;font-size:17px;min-width:26px;text-align:center}
+.acadrow b{font-size:15px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acadrow .acmeta{font-size:12px;color:var(--muted)}
+.acadrow .acstatus{margin-left:auto;font-family:var(--num);font-size:11px;font-weight:700;letter-spacing:.04em;padding:3px 9px;border-radius:8px;white-space:nowrap}
+.acadrow .acstatus.in{background:rgba(67,195,131,.18);color:var(--c-money)}
+.acadrow .acstatus.out{background:rgba(255,255,255,.06);color:var(--muted)}
 /* club reputation */
 .stats .v.rep{color:var(--c-purple)}
 .repbox{border:1px solid color-mix(in srgb,var(--c-purple) 30%,var(--line))}

@@ -92,6 +92,7 @@ function nextSeason(){
   if(pos===1) S.trophies++;
   const summer=50; S.budget+=prize+summer; S.season++; S.round=0; S.results=[]; S.last=null; S.januaryDone=false; S.lastStar=null;
   S.squad.forEach(p=>{ if(p.inj) delete p.inj; if(p.prospect && p.ovr<PROSPECT_CAP){ p.ovr=Math.min(PROSPECT_CAP,p.ovr+1); p.a=attrsFor(p.ovr,p.pos,p.rid); } });
+  graduateYouth(2, "Season "+S.season+" intake");
   S.teams=newSeasonTeams(S.teams);
   S.fixtures=makeFixtures(["you"].concat(S.teams.map(t=>t.id)));
   S.cup=makeCup(4); S.schedFixed=true;
@@ -113,7 +114,7 @@ function openPack(pk){
   if(S.budget<pk.price||S.squad.length+pk.count>MAX_SQUAD) return;
   S.budget-=pk.price; S.packs++;
   const got=[];
-  const add=(t,min,hi,pos)=>{ const p=drawReal(t,pk.lo,hi||pk.hi,min,pos)||makePlayer(t,pos); got.push(p); S.squad.push(p) };
+  const add=(t,min,hi,pos)=>{ const p=drawRealPack(t,pk.lo,hi||pk.hi,min,pos); if(!p) return; got.push(p); S.squad.push(p) };
   // the headline pull first, so the guarantee holds even as the pool thins; steer it to a needed position
   if(pk.guar) add(ri(pk.guar,pk.hi),pk.guar,null,gapPos());
   while(got.length<pk.count) add(rollOvr(pk.lo,pk.hi),null,null,gapPos());
