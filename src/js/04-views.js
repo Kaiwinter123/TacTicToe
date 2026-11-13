@@ -87,10 +87,13 @@ function vClub(tbl,pos){
   </div>
   <section class="panel stack" style="margin-top:18px"><div class="row" style="justify-content:space-between"><span class="eyebrow">League table</span><span class="muted" style="font-size:12px">after matchday ${S.round}</span></div>${leagueTableHTML(tbl)}</section>`;
 }
+function qualZone(i,n){ return i<5?"ucl":i===5?"uel":i===6?"uecl":i>=n-3?"rel":""; }
 function leagueTableHTML(tbl){
+  const n=tbl.length;
   return `<div class="tablewrap"><table><thead><tr><th>#</th><th class="team">Club</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr></thead><tbody>
-  ${tbl.map((r,i)=>{const t=teamInfo(r.id);return `<tr class="${r.id==="you"?"me":""} ${i<4?"ucl":""} ${i>=tbl.length-3?"rel":""}"><td>${i+1}</td><td class="team"><span class="tn">${crest(t.c1,t.c2,t.short,18)}<span>${esc(t.name)}</span></span></td><td>${r.p}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td><td>${r.gf-r.ga>0?"+":""}${r.gf-r.ga}</td><td><b>${r.pts}</b></td></tr>`}).join("")}
-  </tbody></table></div>`;
+  ${tbl.map((r,i)=>{const t=teamInfo(r.id);return `<tr class="${r.id==="you"?"me":""} ${qualZone(i,n)}"><td>${i+1}</td><td class="team"><span class="tn">${crest(t.c1,t.c2,t.short,18)}<span>${esc(t.name)}</span></span></td><td>${r.p}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td><td>${r.gf-r.ga>0?"+":""}${r.gf-r.ga}</td><td><b>${r.pts}</b></td></tr>`}).join("")}
+  </tbody></table></div>
+  <div class="tbl-legend"><span><i class="qz ucl"></i>Champions League (1–5)</span><span><i class="qz uel"></i>Europa League (6)</span><span><i class="qz uecl"></i>Conference League (7)</span><span><i class="qz rel"></i>Relegation</span></div>`;
 }
 function h2hBlock(oppId){
   const rec = S.h2h && S.h2h[oppId], opp = teamInfo(oppId);
@@ -506,7 +509,7 @@ function vHistory(tbl,pos){
 }
 function vTable(tbl){
   return `<section class="panel stack"><div class="row" style="justify-content:space-between"><h2 style="font-size:36px">League table</h2><span class="muted">Premier League ${2025+S.season}/${String(26+S.season).padStart(2,"0")} · after matchday ${S.round}</span></div>
-  ${leagueTableHTML(tbl)}<p class="muted" style="margin:0;font-size:13px">Green: top four. Red: bottom three.</p></section>`;
+  ${leagueTableHTML(tbl)}</section>`;
 }
 const CAL_WD=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], CAL_MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 function seasonStart(){ const y=2025+S.season; let d=Date.UTC(y,7,15); while(new Date(d).getUTCDay()!==6) d+=864e5; return d; } // first Saturday on/after 15 Aug
