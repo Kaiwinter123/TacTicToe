@@ -36,9 +36,9 @@ function vClub(tbl,pos){
   const opp=teamInfo(oppId), O=ratingsFor(oppId);
   const me=tbl.find(r=>r.id==="you"), filled=S.xi.filter(Boolean).length;
   const last=S.last;
-  const newish = S.round<=1 && S.packs<2;
+  let firstTime=false; if(!S.howtoSeen){ firstTime=true; S.howtoSeen=true; save(); }
   const janSoon = !S.januaryDone && S.round<S.fixtures.length && mDateObj(S.round).getUTCMonth()===11;
-  return `${howTo(newish)}${janSoon?`<div class="janbanner"><b>\ud83d\udcb0 January transfer window opens next month.</b> The board will hand you \u00a330m to spend \u2014 start planning your signings.</div>`:""}<div class="grid2">
+  return `${howTo(firstTime)}${janSoon?`<div class="janbanner"><b>\ud83d\udcb0 January transfer window opens next month.</b> The board will hand you \u00a330m to spend \u2014 start planning your signings.</div>`:""}<div class="grid2">
     <section class="panel stack" aria-labelledby="nm">
       <div class="row" style="justify-content:space-between"><span class="eyebrow" id="nm">Next up · <b style="color:${isCup?"var(--elite)":"var(--flood)"}">${esc(compLabel)}</b> · ${esc(roundLabel)}</span><span class="eyebrow">${isCup&&cupRound==="Final"?"Neutral":home?"Home":"Away"}</span></div>
       <div class="fixture">
@@ -130,14 +130,7 @@ function howTo(open){
   return `<details class="howto" ${open?"open":""}>
     <summary><b>How to play TacTicToe</b><span class="muted">${open?"":"tap to open"}</span></summary>
     <div class="howbody">
-      <p style="margin:0 0 10px">Build a football club from nothing: open packs of real Premier League players, pick your team, and manage them through a full home-and-away league season plus a midweek League Cup. Climb the table, win prize money and cups, and build a title-winning side over several seasons.</p>
-      <ol class="steps">
-        <li><b>Open packs</b> — go to <b>Packs</b>. You start with <b>£75m</b>. pricier packs give higher-quality real players — <b>Elite</b> tops out with three 79–84, one 85 and one 86+, while <b>Bronze</b> is cheap low-rated pot luck. Every pack also has a rare chance of a <b>Future Prospect</b> — a purple wonderkid rated 85 that gains +1 every season. Keep opening until you have at least 11.</li>
-        <li><b>Pick your team</b> — go to <b>Squad</b>. Choose a formation, then tap a player on the pitch and tap a substitute to swap them. Green means the right position, red means out of position. You can also sell players for cash.</li>
-        <li><b>Play matches</b> — go to <b>Calendar</b> and hit <b>Advance</b> (or <b>Kick off</b> here). Get a match preview, then watch it play out with momentum arrows. League games are blue; green League Cup ties come midweek.</li>
-        <li><b>Earn & improve</b> — win matches and finish high for prize money. The board tops you up with <b>£30m</b> in the January window and a <b>£50m</b> summer budget at the end of every season — spend it on better packs and climb the <b>Table</b>.</li>
-      </ol>
-      <p class="muted" style="margin:10px 0 0;font-size:12px">Your progress saves automatically. A title usually takes a few seasons to build — finish higher each year, bank the prize money and strengthen. Neglect the squad and you'll scrap near the bottom.</p>
+      <p style="margin:0">Open <b>Packs</b> to sign real players, pick your XI in <b>Squad</b>, then hit <b>Advance</b> on the <b>Calendar</b> to play. Win games for prize money, spend it on better packs and climb the <b>Table</b>. Young players come through your <b>Academy</b>. Winning the title takes a few seasons — good luck.</p>
     </div>
   </details>`;
 }
