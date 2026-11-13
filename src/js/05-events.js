@@ -93,7 +93,7 @@ function nextSeason(){
   const summer=50; S.budget+=prize+summer; S.season++; S.round=0; S.results=[]; S.last=null; S.januaryDone=false; S.lastStar=null;
   S.squad.forEach(p=>{ if(p.inj) delete p.inj;
     if(p.prospect && p.ovr<PROSPECT_CAP){ p.ovr=Math.min(PROSPECT_CAP,p.ovr+1); p.a=attrsFor(p.ovr,p.pos,p.rid); }
-    if(p.academy && p.potential && p.ovr<p.potential){ p.ovr=Math.min(p.potential, p.ovr+(p.ovr<p.potential-8?2:1)); p.a=attrsFor(p.ovr,p.pos); }
+    if(p.academy && p.potential && p.ovr<p.potential){ p.ovr=Math.min(p.potential, p.ovr+1); p.a=attrsFor(p.ovr,p.pos); }
   });
   academySeason();
   S.teams=newSeasonTeams(S.teams);

@@ -111,17 +111,18 @@ const surname = n => n.includes(" ") ? n.slice(n.indexOf(" ")+1) : n;
 function mix(a,b,t){const h=x=>{x=x.replace("#","");if(x.length===3)x=x.split("").map(c=>c+c).join("");return [0,2,4].map(i=>parseInt(x.slice(i,i+2),16))};const A=h(a),B=h(b);return "#"+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,"0")).join("")}
 const RLABEL={bronze:"Bronze",silver:"Silver",gold:"Gold",elite:"Elite"};
 function card(p,opts={}){
-  const r=p.ucl?"ucl":p.prospect?"prospect":rarity(p.ovr), c=clubOf(p);
+  const acad=isAcademy(p);
+  const r=p.ucl?"ucl":p.prospect?"prospect":acad?"academy":rarity(p.ovr), c=clubOf(p);
   const k1 = p.ucl?p.k1:(c?c[2]:S?S.club.c1:"#888"), k2 = p.ucl?p.k2:(c?c[3]:S?S.club.c2:"#444");
   const ink = readable(mix(k1,"#000000",.15)), panel = ink==="#ffffff"?"rgba(0,0,0,.3)":"rgba(255,255,255,.45)";
   const at = Object.entries(p.a||{}), cr = p.ucl?crest(p.k1,p.k2,p.csh,opts.sm?16:22):(c?crest(c[2],c[3],c[1],opts.sm?16:22):S?crest(S.club.c1,S.club.c2,S.club.short,opts.sm?16:22):"");
   return `<button type="button" class="card ${r} ${opts.sm?"sm":""} ${opts.sel?"sel":""} ${opts.subin?"subin":""}" style="--k1:${esc(k1)};--k2:${esc(k2)};--k3:${esc(c?c3of(c[1])||k2:k2)};--ink:${ink};--panel:${panel}" ${opts.act?`data-act="${opts.act}" data-id="${p.id}"`:"tabindex=-1"} aria-label="${esc(p.n)}, ${p.pos}, rated ${p.ovr}${c?", "+esc(c[0]):""}">
-    <div class="top"><div class="lhs"><div class="ovr num">${p.ovr}${p.prospect?'<span class="rise">\u25b2</span>':''}</div><div class="pos">${p.pos}</div>${cr}</div><span class="rar">${p.ucl?"FINEST":p.prospect?"PROSPECT":RLABEL[r]}</span></div>
+    <div class="top"><div class="lhs"><div class="ovr num">${p.ovr}${(p.prospect||(acad&&p.potential&&p.ovr<p.potential))?'<span class="rise">\u25b2</span>':''}</div><div class="pos">${p.pos}</div>${cr}</div><span class="rar">${p.ucl?"FINEST":p.prospect?"PROSPECT":acad?"ACADEMY":RLABEL[r]}</span></div>
     <div class="face">${shirt(k1,k2)}</div>
     <div class="pname" title="${esc(p.n)}">${esc(surname(p.n))}</div>
-    ${(p.prospect||p.ucl)&&!opts.sm?`<div class="pnote">${p.prospect?"\u2605 Future prospect \u00b7 +1 OVR every season":"\u2605 Europe\u2019s Finest \u00b7 continental elite"}</div>`:""}
+    ${(p.prospect||p.ucl||acad)&&!opts.sm?`<div class="pnote">${p.prospect?"\u2605 Future prospect \u00b7 +1 OVR every season":p.ucl?"\u2605 Europe\u2019s Finest \u00b7 continental elite":`\ud83c\udf93 Home-grown \u00b7 +1 OVR every season${p.potential?" \u00b7 ceiling "+p.potential:""}`}</div>`:""}
     <div class="attrs">${at.map(([k,v])=>`<div><b>${v}</b><span>${k}</span></div>`).join("")}</div>
-    <div class="foot"><span>${p.ucl?esc(p.cname):c?esc(c[0]):"Academy"}</span></div>
+    <div class="foot"><span>${p.ucl?esc(p.cname):c?esc(c[0]):(S?esc(S.club.name)+" Academy":"Academy")}</span></div>
     ${opts.tag?`<span class="tag">${opts.tag}</span>`:""}
   </button>`;
 }

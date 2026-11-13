@@ -305,6 +305,18 @@ main{padding-block:22px 60px}
 .card.ucl::after{animation:sheen 3.2s ease-in-out infinite}
 .card.ucl .pnote{background:rgba(4,14,34,.5);border-color:rgba(141,190,255,.6);color:#d4e6ff}
 @media (prefers-reduced-motion:reduce){.card.ucl::after{animation:none}}
+/* home-grown academy card: emerald, club kit still on the shirt */
+.card.academy{--rim:#34d27a;color:#eefff4;box-shadow:0 0 0 2px #1fb765,0 0 22px rgba(52,210,122,.45),0 10px 30px rgba(0,0,0,.5);
+  background:
+    linear-gradient(118deg,transparent 0 71.5%,rgba(200,255,224,.38) 71.5% 75.5%,transparent 75.5%) top/100% 58% no-repeat,
+    repeating-linear-gradient(90deg,transparent 0 14px,rgba(255,255,255,.035) 14px 28px),
+    radial-gradient(ellipse 70% 46% at 50% 36%,rgba(120,240,170,.34),transparent 72%),
+    linear-gradient(160deg,#1c7a4a 0%,#0f5434 46%,#082c1d 100%)}
+.card.academy .rar{background:linear-gradient(90deg,#34d27a,#d9ffe8,#34d27a);color:#06261a}
+.card.academy::after{animation:sheen 3.2s ease-in-out infinite}
+.card.academy .ovr .rise{font-size:15px;vertical-align:super;margin-left:1px;color:#9dffc6;text-shadow:0 0 6px rgba(52,210,122,.75)}
+.card.academy .pnote{background:rgba(3,30,18,.5);border-color:rgba(157,255,198,.55);color:#d9ffe8}
+@media (prefers-reduced-motion:reduce){.card.academy::after{animation:none}}
 @keyframes sheen{0%{background-position:100% 0}60%,100%{background-position:-60% 0}}
 .card .top{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1}
 .card .lhs{display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1}

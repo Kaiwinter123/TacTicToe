@@ -318,6 +318,18 @@ main{padding-block:22px 60px}
 .card.ucl::after{animation:sheen 3.2s ease-in-out infinite}
 .card.ucl .pnote{background:rgba(4,14,34,.5);border-color:rgba(141,190,255,.6);color:#d4e6ff}
 @media (prefers-reduced-motion:reduce){.card.ucl::after{animation:none}}
+/* home-grown academy card: emerald, club kit still on the shirt */
+.card.academy{--rim:#34d27a;color:#eefff4;box-shadow:0 0 0 2px #1fb765,0 0 22px rgba(52,210,122,.45),0 10px 30px rgba(0,0,0,.5);
+  background:
+    linear-gradient(118deg,transparent 0 71.5%,rgba(200,255,224,.38) 71.5% 75.5%,transparent 75.5%) top/100% 58% no-repeat,
+    repeating-linear-gradient(90deg,transparent 0 14px,rgba(255,255,255,.035) 14px 28px),
+    radial-gradient(ellipse 70% 46% at 50% 36%,rgba(120,240,170,.34),transparent 72%),
+    linear-gradient(160deg,#1c7a4a 0%,#0f5434 46%,#082c1d 100%)}
+.card.academy .rar{background:linear-gradient(90deg,#34d27a,#d9ffe8,#34d27a);color:#06261a}
+.card.academy::after{animation:sheen 3.2s ease-in-out infinite}
+.card.academy .ovr .rise{font-size:15px;vertical-align:super;margin-left:1px;color:#9dffc6;text-shadow:0 0 6px rgba(52,210,122,.75)}
+.card.academy .pnote{background:rgba(3,30,18,.5);border-color:rgba(157,255,198,.55);color:#d9ffe8}
+@media (prefers-reduced-motion:reduce){.card.academy::after{animation:none}}
 @keyframes sheen{0%{background-position:100% 0}60%,100%{background-position:-60% 0}}
 .card .top{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1}
 .card .lhs{display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1}
@@ -1237,17 +1249,18 @@ const surname = n => n.includes(" ") ? n.slice(n.indexOf(" ")+1) : n;
 function mix(a,b,t){const h=x=>{x=x.replace("#","");if(x.length===3)x=x.split("").map(c=>c+c).join("");return [0,2,4].map(i=>parseInt(x.slice(i,i+2),16))};const A=h(a),B=h(b);return "#"+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,"0")).join("")}
 const RLABEL={bronze:"Bronze",silver:"Silver",gold:"Gold",elite:"Elite"};
 function card(p,opts={}){
-  const r=p.ucl?"ucl":p.prospect?"prospect":rarity(p.ovr), c=clubOf(p);
+  const acad=isAcademy(p);
+  const r=p.ucl?"ucl":p.prospect?"prospect":acad?"academy":rarity(p.ovr), c=clubOf(p);
   const k1 = p.ucl?p.k1:(c?c[2]:S?S.club.c1:"#888"), k2 = p.ucl?p.k2:(c?c[3]:S?S.club.c2:"#444");
   const ink = readable(mix(k1,"#000000",.15)), panel = ink==="#ffffff"?"rgba(0,0,0,.3)":"rgba(255,255,255,.45)";
   const at = Object.entries(p.a||{}), cr = p.ucl?crest(p.k1,p.k2,p.csh,opts.sm?16:22):(c?crest(c[2],c[3],c[1],opts.sm?16:22):S?crest(S.club.c1,S.club.c2,S.club.short,opts.sm?16:22):"");
   return `<button type="button" class="card ${r} ${opts.sm?"sm":""} ${opts.sel?"sel":""} ${opts.subin?"subin":""}" style="--k1:${esc(k1)};--k2:${esc(k2)};--k3:${esc(c?c3of(c[1])||k2:k2)};--ink:${ink};--panel:${panel}" ${opts.act?`data-act="${opts.act}" data-id="${p.id}"`:"tabindex=-1"} aria-label="${esc(p.n)}, ${p.pos}, rated ${p.ovr}${c?", "+esc(c[0]):""}">
-    <div class="top"><div class="lhs"><div class="ovr num">${p.ovr}${p.prospect?'<span class="rise">\u25b2</span>':''}</div><div class="pos">${p.pos}</div>${cr}</div><span class="rar">${p.ucl?"FINEST":p.prospect?"PROSPECT":RLABEL[r]}</span></div>
+    <div class="top"><div class="lhs"><div class="ovr num">${p.ovr}${(p.prospect||(acad&&p.potential&&p.ovr<p.potential))?'<span class="rise">\u25b2</span>':''}</div><div class="pos">${p.pos}</div>${cr}</div><span class="rar">${p.ucl?"FINEST":p.prospect?"PROSPECT":acad?"ACADEMY":RLABEL[r]}</span></div>
     <div class="face">${shirt(k1,k2)}</div>
     <div class="pname" title="${esc(p.n)}">${esc(surname(p.n))}</div>
-    ${(p.prospect||p.ucl)&&!opts.sm?`<div class="pnote">${p.prospect?"\u2605 Future prospect \u00b7 +1 OVR every season":"\u2605 Europe\u2019s Finest \u00b7 continental elite"}</div>`:""}
+    ${(p.prospect||p.ucl||acad)&&!opts.sm?`<div class="pnote">${p.prospect?"\u2605 Future prospect \u00b7 +1 OVR every season":p.ucl?"\u2605 Europe\u2019s Finest \u00b7 continental elite":`\ud83c\udf93 Home-grown \u00b7 +1 OVR every season${p.potential?" \u00b7 ceiling "+p.potential:""}`}</div>`:""}
     <div class="attrs">${at.map(([k,v])=>`<div><b>${v}</b><span>${k}</span></div>`).join("")}</div>
-    <div class="foot"><span>${p.ucl?esc(p.cname):c?esc(c[0]):"Academy"}</span></div>
+    <div class="foot"><span>${p.ucl?esc(p.cname):c?esc(c[0]):(S?esc(S.club.name)+" Academy":"Academy")}</span></div>
     ${opts.tag?`<span class="tag">${opts.tag}</span>`:""}
   </button>`;
 }
@@ -2052,7 +2065,7 @@ function nextSeason(){
   const summer=50; S.budget+=prize+summer; S.season++; S.round=0; S.results=[]; S.last=null; S.januaryDone=false; S.lastStar=null;
   S.squad.forEach(p=>{ if(p.inj) delete p.inj;
     if(p.prospect && p.ovr<PROSPECT_CAP){ p.ovr=Math.min(PROSPECT_CAP,p.ovr+1); p.a=attrsFor(p.ovr,p.pos,p.rid); }
-    if(p.academy && p.potential && p.ovr<p.potential){ p.ovr=Math.min(p.potential, p.ovr+(p.ovr<p.potential-8?2:1)); p.a=attrsFor(p.ovr,p.pos); }
+    if(p.academy && p.potential && p.ovr<p.potential){ p.ovr=Math.min(p.potential, p.ovr+1); p.a=attrsFor(p.ovr,p.pos); }
   });
   academySeason();
   S.teams=newSeasonTeams(S.teams);
