@@ -14,8 +14,8 @@
 <style>
 /* Layout: floodlit matchday — a sticky club bar over one working view at a time (club, packs, squad pitch, table, fixtures); overlays for pack openings and live matches. Single dark look by choice. */
 :root{
-  --night:#0c1320; --stand:#151f31; --stand2:#1b2840; --line:#28364f;
-  --chalk:#eef2f7; --muted:#8e9ab0; --flood:#f4c84b; --flood-ink:#1a1405;
+  --night:#0a0e0c; --stand:#131a16; --stand2:#1b241e; --line:#2a332c;
+  --chalk:#f1f4f1; --muted:#879189; --flood:#f4c84b; --flood-ink:#1a1405;
   --turf:#1d6644; --turf2:#1a5c3d; --win:#43c383; --draw:#d2ac4a; --loss:#e8634f;
   --bronze:#b97a4c; --silver:#b9c3d0; --gold:#e9c45c; --elite:#c63c5c;
   --c-money:#43c383; --c-blue:#3aa0ff; --c-purple:#a579ff; --c-pink:#ff5c8a; --c-teal:#2bd4c0; --c-orange:#ff8a3c;
@@ -27,13 +27,13 @@
 *{box-sizing:border-box}
 html,body{min-height:100%}
 body{background:var(--night);color:var(--chalk);font-family:var(--body);font-size:15px;line-height:1.45;
-  background-image:radial-gradient(ellipse 70% 40% at 8% -5%,rgba(58,160,255,.14),transparent 68%),radial-gradient(ellipse 70% 40% at 92% -5%,rgba(165,121,255,.13),transparent 68%),radial-gradient(ellipse 90% 50% at 50% 108%,rgba(43,212,192,.10),transparent 70%),radial-gradient(ellipse 60% 30% at 50% 40%,rgba(244,200,75,.05),transparent 70%);background-attachment:fixed}
+  background-image:radial-gradient(120% 55% at 50% -14%,rgba(255,250,235,.06),transparent 55%),radial-gradient(135% 72% at 50% 118%,rgba(21,110,64,.20),transparent 60%),repeating-linear-gradient(90deg,transparent 0 72px,rgba(255,255,255,.012) 72px 144px);background-attachment:fixed}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--night)}
 button{font:inherit;color:inherit;cursor:pointer}
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--flood);outline-offset:2px}
 .wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 h1,h2,h3{font-family:var(--display);font-weight:900;letter-spacing:.01em;line-height:1;margin:0;text-wrap:balance;text-transform:uppercase}
-h2{background:linear-gradient(92deg,var(--flood),var(--c-orange) 70%,var(--c-pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{background:linear-gradient(100deg,var(--chalk),var(--flood) 88%);-webkit-background-clip:text;background-clip:text;color:transparent}
 .eyebrow{font-family:var(--num);font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .num{font-family:var(--num);font-variant-numeric:tabular-nums}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:var(--stand2);padding:10px 16px;border-radius:8px;font-weight:600}
@@ -54,7 +54,7 @@ h2{background:linear-gradient(92deg,var(--flood),var(--c-orange) 70%,var(--c-pin
 .coffee-link:hover{color:var(--flood)}
 
 /* top bar */
-.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:linear-gradient(180deg,rgba(28,24,10,.96),rgba(12,19,32,.92));backdrop-filter:blur(8px);border-bottom:2px solid transparent;border-image:linear-gradient(90deg,var(--c-blue),var(--c-purple),var(--flood),var(--c-pink)) 1}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:linear-gradient(180deg,rgba(9,13,11,.97),rgba(9,13,11,.9));backdrop-filter:blur(8px);border-bottom:2px solid var(--flood)}
 .bar .wrap{display:flex;align-items:center;gap:14px;padding-block:10px;flex-wrap:wrap}
 .club-id{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
 .club-id .nm{font-family:var(--display);font-weight:900;font-size:22px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -62,16 +62,16 @@ h2{background:linear-gradient(92deg,var(--flood),var(--c-orange) 70%,var(--c-pin
 .stats{display:flex;gap:18px}
 @media (max-width:560px){.club-id{flex-basis:100%}.stats{width:100%;justify-content:space-between}.club-id .nm{white-space:normal;font-size:20px}}
 .stat .v{font-family:var(--num);font-weight:700;font-size:22px;line-height:1}
-.stat .v.money{color:var(--c-money)} .stat .v.pos{color:var(--c-blue)} .stat .v.md{color:var(--c-purple)}
+.stat .v.money{color:var(--c-money)} .stat .v.pos{color:var(--flood)} .stat .v.md{color:var(--chalk)}
 .tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
 .tabs .wrap{display:flex;gap:4px;padding-block:0}
 .tab{background:none;border:0;border-bottom:3px solid transparent;padding:10px 12px;font-family:var(--num);font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-size:14px;white-space:nowrap}
-.tab[aria-current="page"]{color:var(--chalk);border-image:linear-gradient(90deg,var(--c-blue),var(--c-purple),var(--flood)) 1;border-bottom-width:3px}
+.tab[aria-current="page"]{color:var(--chalk);border-bottom:3px solid var(--flood)}
 .tab:hover{color:var(--chalk)}
 .tab.owner{color:var(--flood)}.tab.owner::before{content:"★ "}
 main{padding-block:22px 60px}
 .panel{position:relative;background:linear-gradient(180deg,var(--stand2),var(--stand));border:1px solid var(--line);border-radius:12px;padding:18px;overflow:hidden}
-.panel::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--c-blue),var(--c-teal),var(--flood),var(--c-pink));opacity:.75}
+.panel::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:var(--flood);opacity:.32}
 .grid2{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:18px}
 @media (max-width:760px){.grid2{grid-template-columns:minmax(0,1fr)}}
 .stack{display:flex;flex-direction:column;gap:14px}
@@ -1275,7 +1275,7 @@ function render(){
     </div>
   </div>
   <nav class="tabs" aria-label="Sections"><div class="wrap">
-    ${[["club","Club"],["packs","Packs"],["cards","Cards"],["academy","Academy"],["squad","Squad"],["table","Table"],["calendar","Calendar"],["euro","Europe"],["news","News"],["history","History"],["updates","Updates"]].concat(isAdmin?[["admin","Admin"]]:[]).map(([k,l])=>`<button class="tab ${k==="admin"?"owner":k==="updates"?"fresh":""}" data-view="${k}" ${view===k?'aria-current="page"':""}>${l}${k==="updates"?'<span class="newdot">NEW</span>':""}</button>`).join("")}
+    ${[["club","Club"],["squad","Squad"],["calendar","Calendar"],["packs","Packs"],["table","Table"],["news","News"],["euro","Europe"],["academy","Academy"],["cards","Cards"],["history","History"],["updates","Updates"]].concat(isAdmin?[["admin","Admin"]]:[]).map(([k,l])=>`<button class="tab ${k==="admin"?"owner":k==="updates"?"fresh":""}" data-view="${k}" ${view===k?'aria-current="page"':""}>${l}${k==="updates"?'<span class="newdot">NEW</span>':""}</button>`).join("")}
   </div></nav></header>
   <main class="wrap">${(({club:vClub,packs:vPacks,cards:vCollection,academy:vAcademy,squad:vSquad,table:vTable,calendar:vCalendar,euro:vCompetitions,news:vNews,history:vHistory,updates:vUpdates,admin:vAdmin})[view]||vClub)(tbl,pos)}
   <div style="margin-top:28px;text-align:center"><a class="btn coffee" href="https://buymeacoffee.com/tictactoekai" target="_blank" rel="noopener">\u2615 Enjoying TacTicToe? Buy me a coffee</a></div>
@@ -1525,7 +1525,10 @@ function vAdmin(){
 }
 function ordinalPos(n){ return n>0?ordinal(n):"\u2014"; }
 const CHANGELOG = [
-  {tag:"CHANGED", accent:"var(--c-orange)", date:"Latest", title:"Slower progression — reworked packs",
+  {tag:"CHANGED", accent:"var(--flood)", date:"Latest", title:"Fresh look & tidier tabs",
+   body:"A cleaner floodlit-stadium theme and a more logical tab order.",
+   items:["New charcoal-and-gold broadcast look — a pitch-lit background and solid accents in place of the old glow.","Nav tabs reordered so your everyday screens (Club, Squad, Calendar, Packs) sit on the left, with reference screens to the right."]},
+  {tag:"CHANGED", accent:"var(--c-orange)", date:"Recent", title:"Slower progression — reworked packs",
    body:"Packs now give lower-rated players on average, so building an elite squad takes longer.",
    items:["Elite packs are now three 79–84, one 85 and one 86+.","Bronze, Silver and Gold all pull lower than before.","Top-end quality still comes through — just rarer — making titles a genuine long-term goal."]},
   {tag:"NEW", accent:"var(--c-money)", date:"Recent", title:"Youth Academy & scouting profiles",

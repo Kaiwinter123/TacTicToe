@@ -16,7 +16,7 @@ function render(){
     </div>
   </div>
   <nav class="tabs" aria-label="Sections"><div class="wrap">
-    ${[["club","Club"],["packs","Packs"],["cards","Cards"],["academy","Academy"],["squad","Squad"],["table","Table"],["calendar","Calendar"],["euro","Europe"],["news","News"],["history","History"],["updates","Updates"]].concat(isAdmin?[["admin","Admin"]]:[]).map(([k,l])=>`<button class="tab ${k==="admin"?"owner":k==="updates"?"fresh":""}" data-view="${k}" ${view===k?'aria-current="page"':""}>${l}${k==="updates"?'<span class="newdot">NEW</span>':""}</button>`).join("")}
+    ${[["club","Club"],["squad","Squad"],["calendar","Calendar"],["packs","Packs"],["table","Table"],["news","News"],["euro","Europe"],["academy","Academy"],["cards","Cards"],["history","History"],["updates","Updates"]].concat(isAdmin?[["admin","Admin"]]:[]).map(([k,l])=>`<button class="tab ${k==="admin"?"owner":k==="updates"?"fresh":""}" data-view="${k}" ${view===k?'aria-current="page"':""}>${l}${k==="updates"?'<span class="newdot">NEW</span>':""}</button>`).join("")}
   </div></nav></header>
   <main class="wrap">${(({club:vClub,packs:vPacks,cards:vCollection,academy:vAcademy,squad:vSquad,table:vTable,calendar:vCalendar,euro:vCompetitions,news:vNews,history:vHistory,updates:vUpdates,admin:vAdmin})[view]||vClub)(tbl,pos)}
   <div style="margin-top:28px;text-align:center"><a class="btn coffee" href="https://buymeacoffee.com/tictactoekai" target="_blank" rel="noopener">\u2615 Enjoying TacTicToe? Buy me a coffee</a></div>
@@ -266,7 +266,10 @@ function vAdmin(){
 }
 function ordinalPos(n){ return n>0?ordinal(n):"\u2014"; }
 const CHANGELOG = [
-  {tag:"CHANGED", accent:"var(--c-orange)", date:"Latest", title:"Slower progression — reworked packs",
+  {tag:"CHANGED", accent:"var(--flood)", date:"Latest", title:"Fresh look & tidier tabs",
+   body:"A cleaner floodlit-stadium theme and a more logical tab order.",
+   items:["New charcoal-and-gold broadcast look — a pitch-lit background and solid accents in place of the old glow.","Nav tabs reordered so your everyday screens (Club, Squad, Calendar, Packs) sit on the left, with reference screens to the right."]},
+  {tag:"CHANGED", accent:"var(--c-orange)", date:"Recent", title:"Slower progression — reworked packs",
    body:"Packs now give lower-rated players on average, so building an elite squad takes longer.",
    items:["Elite packs are now three 79–84, one 85 and one 86+.","Bronze, Silver and Gold all pull lower than before.","Top-end quality still comes through — just rarer — making titles a genuine long-term goal."]},
   {tag:"NEW", accent:"var(--c-money)", date:"Recent", title:"Youth Academy & scouting profiles",
