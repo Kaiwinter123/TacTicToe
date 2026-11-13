@@ -133,11 +133,16 @@ const FORMATIONS = {
   "3-4-3":[["GK",50,90],["DEF",28,75],["DEF",50,77],["DEF",72,75],["MID",14,52],["MID",38,56],["MID",62,56],["MID",86,52],["FWD",22,24],["FWD",50,20],["FWD",78,24]],
   "5-3-2":[["GK",50,90],["DEF",10,70],["DEF",30,76],["DEF",50,78],["DEF",70,76],["DEF",90,70],["MID",28,52],["MID",50,54],["MID",72,52],["FWD",38,24],["FWD",62,24]]
 };
+// Each pack is built from explicit tiers: [lo, hi] skews low; [lo, hi, "flat"] is even across the range.
 const PACKS = [
-  {id:"bronze",name:"Bronze",price:5,count:4,lo:70,hi:82,guar:null,foil:"f-bronze",desc:["4 players · no minimum, up to 82","Pot luck — the cheapest squad filler"]},
-  {id:"silver",name:"Silver",price:12,count:4,lo:80,hi:83,guar:81,foil:"f-silver",desc:["4 players, 80–83","One guaranteed 81+"]},
-  {id:"gold",name:"Gold",price:45,count:5,lo:82,hi:86,guar:84,foil:"f-gold",desc:["5 players, 82–86","One guaranteed 84+ · one upgrade early"]},
-  {id:"elite",name:"Elite",price:85,count:5,lo:84,hi:91,guar:86,foil:"f-elite",desc:["5 players, 84–91","One guaranteed 86+ · for after the summer or January budget"]}
+  {id:"bronze",name:"Bronze",price:5,count:4,lo:70,hi:80,foil:"f-bronze",desc:["4 players · low-rated pot luck (up to 80)","The cheapest way to fill out a squad"],
+    tiers:[[70,79],[70,79],[70,80],[72,80]]},
+  {id:"silver",name:"Silver",price:12,count:4,lo:75,hi:83,foil:"f-silver",desc:["4 players, mostly 76–81","One guaranteed 80+"],
+    tiers:[[75,80],[75,80],[76,81],[80,83,"flat"]]},
+  {id:"gold",name:"Gold",price:45,count:5,lo:77,hi:86,foil:"f-gold",desc:["5 players, mostly 78–83","One guaranteed 84+"],
+    tiers:[[77,82],[78,82],[78,83],[81,84],[84,86,"flat"]]},
+  {id:"elite",name:"Elite",price:85,count:5,lo:79,hi:91,foil:"f-elite",desc:["5 players: three 79–84, one 85, one 86+","The only pack that can reach the very top"],
+    tiers:[[79,84],[79,84],[79,84],[85,85,"flat"],[86,91,"flat"]]}
 ];
 const SWATCHES = ["#e63946","#f4c84b","#2a9d8f","#3a86ff","#8338ec","#ff7b00","#111111","#f5f5f5","#0b6e4f","#7a263a","#00b4d8","#c0c0c0"];
 const MAX_SQUAD = 36;

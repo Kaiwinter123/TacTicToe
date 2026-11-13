@@ -114,16 +114,17 @@ function openPack(pk){
   if(S.budget<pk.price||S.squad.length+pk.count>MAX_SQUAD) return;
   S.budget-=pk.price; S.packs++;
   const got=[];
-  const add=(t,min,hi,pos)=>{ const p=drawRealPack(t,pk.lo,hi||pk.hi,min,pos); if(!p) return; got.push(p); S.squad.push(p) };
-  // the headline pull first, so the guarantee holds even as the pool thins; steer it to a needed position
-  if(pk.guar) add(ri(pk.guar,pk.hi),pk.guar,null,gapPos());
-  while(got.length<pk.count) add(rollOvr(pk.lo,pk.hi),null,null,gapPos());
+  const add=(t,lo,hi,pos)=>{ const p=drawRealPack(t,lo,hi,lo,pos); if(!p) return; got.push(p); S.squad.push(p) };
+  // one pull per tier (tiers run lowest-to-highest, so the headline pull is last)
+  (pk.tiers||[[pk.lo,pk.hi]]).forEach(([lo,hi,mode])=>{ add(tierOvr(lo,hi,mode),lo,hi,gapPos()); });
+  // a prospect / Europe's Finest can replace one of the lower pulls (never the headline tier)
+  const swapIdx=()=>ri(0,Math.max(0,got.length-2));
   const PCH={bronze:.06,silver:.11,gold:.17,elite:.26};
   if(Math.random()<(PCH[pk.id]||0)){ const pr=drawProspect();
-    if(pr){ const idx=pk.guar?ri(1,got.length-1):ri(0,got.length-1); const si=S.squad.indexOf(got[idx]); if(si>=0) S.squad.splice(si,1); got[idx]=pr; S.squad.push(pr); } }
+    if(pr){ const idx=swapIdx(); const si=S.squad.indexOf(got[idx]); if(si>=0) S.squad.splice(si,1); got[idx]=pr; S.squad.push(pr); } }
   const UCH={bronze:0,silver:0,gold:0,elite:.2};
   if(Math.random()<(UCH[pk.id]||0)){ const uc=drawUCL();
-    if(uc){ const idx=pk.guar?ri(1,got.length-1):ri(0,got.length-1); const si=S.squad.indexOf(got[idx]); if(si>=0) S.squad.splice(si,1); got[idx]=uc; S.squad.push(uc); } }
+    if(uc){ const idx=swapIdx(); const si=S.squad.indexOf(got[idx]); if(si>=0) S.squad.splice(si,1); got[idx]=uc; S.squad.push(uc); } }
   got.sort((a,b)=>a.ovr-b.ovr);
   if(!S.collected) S.collected=[];
   got.forEach(p=>{ if(p.rid && !S.collected.includes(p.rid)) S.collected.push(p.rid); addRep(Math.max(0,(p.ovr-80))*0.6); });

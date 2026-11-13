@@ -132,7 +132,7 @@ function howTo(open){
     <div class="howbody">
       <p style="margin:0 0 10px">Build a football club from nothing: open packs of real Premier League players, pick your team, and manage them through a full home-and-away league season plus a midweek League Cup. Climb the table, win prize money and cups, and build a title-winning side over several seasons.</p>
       <ol class="steps">
-        <li><b>Open packs</b> — go to <b>Packs</b>. You start with <b>£75m</b>. <b>Silver, Gold</b> and <b>Elite</b> packs give real players rated 80+, while <b>Bronze</b> is cheap pot luck (no minimum). Every pack also has a rare chance of a <b>Future Prospect</b> — a purple wonderkid rated 85 that gains +1 every season. Keep opening until you have at least 11.</li>
+        <li><b>Open packs</b> — go to <b>Packs</b>. You start with <b>£75m</b>. pricier packs give higher-quality real players — <b>Elite</b> tops out with three 79–84, one 85 and one 86+, while <b>Bronze</b> is cheap low-rated pot luck. Every pack also has a rare chance of a <b>Future Prospect</b> — a purple wonderkid rated 85 that gains +1 every season. Keep opening until you have at least 11.</li>
         <li><b>Pick your team</b> — go to <b>Squad</b>. Choose a formation, then tap a player on the pitch and tap a substitute to swap them. Green means the right position, red means out of position. You can also sell players for cash.</li>
         <li><b>Play matches</b> — go to <b>Calendar</b> and hit <b>Advance</b> (or <b>Kick off</b> here). Get a match preview, then watch it play out with momentum arrows. League games are blue; green League Cup ties come midweek.</li>
         <li><b>Earn & improve</b> — win matches and finish high for prize money. The board tops you up with <b>£30m</b> in the January window and a <b>£50m</b> summer budget at the end of every season — spend it on better packs and climb the <b>Table</b>.</li>
@@ -266,7 +266,10 @@ function vAdmin(){
 }
 function ordinalPos(n){ return n>0?ordinal(n):"\u2014"; }
 const CHANGELOG = [
-  {tag:"NEW", accent:"var(--c-money)", date:"Latest", title:"Youth Academy",
+  {tag:"CHANGED", accent:"var(--c-orange)", date:"Latest", title:"Slower progression — reworked packs",
+   body:"Packs now give lower-rated players on average, so building an elite squad takes longer.",
+   items:["Elite packs are now three 79–84, one 85 and one 86+.","Bronze, Silver and Gold all pull lower than before.","Top-end quality still comes through — just rarer — making titles a genuine long-term goal."]},
+  {tag:"NEW", accent:"var(--c-money)", date:"Recent", title:"Youth Academy",
    body:"Home-grown players now come through their own academy instead of packs.",
    items:["A new Academy tab with a full graduate log — every youngster, their rating and exactly when they came through.","A fresh intake joins your squad automatically each season, plus an opening group.","Academy players can no longer be found in packs — packs give real players only."]},
   {tag:"NEW", accent:"var(--gold)", date:"Recent", title:"Trophy celebrations",

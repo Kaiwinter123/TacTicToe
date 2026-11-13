@@ -841,11 +841,16 @@ const FORMATIONS = {
   "3-4-3":[["GK",50,90],["DEF",28,75],["DEF",50,77],["DEF",72,75],["MID",14,52],["MID",38,56],["MID",62,56],["MID",86,52],["FWD",22,24],["FWD",50,20],["FWD",78,24]],
   "5-3-2":[["GK",50,90],["DEF",10,70],["DEF",30,76],["DEF",50,78],["DEF",70,76],["DEF",90,70],["MID",28,52],["MID",50,54],["MID",72,52],["FWD",38,24],["FWD",62,24]]
 };
+// Each pack is built from explicit tiers: [lo, hi] skews low; [lo, hi, "flat"] is even across the range.
 const PACKS = [
-  {id:"bronze",name:"Bronze",price:5,count:4,lo:70,hi:82,guar:null,foil:"f-bronze",desc:["4 players · no minimum, up to 82","Pot luck — the cheapest squad filler"]},
-  {id:"silver",name:"Silver",price:12,count:4,lo:80,hi:83,guar:81,foil:"f-silver",desc:["4 players, 80–83","One guaranteed 81+"]},
-  {id:"gold",name:"Gold",price:45,count:5,lo:82,hi:86,guar:84,foil:"f-gold",desc:["5 players, 82–86","One guaranteed 84+ · one upgrade early"]},
-  {id:"elite",name:"Elite",price:85,count:5,lo:84,hi:91,guar:86,foil:"f-elite",desc:["5 players, 84–91","One guaranteed 86+ · for after the summer or January budget"]}
+  {id:"bronze",name:"Bronze",price:5,count:4,lo:70,hi:80,foil:"f-bronze",desc:["4 players · low-rated pot luck (up to 80)","The cheapest way to fill out a squad"],
+    tiers:[[70,79],[70,79],[70,80],[72,80]]},
+  {id:"silver",name:"Silver",price:12,count:4,lo:75,hi:83,foil:"f-silver",desc:["4 players, mostly 76–81","One guaranteed 80+"],
+    tiers:[[75,80],[75,80],[76,81],[80,83,"flat"]]},
+  {id:"gold",name:"Gold",price:45,count:5,lo:77,hi:86,foil:"f-gold",desc:["5 players, mostly 78–83","One guaranteed 84+"],
+    tiers:[[77,82],[78,82],[78,83],[81,84],[84,86,"flat"]]},
+  {id:"elite",name:"Elite",price:85,count:5,lo:79,hi:91,foil:"f-elite",desc:["5 players: three 79–84, one 85, one 86+","The only pack that can reach the very top"],
+    tiers:[[79,84],[79,84],[79,84],[85,85,"flat"],[86,91,"flat"]]}
 ];
 const SWATCHES = ["#e63946","#f4c84b","#2a9d8f","#3a86ff","#8338ec","#ff7b00","#111111","#f5f5f5","#0b6e4f","#7a263a","#00b4d8","#c0c0c0"];
 const MAX_SQUAD = 36;
@@ -954,6 +959,8 @@ function rollOvr(lo,hi){ // skewed toward the low end
   const t = Math.pow(Math.random(),4.6);
   return Math.round(lo + t*(hi-lo));
 }
+// Rating for one pack tier: default skews low; "flat" is even across the band.
+function tierOvr(lo,hi,mode){ if(mode==="flat") return ri(lo,hi); const t=Math.pow(Math.random(),2.6); return Math.round(lo+t*(hi-lo)); }
 
 /* ---------- state ---------- */
 let S = null;          // the save
@@ -1343,7 +1350,7 @@ function howTo(open){
     <div class="howbody">
       <p style="margin:0 0 10px">Build a football club from nothing: open packs of real Premier League players, pick your team, and manage them through a full home-and-away league season plus a midweek League Cup. Climb the table, win prize money and cups, and build a title-winning side over several seasons.</p>
       <ol class="steps">
-        <li><b>Open packs</b> — go to <b>Packs</b>. You start with <b>£75m</b>. <b>Silver, Gold</b> and <b>Elite</b> packs give real players rated 80+, while <b>Bronze</b> is cheap pot luck (no minimum). Every pack also has a rare chance of a <b>Future Prospect</b> — a purple wonderkid rated 85 that gains +1 every season. Keep opening until you have at least 11.</li>
+        <li><b>Open packs</b> — go to <b>Packs</b>. You start with <b>£75m</b>. pricier packs give higher-quality real players — <b>Elite</b> tops out with three 79–84, one 85 and one 86+, while <b>Bronze</b> is cheap low-rated pot luck. Every pack also has a rare chance of a <b>Future Prospect</b> — a purple wonderkid rated 85 that gains +1 every season. Keep opening until you have at least 11.</li>
         <li><b>Pick your team</b> — go to <b>Squad</b>. Choose a formation, then tap a player on the pitch and tap a substitute to swap them. Green means the right position, red means out of position. You can also sell players for cash.</li>
         <li><b>Play matches</b> — go to <b>Calendar</b> and hit <b>Advance</b> (or <b>Kick off</b> here). Get a match preview, then watch it play out with momentum arrows. League games are blue; green League Cup ties come midweek.</li>
         <li><b>Earn & improve</b> — win matches and finish high for prize money. The board tops you up with <b>£30m</b> in the January window and a <b>£50m</b> summer budget at the end of every season — spend it on better packs and climb the <b>Table</b>.</li>
@@ -1477,7 +1484,10 @@ function vAdmin(){
 }
 function ordinalPos(n){ return n>0?ordinal(n):"\u2014"; }
 const CHANGELOG = [
-  {tag:"NEW", accent:"var(--c-money)", date:"Latest", title:"Youth Academy",
+  {tag:"CHANGED", accent:"var(--c-orange)", date:"Latest", title:"Slower progression — reworked packs",
+   body:"Packs now give lower-rated players on average, so building an elite squad takes longer.",
+   items:["Elite packs are now three 79–84, one 85 and one 86+.","Bronze, Silver and Gold all pull lower than before.","Top-end quality still comes through — just rarer — making titles a genuine long-term goal."]},
+  {tag:"NEW", accent:"var(--c-money)", date:"Recent", title:"Youth Academy",
    body:"Home-grown players now come through their own academy instead of packs.",
    items:["A new Academy tab with a full graduate log — every youngster, their rating and exactly when they came through.","A fresh intake joins your squad automatically each season, plus an opening group.","Academy players can no longer be found in packs — packs give real players only."]},
   {tag:"NEW", accent:"var(--gold)", date:"Recent", title:"Trophy celebrations",
@@ -2012,16 +2022,17 @@ function openPack(pk){
   if(S.budget<pk.price||S.squad.length+pk.count>MAX_SQUAD) return;
   S.budget-=pk.price; S.packs++;
   const got=[];
-  const add=(t,min,hi,pos)=>{ const p=drawRealPack(t,pk.lo,hi||pk.hi,min,pos); if(!p) return; got.push(p); S.squad.push(p) };
-  // the headline pull first, so the guarantee holds even as the pool thins; steer it to a needed position
-  if(pk.guar) add(ri(pk.guar,pk.hi),pk.guar,null,gapPos());
-  while(got.length<pk.count) add(rollOvr(pk.lo,pk.hi),null,null,gapPos());
+  const add=(t,lo,hi,pos)=>{ const p=drawRealPack(t,lo,hi,lo,pos); if(!p) return; got.push(p); S.squad.push(p) };
+  // one pull per tier (tiers run lowest-to-highest, so the headline pull is last)
+  (pk.tiers||[[pk.lo,pk.hi]]).forEach(([lo,hi,mode])=>{ add(tierOvr(lo,hi,mode),lo,hi,gapPos()); });
+  // a prospect / Europe's Finest can replace one of the lower pulls (never the headline tier)
+  const swapIdx=()=>ri(0,Math.max(0,got.length-2));
   const PCH={bronze:.06,silver:.11,gold:.17,elite:.26};
   if(Math.random()<(PCH[pk.id]||0)){ const pr=drawProspect();
-    if(pr){ const idx=pk.guar?ri(1,got.length-1):ri(0,got.length-1); const si=S.squad.indexOf(got[idx]); if(si>=0) S.squad.splice(si,1); got[idx]=pr; S.squad.push(pr); } }
+    if(pr){ const idx=swapIdx(); const si=S.squad.indexOf(got[idx]); if(si>=0) S.squad.splice(si,1); got[idx]=pr; S.squad.push(pr); } }
   const UCH={bronze:0,silver:0,gold:0,elite:.2};
   if(Math.random()<(UCH[pk.id]||0)){ const uc=drawUCL();
-    if(uc){ const idx=pk.guar?ri(1,got.length-1):ri(0,got.length-1); const si=S.squad.indexOf(got[idx]); if(si>=0) S.squad.splice(si,1); got[idx]=uc; S.squad.push(uc); } }
+    if(uc){ const idx=swapIdx(); const si=S.squad.indexOf(got[idx]); if(si>=0) S.squad.splice(si,1); got[idx]=uc; S.squad.push(uc); } }
   got.sort((a,b)=>a.ovr-b.ovr);
   if(!S.collected) S.collected=[];
   got.forEach(p=>{ if(p.rid && !S.collected.includes(p.rid)) S.collected.push(p.rid); addRep(Math.max(0,(p.ovr-80))*0.6); });

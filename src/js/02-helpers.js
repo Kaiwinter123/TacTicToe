@@ -100,6 +100,8 @@ function rollOvr(lo,hi){ // skewed toward the low end
   const t = Math.pow(Math.random(),4.6);
   return Math.round(lo + t*(hi-lo));
 }
+// Rating for one pack tier: default skews low; "flat" is even across the band.
+function tierOvr(lo,hi,mode){ if(mode==="flat") return ri(lo,hi); const t=Math.pow(Math.random(),2.6); return Math.round(lo+t*(hi-lo)); }
 
 /* ---------- state ---------- */
 let S = null;          // the save
