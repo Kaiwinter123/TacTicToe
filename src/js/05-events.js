@@ -120,7 +120,7 @@ function openPack(pk){
   const PCH={bronze:.06,silver:.11,gold:.17,elite:.26};
   if(Math.random()<(PCH[pk.id]||0)){ const pr=drawProspect();
     if(pr){ const idx=pk.guar?ri(1,got.length-1):ri(0,got.length-1); const si=S.squad.indexOf(got[idx]); if(si>=0) S.squad.splice(si,1); got[idx]=pr; S.squad.push(pr); } }
-  const UCH={bronze:0,silver:0,gold:0,elite:.1};
+  const UCH={bronze:0,silver:0,gold:0,elite:.133};
   if(Math.random()<(UCH[pk.id]||0)){ const uc=drawUCL();
     if(uc){ const idx=pk.guar?ri(1,got.length-1):ri(0,got.length-1); const si=S.squad.indexOf(got[idx]); if(si>=0) S.squad.splice(si,1); got[idx]=uc; S.squad.push(uc); } }
   got.sort((a,b)=>a.ovr-b.ovr);

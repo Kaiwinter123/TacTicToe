@@ -19,8 +19,7 @@ function render(){
     ${[["club","Club"],["packs","Packs"],["cards","Cards"],["squad","Squad"],["table","Table"],["calendar","Calendar"],["euro","Europe"],["news","News"],["history","History"],["updates","Updates"]].concat(isAdmin?[["admin","Admin"]]:[]).map(([k,l])=>`<button class="tab ${k==="admin"?"owner":k==="updates"?"fresh":""}" data-view="${k}" ${view===k?'aria-current="page"':""}>${l}${k==="updates"?'<span class="newdot">NEW</span>':""}</button>`).join("")}
   </div></nav></header>
   <main class="wrap">${(({club:vClub,packs:vPacks,cards:vCollection,squad:vSquad,table:vTable,calendar:vCalendar,euro:vCompetitions,news:vNews,history:vHistory,updates:vUpdates,admin:vAdmin})[view]||vClub)(tbl,pos)}
-  <p class="muted" style="margin:28px 0 0;text-align:center;font-size:13px">Official sponsor \u2014 <a href="https://upnorthplumbing.com/" target="_blank" rel="noopener sponsored" style="color:var(--c-blue);font-weight:700;text-decoration:underline;text-underline-offset:3px">UpNorthPlumbing</a></p>
-  <div style="margin-top:14px;text-align:center"><a class="btn coffee" href="https://buymeacoffee.com/tictactoekai" target="_blank" rel="noopener">\u2615 Enjoying TacTicToe? Buy me a coffee</a></div>
+  <div style="margin-top:28px;text-align:center"><a class="btn coffee" href="https://buymeacoffee.com/tictactoekai" target="_blank" rel="noopener">\u2615 Enjoying TacTicToe? Buy me a coffee</a></div>
   <p class="muted" style="margin:16px 0 0;font-size:12px">© 2026 Kai Winterbottom. All rights reserved. Unofficial fan game, not affiliated with the Premier League or its clubs. Player ratings are this game's own estimates.</p></main>`;
   bind();
 }
@@ -39,7 +38,7 @@ function vClub(tbl,pos){
   const last=S.last;
   const newish = S.round<=1 && S.packs<2;
   const janSoon = !S.januaryDone && S.round<S.fixtures.length && mDateObj(S.round).getUTCMonth()===11;
-  return `${howTo(newish)}${sponsorBanner()}${janSoon?`<div class="janbanner"><b>\ud83d\udcb0 January transfer window opens next month.</b> The board will hand you \u00a330m to spend \u2014 start planning your signings.</div>`:""}<div class="grid2">
+  return `${howTo(newish)}${janSoon?`<div class="janbanner"><b>\ud83d\udcb0 January transfer window opens next month.</b> The board will hand you \u00a330m to spend \u2014 start planning your signings.</div>`:""}<div class="grid2">
     <section class="panel stack" aria-labelledby="nm">
       <div class="row" style="justify-content:space-between"><span class="eyebrow" id="nm">Next up · <b style="color:${isCup?"var(--elite)":"var(--flood)"}">${esc(compLabel)}</b> · ${esc(roundLabel)}</span><span class="eyebrow">${isCup&&cupRound==="Final"?"Neutral":home?"Home":"Away"}</span></div>
       <div class="fixture">
@@ -185,7 +184,7 @@ function vPacks(){
         <ul>${p.desc.map(d=>`<li>${d}</li>`).join("")}</ul>
         <button class="btn primary" data-act="buy" data-pack="${p.id}" ${S.budget<p.price||S.squad.length+p.count>MAX_SQUAD?"disabled":""}>${S.budget<p.price?"Need "+money(p.price-S.budget)+" more":S.squad.length+p.count>MAX_SQUAD?"Squad full":"Open pack"}</button>
       </article>`).join("")}</div>
-    ${S.squad.length>=MAX_SQUAD?`<div class="panel row" style="justify-content:space-between"><span>Your squad is full (${MAX_SQUAD} players). Win matches to earn more, but you have a full roster to pick from.</span><button class="btn" data-view="squad">Go to squad</button></div>`:`<div class="prospecttip"><b>\u2b50 Future Prospect cards</b> \u2014 every pack has a rare chance to pull a purple Future Prospect (Kroupi, Rayan, Ant\u00f3nio Silva, Archie Gray, Diomande, Dowman, Ngumoha, JJ Gabriel). They start rated 85 and gain +1 overall every season you play \u2014 raw talent that grows with you.</div><div class="ucltip"><b>\u2b50 Europe\u2019s Finest cards</b> \u2014 the rarest pull of all. Only <b>Elite</b> packs can contain a blue Europe\u2019s Finest superstar \u2014 roughly one in every ten Elite packs \u2014 with continental icons like Mbapp\u00e9, Yamal, Kane, Demb\u00e9l\u00e9, Bellingham and Lautaro.</div><p class="muted" style="margin:0">Players you pack are yours to keep — build the deepest squad you can across the season.</p>`}
+    ${S.squad.length>=MAX_SQUAD?`<div class="panel row" style="justify-content:space-between"><span>Your squad is full (${MAX_SQUAD} players). Win matches to earn more, but you have a full roster to pick from.</span><button class="btn" data-view="squad">Go to squad</button></div>`:`<div class="prospecttip"><b>\u2b50 Future Prospect cards</b> \u2014 every pack has a rare chance to pull a purple Future Prospect (Kroupi, Rayan, Ant\u00f3nio Silva, Archie Gray, Diomande, Dowman, Ngumoha, JJ Gabriel). They start rated 85 and gain +1 overall every season you play \u2014 raw talent that grows with you.</div><div class="ucltip"><b>\u2b50 Europe\u2019s Finest cards</b> \u2014 the rarest pull of all. Only <b>Elite</b> packs can contain a blue Europe\u2019s Finest superstar \u2014 roughly one in every seven or eight Elite packs \u2014 with continental icons like Mbapp\u00e9, Yamal, Kane, Demb\u00e9l\u00e9, Bellingham and Lautaro.</div><p class="muted" style="margin:0">Players you pack are yours to keep — build the deepest squad you can across the season.</p>`}
   </div>`;
 }
 
