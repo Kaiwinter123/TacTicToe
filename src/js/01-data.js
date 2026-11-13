@@ -64,7 +64,7 @@ const UCL = [
   ["Kenan Yıldız","JUV","FWD",84],["Dušan Vlahović","JUV","FWD",83],
   ["Julián Álvarez","ATM","FWD",87],["Antoine Griezmann","ATM","FWD",84],
   ["Serhou Guirassy","DOR","FWD",84]
-].map(([n,sh,pos,ovr])=>{const e=EURO_CLUBS[sh];return {n,pos,ovr,rid:"U:"+n,csh:sh,k1:e[0],k2:e[1],cname:e[2]};});
+].map(([n,sh,pos,ovr])=>{const e=EURO_CLUBS[sh];const r=ovr<88?ovr+2:ovr+1;return {n,pos,ovr:r,rid:"U:"+n,csh:sh,k1:e[0],k2:e[1],cname:e[2]};});
 // --- European opponents for continental competitions (2026/27): [name, c1, c2, strength, "Player/POS ..."] ---
 const EUROTEAMS = {
   RMA:["Real Madrid","#FFFFFF","#00529F",90,"Kylian Mbappé/FWD Vinícius Júnior/FWD Jude Bellingham/MID Federico Valverde/MID Thibaut Courtois/GK Antonio Rüdiger/DEF Rodrygo/FWD"],
