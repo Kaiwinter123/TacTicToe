@@ -683,7 +683,7 @@ function gate(){
     </header>
 
     <div class="found-main">
-      <section class="board" id="pv" aria-live="polite"></section>
+      <section class="fboard" id="pv" aria-live="polite"></section>
 
       <form id="create" class="founder" novalidate>
         <div class="fstep"><span class="fnum">01</span><div class="fbody">
@@ -729,11 +729,11 @@ function paintPreview(){
   const n=draft.name.trim()||"Your Club", s=(draft.short||shortFrom(n)).toUpperCase(), st=draft.stadium.trim()||(draft.name.trim()?draft.name.trim()+" Stadium":"Your stadium"), m=draft.manager.trim()||"You";
   const pv=$("#pv"); if(!pv) return;
   pv.style.setProperty("--b1",draft.c1); pv.style.setProperty("--b2",draft.c2);
-  pv.innerHTML = `<div class="board-glow"></div>
+  pv.innerHTML = `<div class="fboard-glow"></div>
     <span class="eyebrow">Founded 2026 · Season 1</span>
-    <div class="board-kit">${crest(draft.c1,draft.c2,s,110)}<div class="board-shirt">${shirt(draft.c1,draft.c2)}<b style="color:${readable(draft.c1)}">${esc(s)}</b></div></div>
-    <h1 class="board-name">${esc(n)}</h1>
-    <div class="board-meta"><span>🏟️ ${esc(st)}</span><span>🧑‍💼 Manager ${esc(m)}</span></div>`;
+    <div class="fboard-kit">${crest(draft.c1,draft.c2,s,110)}<div class="fboard-shirt">${shirt(draft.c1,draft.c2)}<b style="color:${readable(draft.c1)}">${esc(s)}</b></div></div>
+    <h1 class="fboard-name">${esc(n)}</h1>
+    <div class="fboard-meta"><span>🏟️ ${esc(st)}</span><span>🧑‍💼 Manager ${esc(m)}</span></div>`;
 }
 function bindGate(){
   const f=$("#create"); if(!f) return;

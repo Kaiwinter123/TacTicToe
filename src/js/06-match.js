@@ -438,7 +438,7 @@ function showMatchOverlay(o, onDone){
     minute=90; paintStats();
     sc.textContent=gh+"\u2013"+ga; clk.textContent="FT";
     if(o.motm){ const mo=document.createElement("div"); mo.className="motm";
-      mo.innerHTML=`<span class="motmlab">\u2b50 Player of the match</span><b class="motmn">${esc(o.motm.n)}</b><span class="motmr">${o.motm.rating}</span>${o.motm.goals?`<span class="motmg">\u26bd ${o.motm.goals}</span>`:""}`;
+      mo.innerHTML=`<span class="motmlab">\u2b50 Player of the match</span><b class="motmn">${esc(surname(o.motm.n))}</b><span class="motmr">${o.motm.rating}</span>${o.motm.goals?`<span class="motmg">\u26bd ${o.motm.goals}</span>`:""}`;
       ov.insertBefore(mo, ov.querySelector(".row")); }
     const row=ov.querySelector(".row");
     row.innerHTML=`<span style="font-family:var(--display);font-size:26px;text-transform:uppercase;color:${o.color}">${esc(o.word)}</span><span class="muted">${esc(o.note)}</span><button class="btn primary" id="cont">${o.social?"See the reaction \ud83d\udcac":"Continue \u25b6"}</button>`;
