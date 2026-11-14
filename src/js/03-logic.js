@@ -120,7 +120,7 @@ function card(p,opts={}){
     <div class="top"><div class="lhs"><div class="ovr num">${p.ovr}${(p.prospect||(acad&&p.potential&&p.ovr<p.potential))?'<span class="rise">\u25b2</span>':''}</div><div class="pos">${p.pos}</div>${cr}</div><span class="rar">${p.ucl?"FINEST":p.prospect?"PROSPECT":acad?"ACADEMY":RLABEL[r]}</span></div>
     <div class="face">${shirt(k1,k2)}</div>
     <div class="pname" title="${esc(p.n)}">${esc(surname(p.n))}</div>
-    ${(p.prospect||p.ucl||acad)&&!opts.sm?`<div class="pnote">${p.prospect?"\u2605 Future prospect \u00b7 +1 OVR every season":p.ucl?"\u2605 Europe\u2019s Finest \u00b7 continental elite":`\ud83c\udf93 Home-grown \u00b7 +1 OVR every season${p.potential?" \u00b7 ceiling "+p.potential:""}`}</div>`:""}
+    ${(p.prospect||p.ucl||acad)&&!opts.sm?`<div class="pnote">${p.prospect?"\u2605 Future prospect \u00b7 +1 OVR every season":p.ucl?"\u2605 Europe\u2019s Finest \u00b7 continental elite":`\ud83c\udf93 Home-grown \u00b7 +3 OVR every season${p.potential?" \u00b7 ceiling "+p.potential:""}`}</div>`:""}
     <div class="attrs">${at.map(([k,v])=>`<div><b>${v}</b><span>${k}</span></div>`).join("")}</div>
     <div class="foot"><span>${p.ucl?esc(p.cname):c?esc(c[0]):(S?esc(S.club.name)+" Academy":"Academy")}</span></div>
     ${opts.tag?`<span class="tag">${opts.tag}</span>`:""}

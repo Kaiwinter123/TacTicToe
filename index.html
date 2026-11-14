@@ -1273,7 +1273,7 @@ function card(p,opts={}){
     <div class="top"><div class="lhs"><div class="ovr num">${p.ovr}${(p.prospect||(acad&&p.potential&&p.ovr<p.potential))?'<span class="rise">\u25b2</span>':''}</div><div class="pos">${p.pos}</div>${cr}</div><span class="rar">${p.ucl?"FINEST":p.prospect?"PROSPECT":acad?"ACADEMY":RLABEL[r]}</span></div>
     <div class="face">${shirt(k1,k2)}</div>
     <div class="pname" title="${esc(p.n)}">${esc(surname(p.n))}</div>
-    ${(p.prospect||p.ucl||acad)&&!opts.sm?`<div class="pnote">${p.prospect?"\u2605 Future prospect \u00b7 +1 OVR every season":p.ucl?"\u2605 Europe\u2019s Finest \u00b7 continental elite":`\ud83c\udf93 Home-grown \u00b7 +1 OVR every season${p.potential?" \u00b7 ceiling "+p.potential:""}`}</div>`:""}
+    ${(p.prospect||p.ucl||acad)&&!opts.sm?`<div class="pnote">${p.prospect?"\u2605 Future prospect \u00b7 +1 OVR every season":p.ucl?"\u2605 Europe\u2019s Finest \u00b7 continental elite":`\ud83c\udf93 Home-grown \u00b7 +3 OVR every season${p.potential?" \u00b7 ceiling "+p.potential:""}`}</div>`:""}
     <div class="attrs">${at.map(([k,v])=>`<div><b>${v}</b><span>${k}</span></div>`).join("")}</div>
     <div class="foot"><span>${p.ucl?esc(p.cname):c?esc(c[0]):(S?esc(S.club.name)+" Academy":"Academy")}</span></div>
     ${opts.tag?`<span class="tag">${opts.tag}</span>`:""}
@@ -1549,7 +1549,7 @@ function ordinalPos(n){ return n>0?ordinal(n):"\u2014"; }
 const CHANGELOG = [
   {tag:"NEW", accent:"#4f7cff", date:"Latest", title:"Two-legged European ties & the Carabao Cup",
    body:"Europe now plays home and away, and the domestic cup carries its proper name.",
-   items:["Champions League, Europa League and Conference League knockout rounds are two legs — one at home, one away — with the final still a one-off. Aggregate score decides, penalties if it's level.","Both legs appear on the calendar and in the bracket, with the first-leg score shown before the return.","The League Cup is now the Carabao Cup everywhere in the game.","On phones the club header no longer pins to the top — it scrolls away with the page so each screen gets the full height."]},
+   items:["Champions League, Europa League and Conference League knockout rounds are two legs — one at home, one away — with the final still a one-off. Aggregate score decides, penalties if it's level.","Both legs appear on the calendar and in the bracket, with the first-leg score shown before the return.","The League Cup is now the Carabao Cup everywhere in the game.","On phones the club header no longer pins to the top — it scrolls away with the page so each screen gets the full height.","Home-grown academy players now improve +3 overall every season (up from +1), still capped at their ceiling."]},
   {tag:"NEW", accent:"var(--flood)", date:"Recent", title:"26/27 database & the sack",
    body:"Every squad brought up to date to mid-November 2026, Ipswich removed, and relegation now costs you your job.",
    items:["All 19 Premier League clubs re-rated with their current squads, including summer and deadline-day moves (Bruno Guimarães to Arsenal, Elliot Anderson to City, Tonali to Spurs, and more).","Ipswich Town are gone: a 20-team league, 38 rounds, no more bye weeks. Any Ipswich cards in your squad have been released; Hull cards carry over.","Finish in the bottom three and the board sacks you — the save ends and you start again with a new club. Everything above the drop zone is unchanged.","Cards you already own keep their stored ratings."]},
@@ -1804,7 +1804,7 @@ function vAcademy(){
   return `<section class="stack">
     <div class="ehead none"><span class="ebadge">🎓</span><div><h2 style="margin:0;font-size:34px">Youth Academy</h2><span class="muted">Home-grown talent — not available in packs.</span></div></div>
     <div class="panel stack"><span class="eyebrow">How the academy works</span>
-      <p class="muted" style="margin:0;font-size:13px"><b>Four youngsters</b> come through your academy every season. They develop in the youth setup and <b>sign for the first team when they turn 16</b>. Around <b>1 in 5</b> has the potential to become a 90+ world-beater — each prospect’s ceiling is shown on their profile, and they grow towards it season by season once they’re at the club. You can’t pack them; they’re yours alone.</p>
+      <p class="muted" style="margin:0;font-size:13px"><b>Four youngsters</b> come through your academy every season. They develop in the youth setup and <b>sign for the first team when they turn 16</b>. Around <b>1 in 5</b> has the potential to become a 90+ world-beater — each prospect’s ceiling is shown on their profile, and they grow <b>+3 overall every season</b> towards it once they’re at the club. You can’t pack them; they’re yours alone.</p>
       <div class="row" style="gap:22px">
         <div class="stat"><div class="eyebrow">Coming through</div><div class="v" style="color:var(--c-blue)">${pipeline.length}</div></div>
         <div class="stat"><div class="eyebrow">Graduates</div><div class="v" style="color:var(--c-money)">${log.length}</div></div>
@@ -2099,7 +2099,7 @@ function nextSeason(){
   const summer=50; S.budget+=prize+summer; S.season++; S.round=0; S.results=[]; S.last=null; S.januaryDone=false; S.lastStar=null;
   S.squad.forEach(p=>{ if(p.inj) delete p.inj;
     if(p.prospect && p.ovr<PROSPECT_CAP){ p.ovr=Math.min(PROSPECT_CAP,p.ovr+1); p.a=attrsFor(p.ovr,p.pos,p.rid); }
-    if(p.academy && p.potential && p.ovr<p.potential){ p.ovr=Math.min(p.potential, p.ovr+1); p.a=attrsFor(p.ovr,p.pos); }
+    if(p.academy && p.potential && p.ovr<p.potential){ p.ovr=Math.min(p.potential, p.ovr+3); p.a=attrsFor(p.ovr,p.pos); }
   });
   academySeason();
   S.teams=newSeasonTeams(S.teams);
