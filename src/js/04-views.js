@@ -262,7 +262,7 @@ function ordinalPos(n){ return n>0?ordinal(n):"\u2014"; }
 const CHANGELOG = [
   {tag:"NEW", accent:"#4f7cff", date:"Latest", title:"Two-legged European ties & the Carabao Cup",
    body:"Europe now plays home and away, and the domestic cup carries its proper name.",
-   items:["Champions League, Europa League and Conference League knockout rounds are two legs — one at home, one away — with the final still a one-off. Aggregate score decides, penalties if it's level.","Both legs appear on the calendar and in the bracket, with the first-leg score shown before the return.","The League Cup is now the Carabao Cup everywhere in the game.","On phones the club header no longer pins to the top — it scrolls away with the page so each screen gets the full height.","Home-grown academy players now improve +3 overall every season (up from +1), still capped at their ceiling.","The create-a-club page has been redesigned: a big wordmark, a live founding board that paints your crest, shirt and name in your colours as you type, a three-step form, and a scrolling ticker of the cards in the packs."]},
+   items:["Champions League, Europa League and Conference League knockout rounds are two legs — one at home, one away — with the final still a one-off. Aggregate score decides, penalties if it's level.","Both legs appear on the calendar and in the bracket, with the first-leg score shown before the return.","The League Cup is now the Carabao Cup everywhere in the game.","On phones the club header no longer pins to the top — it scrolls away with the page so each screen gets the full height.","Home-grown academy players now improve +3 overall every season (up from +1), still capped at their ceiling.","The create-a-club page has been redesigned: a big wordmark, a live founding board that paints your crest, shirt and name in your colours as you type, a three-step form, and a scrolling ticker of the cards in the packs.","Player names now show as initial plus surname everywhere — B. Saka, V. van Dijk, E. Haaland."]},
   {tag:"NEW", accent:"var(--flood)", date:"Recent", title:"26/27 database & the sack",
    body:"Every squad brought up to date to mid-November 2026, Ipswich removed, and relegation now costs you your job.",
    items:["All 19 Premier League clubs re-rated with their current squads, including summer and deadline-day moves (Bruno Guimarães to Arsenal, Elliot Anderson to City, Tonali to Spurs, and more).","Ipswich Town are gone: a 20-team league, 38 rounds, no more bye weeks. Any Ipswich cards in your squad have been released; Hull cards carry over.","Finish in the bottom three and the board sacks you — the save ends and you start again with a new club. Everything above the drop zone is unchanged.","Cards you already own keep their stored ratings."]},
@@ -668,7 +668,7 @@ function showcaseCards(){
   const ucl=n=>{ const u=UCL.find(x=>x.n.includes(n))||UCL[0]; const q=makePlayer(u.ovr,u.pos); Object.assign(q,{n:u.n,rid:u.rid,ucl:true,k1:u.k1,k2:u.k2,csh:u.csh,cname:u.cname,club:null,a:attrsFor(u.ovr,u.pos,u.rid)}); return q; };
   const pro=n=>{ const pr=PROSPECTS.find(x=>x.n.includes(n)&&x.club>=0)||PROSPECTS.find(x=>x.club>=0); const q=makePlayer(PROSPECT_BASE,pr.pos); Object.assign(q,{n:pr.n,rid:pr.rid,club:pr.club,prospect:true,a:attrsFor(PROSPECT_BASE,pr.pos,pr.rid)}); return q; };
   const np=makeProspect(16); const aq=makePlayer(Math.max(np.ovr,74),np.pos); Object.assign(aq,{n:np.n,academy:true,potential:Math.max(np.potential,88),a:attrsFor(aq.ovr,np.pos)});
-  gateShow=[ucl("Mbapp"), real("Erling Haaland"), pro("Dowman"), aq, real("Cole Palmer"), ucl("Yamal"), real("Bukayo Saka"), pro("Ngumoha"), real("Mohamed Salah")||real("Declan Rice"), ucl("Bellingham")];
+  gateShow=[ucl("Mbapp"), real("Erling Haaland"), pro("Dowman"), aq, real("Cole Palmer"), ucl("Yamal"), real("Bukayo Saka"), pro("Ngumoha"), real("Declan Rice"), ucl("Bellingham")];
   return gateShow;
 }
 function gate(){
@@ -715,7 +715,7 @@ function gate(){
       <div class="tickwin"><div class="ticktrack">${ticker}${ticker}</div></div>
     </section>
 
-    <ol class="steps" aria-label="How it works">
+    <ol class="fsteps" aria-label="How it works">
       <li><b>Open packs</b><span>real Premier League players</span></li>
       <li><b>Pick your XI</b><span>formation, subs, sales</span></li>
       <li><b>Play 38 games</b><span>live, with fan reaction</span></li>

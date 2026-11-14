@@ -773,15 +773,29 @@ input[type=text]{background:var(--night);border:1px solid var(--line);border-rad
 .ticktrack .card{width:150px;flex:0 0 150px;pointer-events:none}
 .ticker:hover .ticktrack{animation-play-state:paused}
 @keyframes tickscroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,1fr);gap:10px;counter-reset:st}
-.steps li{position:relative;display:flex;flex-direction:column;gap:2px;padding:12px 12px 12px 44px;background:var(--stand);border:1px solid var(--line);border-radius:10px;font-size:12px;color:var(--muted);counter-increment:st}
-.steps li::before{content:counter(st);position:absolute;left:12px;top:12px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--flood);color:var(--night);font-family:var(--num);font-weight:700;font-size:12px}
-.steps li b{color:var(--chalk);font-family:var(--display);text-transform:uppercase;font-size:16px;letter-spacing:.02em}
-@media (max-width:900px){.found-main{grid-template-columns:1fr}.board{min-height:0;padding:20px 16px;gap:10px}.board-shirt{width:120px}.board-shirt b{font-size:18px}.steps{grid-template-columns:1fr 1fr}}
-@media (max-width:560px){.board-kit{gap:16px}.fstep{grid-template-columns:32px 1fr;gap:10px}.fnum{font-size:22px}.founder{padding:16px}.steps{grid-template-columns:1fr}}
+.fsteps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,1fr);gap:10px;counter-reset:st}
+.fsteps li{position:relative;display:flex;flex-direction:column;gap:2px;padding:12px 12px 12px 44px;background:var(--stand);border:1px solid var(--line);border-radius:10px;font-size:12px;color:var(--muted);counter-increment:st}
+.fsteps li::before{content:counter(st);position:absolute;left:12px;top:12px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--flood);color:var(--night);font-family:var(--num);font-weight:700;font-size:12px}
+.fsteps li b{color:var(--chalk);font-family:var(--display);text-transform:uppercase;font-size:16px;letter-spacing:.02em}
+@media (max-width:900px){.found-main{grid-template-columns:1fr}.board{min-height:0;padding:20px 16px;gap:10px}.board-shirt{width:120px}.board-shirt b{font-size:18px}.fsteps{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.board-kit{gap:16px}.fstep{grid-template-columns:32px 1fr;gap:10px}.fnum{font-size:22px}.founder{padding:16px}.fsteps{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){.ticktrack{animation:none}}
 @media (max-width:900px){.found{padding-inline:16px;box-sizing:border-box}}
 @media (max-width:560px){.found-top .eyebrow{display:none}}
+
+/* create-club on phones: compact board strip + swipeable steps (desktop layout unchanged) */
+@media (max-width:900px){
+  .board{display:grid;grid-template-columns:auto 1fr;grid-auto-rows:auto;align-items:center;justify-items:start;text-align:left;gap:4px 14px;padding:14px 16px;min-height:0}
+  .board>.eyebrow{grid-column:2;font-size:10px}
+  .board-kit{grid-column:1;grid-row:1/span 3;gap:8px}
+  .board-kit>svg{width:58px;height:auto}
+  .board-shirt{width:62px}
+  .board-shirt b{font-size:11px}
+  .board-name{grid-column:2;font-size:clamp(26px,8vw,38px)}
+  .board-meta{grid-column:2;justify-content:flex-start;gap:6px 12px;font-size:12px}
+  .fsteps{display:flex;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;scroll-snap-type:x proximity}
+  .fsteps li{flex:0 0 178px;scroll-snap-align:start}
+}
 </style>
 </head>
 <body>
@@ -1304,7 +1318,8 @@ function crest(c1,c2,txt,size=40){
 function shirt(c1,c2){
   return `<svg viewBox="0 0 64 56" aria-hidden="true"><path d="M22 3 L10 7 L1 20 L10 26 L14 21 L14 54 L50 54 L50 21 L54 26 L63 20 L54 7 L42 3 C40 8 36 10 32 10 C28 10 24 8 22 3Z" fill="${esc(c1)}" stroke="rgba(0,0,0,.35)" stroke-width="1.2" stroke-linejoin="round"/><path d="M10 7 L1 20 L10 26 L14 21 L14 12Z M54 7 L63 20 L54 26 L50 21 L50 12Z" fill="${esc(c2)}" opacity=".95"/><path d="M22 3 C24 8 28 10 32 10 C36 10 40 8 42 3 L39 2 C37 6 35 7 32 7 C29 7 27 6 25 2Z" fill="${esc(c2)}"/></svg>`;
 }
-const surname = n => n.includes(" ") ? n.slice(n.indexOf(" ")+1) : n;
+// Display name: first initial + surname ("B. Saka", "V. van Dijk"); mononyms stay as they are.
+const surname = n => { if(!n||!n.includes(" ")) return n; const w=n.trim().split(/\s+/); const fi=w[0].replace(/\./g,"")[0]; let i=w.findIndex((x,k)=>k>0&&/^[a-z]/.test(x)); if(i<0) i=w.length-1; return fi+". "+w.slice(i).join(" "); };
 function mix(a,b,t){const h=x=>{x=x.replace("#","");if(x.length===3)x=x.split("").map(c=>c+c).join("");return [0,2,4].map(i=>parseInt(x.slice(i,i+2),16))};const A=h(a),B=h(b);return "#"+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,"0")).join("")}
 const RLABEL={bronze:"Bronze",silver:"Silver",gold:"Gold",elite:"Elite"};
 function card(p,opts={}){
@@ -1593,7 +1608,7 @@ function ordinalPos(n){ return n>0?ordinal(n):"\u2014"; }
 const CHANGELOG = [
   {tag:"NEW", accent:"#4f7cff", date:"Latest", title:"Two-legged European ties & the Carabao Cup",
    body:"Europe now plays home and away, and the domestic cup carries its proper name.",
-   items:["Champions League, Europa League and Conference League knockout rounds are two legs — one at home, one away — with the final still a one-off. Aggregate score decides, penalties if it's level.","Both legs appear on the calendar and in the bracket, with the first-leg score shown before the return.","The League Cup is now the Carabao Cup everywhere in the game.","On phones the club header no longer pins to the top — it scrolls away with the page so each screen gets the full height.","Home-grown academy players now improve +3 overall every season (up from +1), still capped at their ceiling.","The create-a-club page has been redesigned: a big wordmark, a live founding board that paints your crest, shirt and name in your colours as you type, a three-step form, and a scrolling ticker of the cards in the packs."]},
+   items:["Champions League, Europa League and Conference League knockout rounds are two legs — one at home, one away — with the final still a one-off. Aggregate score decides, penalties if it's level.","Both legs appear on the calendar and in the bracket, with the first-leg score shown before the return.","The League Cup is now the Carabao Cup everywhere in the game.","On phones the club header no longer pins to the top — it scrolls away with the page so each screen gets the full height.","Home-grown academy players now improve +3 overall every season (up from +1), still capped at their ceiling.","The create-a-club page has been redesigned: a big wordmark, a live founding board that paints your crest, shirt and name in your colours as you type, a three-step form, and a scrolling ticker of the cards in the packs.","Player names now show as initial plus surname everywhere — B. Saka, V. van Dijk, E. Haaland."]},
   {tag:"NEW", accent:"var(--flood)", date:"Recent", title:"26/27 database & the sack",
    body:"Every squad brought up to date to mid-November 2026, Ipswich removed, and relegation now costs you your job.",
    items:["All 19 Premier League clubs re-rated with their current squads, including summer and deadline-day moves (Bruno Guimarães to Arsenal, Elliot Anderson to City, Tonali to Spurs, and more).","Ipswich Town are gone: a 20-team league, 38 rounds, no more bye weeks. Any Ipswich cards in your squad have been released; Hull cards carry over.","Finish in the bottom three and the board sacks you — the save ends and you start again with a new club. Everything above the drop zone is unchanged.","Cards you already own keep their stored ratings."]},
@@ -1999,7 +2014,7 @@ function showcaseCards(){
   const ucl=n=>{ const u=UCL.find(x=>x.n.includes(n))||UCL[0]; const q=makePlayer(u.ovr,u.pos); Object.assign(q,{n:u.n,rid:u.rid,ucl:true,k1:u.k1,k2:u.k2,csh:u.csh,cname:u.cname,club:null,a:attrsFor(u.ovr,u.pos,u.rid)}); return q; };
   const pro=n=>{ const pr=PROSPECTS.find(x=>x.n.includes(n)&&x.club>=0)||PROSPECTS.find(x=>x.club>=0); const q=makePlayer(PROSPECT_BASE,pr.pos); Object.assign(q,{n:pr.n,rid:pr.rid,club:pr.club,prospect:true,a:attrsFor(PROSPECT_BASE,pr.pos,pr.rid)}); return q; };
   const np=makeProspect(16); const aq=makePlayer(Math.max(np.ovr,74),np.pos); Object.assign(aq,{n:np.n,academy:true,potential:Math.max(np.potential,88),a:attrsFor(aq.ovr,np.pos)});
-  gateShow=[ucl("Mbapp"), real("Erling Haaland"), pro("Dowman"), aq, real("Cole Palmer"), ucl("Yamal"), real("Bukayo Saka"), pro("Ngumoha"), real("Mohamed Salah")||real("Declan Rice"), ucl("Bellingham")];
+  gateShow=[ucl("Mbapp"), real("Erling Haaland"), pro("Dowman"), aq, real("Cole Palmer"), ucl("Yamal"), real("Bukayo Saka"), pro("Ngumoha"), real("Declan Rice"), ucl("Bellingham")];
   return gateShow;
 }
 function gate(){
@@ -2046,7 +2061,7 @@ function gate(){
       <div class="tickwin"><div class="ticktrack">${ticker}${ticker}</div></div>
     </section>
 
-    <ol class="steps" aria-label="How it works">
+    <ol class="fsteps" aria-label="How it works">
       <li><b>Open packs</b><span>real Premier League players</span></li>
       <li><b>Pick your XI</b><span>formation, subs, sales</span></li>
       <li><b>Play 38 games</b><span>live, with fan reaction</span></li>

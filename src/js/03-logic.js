@@ -107,7 +107,8 @@ function crest(c1,c2,txt,size=40){
 function shirt(c1,c2){
   return `<svg viewBox="0 0 64 56" aria-hidden="true"><path d="M22 3 L10 7 L1 20 L10 26 L14 21 L14 54 L50 54 L50 21 L54 26 L63 20 L54 7 L42 3 C40 8 36 10 32 10 C28 10 24 8 22 3Z" fill="${esc(c1)}" stroke="rgba(0,0,0,.35)" stroke-width="1.2" stroke-linejoin="round"/><path d="M10 7 L1 20 L10 26 L14 21 L14 12Z M54 7 L63 20 L54 26 L50 21 L50 12Z" fill="${esc(c2)}" opacity=".95"/><path d="M22 3 C24 8 28 10 32 10 C36 10 40 8 42 3 L39 2 C37 6 35 7 32 7 C29 7 27 6 25 2Z" fill="${esc(c2)}"/></svg>`;
 }
-const surname = n => n.includes(" ") ? n.slice(n.indexOf(" ")+1) : n;
+// Display name: first initial + surname ("B. Saka", "V. van Dijk"); mononyms stay as they are.
+const surname = n => { if(!n||!n.includes(" ")) return n; const w=n.trim().split(/\s+/); const fi=w[0].replace(/\./g,"")[0]; let i=w.findIndex((x,k)=>k>0&&/^[a-z]/.test(x)); if(i<0) i=w.length-1; return fi+". "+w.slice(i).join(" "); };
 function mix(a,b,t){const h=x=>{x=x.replace("#","");if(x.length===3)x=x.split("").map(c=>c+c).join("");return [0,2,4].map(i=>parseInt(x.slice(i,i+2),16))};const A=h(a),B=h(b);return "#"+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,"0")).join("")}
 const RLABEL={bronze:"Bronze",silver:"Silver",gold:"Gold",elite:"Elite"};
 function card(p,opts={}){
