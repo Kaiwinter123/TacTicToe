@@ -662,7 +662,7 @@ function vFixtures(){
 let draft = {manager:"",name:"",short:"",stadium:"",c1:"#e63946",c2:"#111111"};
 function gate(){
   const who = store.me;
-  const hero=["Erling Haaland","Bukayo Saka","Cole Palmer"].map(n=>POOL.find(p=>p.n===n)).filter(Boolean).map(p=>{const q=makePlayer(p.ovr,p.pos);q.n=p.n;q.club=p.club;q.a=attrsFor(p.ovr,p.pos,p.rid);return q});
+  const hero=["Erling Haaland","Bukayo Saka","Cole Palmer"].map(n=>POOL.find(p=>p.n===n)).filter(Boolean).map(p=>{const q=makePlayer(p.ovr,p.pos);q.n=p.n;q.club=p.club;q.rid=p.rid;q.a=attrsFor(p.ovr,p.pos,p.rid);return q});
   return `<div class="wrap gate"><div class="gatecols"><div class="fan" aria-hidden="true">${hero.map(card).join("")}</div><div class="box">
     <div><span class="eyebrow">Premier League 2026/27 · pack-and-season game</span><h1>Tac<em>Tic</em>Toe</h1></div>
     ${store.kind==="db"&&who?`<div class="who"><img src="${esc(who.avatarUrl)}" alt=""><span>Signed in${who.name?" as <b>"+esc(who.name)+"</b>":""}. Your club saves to your account.</span></div>`
