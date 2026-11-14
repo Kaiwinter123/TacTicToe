@@ -85,6 +85,7 @@ function recordWin(mine,theirs,oppId,comp){
 }
 function nextSeason(){
   const tbl=table(), pos=tbl.findIndex(r=>r.id==="you")+1, prize=prizeFor(pos);
+  if(pos>=tbl.length-2){ showSacked(pos, tbl[pos-1].pts); return; }
   const cup=S.cup, cupRes = cup? (cup.won?"Cup winners":cup.out?"Cup: out in "+cup.rounds[cup.idx].name:"Cup: reached "+cup.rounds[cup.idx].name) : "";
   S.history.push({season:S.season,pos,pts:tbl[pos-1].pts,cup:cupRes,title:pos===1});
   // reputation: how you finished the season is the biggest driver of stature

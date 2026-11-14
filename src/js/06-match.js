@@ -71,6 +71,22 @@ function showTrophy(o, onDone){
   btn.addEventListener("click",()=>{ ov.remove(); onDone&&onDone(); });
   btn.focus();
 }
+// Relegation ends the job: the board sacks you and the club is wound up.
+function showSacked(pos, pts){
+  const ov=document.createElement("div"); ov.className="overlay sackroom"; ov.setAttribute("role","dialog"); ov.setAttribute("aria-label","Sacked");
+  ov.innerHTML=`<div class="sack-card">
+      <span class="trophy-eyebrow" style="color:var(--loss)">Official club statement</span>
+      <h1 class="sack-name">SACKED</h1>
+      <p class="sack-sub">${esc(S.club.name)} can confirm that ${esc(S.manager)} has left the club with immediate effect following relegation from the Premier League. A ${ordinal(pos)}-place finish on ${pts} points fell well short of the board's expectations.</p>
+      <p class="sack-sub muted">The board thanks ${esc(S.manager)} for their service and wishes them well for the future. Your save ends here — a new club awaits.</p>
+      <div class="sack-stats"><div><b class="num">${S.season}</b><span>Season${S.season===1?"":"s"} in charge</span></div><div><b class="num">${S.trophies+S.cupTrophies+(S.euroTrophies||0)}</b><span>Trophies</span></div><div><b class="num">${S.packs}</b><span>Packs opened</span></div></div>
+      <button class="btn primary" id="sackgo">Clear your desk</button>
+    </div>`;
+  document.body.appendChild(ov);
+  const btn=ov.querySelector("#sackgo");
+  btn.addEventListener("click",()=>{ ov.remove(); resetClub(); });
+  btn.focus();
+}
 const TROPHY_BONUS={title:60, ucl:50, uel:35, uecl:25, cup:25};
 function showEuroCongrats(comp, onDone){
   const m=EURO_META[comp];

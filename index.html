@@ -722,6 +722,19 @@ input[type=text]{background:var(--night);border:1px solid var(--line);border-rad
 .who{display:flex;align-items:center;gap:10px;font-size:14px}
 .who img{width:28px;height:28px;border-radius:50%}
 .confirm{border:1px solid var(--loss);border-radius:10px;padding:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+/* sacked overlay */
+.sackroom{background:radial-gradient(ellipse at 50% 20%,rgba(200,40,60,.28),rgba(0,0,0,.92) 70%)}
+.sack-card{position:relative;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;max-width:520px;padding:14px}
+.sack-name{font-family:var(--display);font-size:clamp(64px,18vw,120px);line-height:.9;margin:0;color:var(--loss);letter-spacing:.04em;text-shadow:0 0 40px rgba(220,50,70,.6);animation:sackStamp .5s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes sackStamp{0%{transform:scale(2.2) rotate(-8deg);opacity:0}100%{transform:scale(1) rotate(-3deg);opacity:1}}
+.sack-sub{margin:0;color:var(--chalk);font-size:15px;line-height:1.5;max-width:46ch}
+.sack-stats{display:flex;gap:18px;margin-top:6px}
+.sack-stats div{display:flex;flex-direction:column;align-items:center;gap:2px}
+.sack-stats b{font-size:26px;color:var(--chalk)}
+.sack-stats span{font-family:var(--num);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.sackroom .btn.primary{margin-top:8px;background:var(--loss);border-color:var(--loss)}
+@media (prefers-reduced-motion:reduce){.sack-name{animation:none;transform:rotate(-3deg)}}
 </style>
 </head>
 <body>
@@ -738,26 +751,25 @@ input[type=text]{background:var(--night);border:1px solid var(--line);border-rad
 /* 2026/27 Premier League clubs: [name, short, kit colour, second colour, team strength, players "Name/POS/rating"].
    Ratings are this game's own estimates. Edit freely to keep squads current. */
 const CLUBS = [
-  ["Arsenal","ARS","#EF0107","#FFFFFF",87,"David Raya/GK/87 William Saliba/DEF/88 Gabriel Magalhães/DEF/87 Jurriën Timber/DEF/84 Piero Hincapié/DEF/82 Riccardo Calafiori/DEF/81 Declan Rice/MID/88 Martin Ødegaard/MID/86 Martín Zubimendi/MID/85 Eberechi Eze/MID/84 Bukayo Saka/FWD/88 Viktor Gyökeres/FWD/85 Gabriel Martinelli/FWD/81 Noni Madueke/FWD/81 Kai Havertz/FWD/81 Leandro Trossard/FWD/80 Ben White/DEF/82 Gabriel Jesus/FWD/79 Mikel Merino/MID/81 Myles Lewis-Skelly/DEF/79"],
-  ["Aston Villa","AVL","#670E36","#95BFE5",81,"Emiliano Martínez/GK/84 Ezri Konsa/DEF/82 Pau Torres/DEF/81 Matty Cash/DEF/79 Lucas Digne/DEF/78 Youri Tielemans/MID/82 Boubacar Kamara/MID/81 Johan Manzambi/MID/80 John McGinn/MID/80 Amadou Onana/MID/80 Ollie Watkins/FWD/84 Ross Barkley/MID/78 Ian Maatsen/DEF/78 Tyrone Mings/DEF/78 Donyell Malen/FWD/78 Emiliano Buendía/MID/77"],
-  ["Bournemouth","BOU","#DA291C","#000000",78,"Đorđe Petrović/GK/79 Adrien Truffert/DEF/77 Álex Jiménez/DEF/76 Marcos Senesi/DEF/78 Tyler Adams/MID/79 Marcus Tavernier/MID/79 Alex Scott/MID/78 Justin Kluivert/FWD/80 Evanilson/FWD/79 Lewis Cook/MID/77 Ryan Christie/MID/77 David Brooks/FWD/76 Enes Ünal/FWD/75"],
-  ["Brentford","BRE","#E30613","#FFFFFF",78,"Caoimhín Kelleher/GK/81 Nathan Collins/DEF/79 Sepp van den Berg/DEF/78 Kristoffer Ajer/DEF/76 Mikkel Damsgaard/MID/79 Mathias Jensen/MID/77 Jordan Henderson/MID/77 Igor Thiago/FWD/81 Kevin Schade/FWD/79 Dango Ouattara/FWD/78 Yehor Yarmoliuk/MID/76 Michael Kayode/DEF/76 Fábio Carvalho/MID/76 Reiss Nelson/FWD/76 Keane Lewis-Potter/DEF/76"],
-  ["Brighton","BHA","#0057B8","#FFFFFF",79,"Bart Verbruggen/GK/80 Jan Paul van Hecke/DEF/80 Lewis Dunk/DEF/78 Maxim De Cuyper/DEF/77 Carlos Baleba/MID/81 Diego Gómez/MID/78 Yasin Ayari/MID/77 Jack Hinshelwood/MID/77 Kaoru Mitoma/FWD/80 Yankuba Minteh/FWD/79 Danny Welbeck/FWD/77 Georginio Rutter/FWD/78 Joël Veltman/DEF/77 Julio Enciso/FWD/76 Brajan Gruda/FWD/77 Adam Webster/DEF/76"],
-  ["Chelsea","CHE","#034694","#FFFFFF",85,"Robert Sánchez/GK/80 Reece James/DEF/83 Levi Colwill/DEF/82 Marc Cucurella/DEF/82 Wesley Fofana/DEF/80 Malo Gusto/DEF/80 Moisés Caicedo/MID/88 Cole Palmer/MID/87 Morgan Rogers/MID/85 Estêvão/FWD/83 João Pedro/FWD/83 Pedro Neto/FWD/81 Alejandro Garnacho/FWD/80 Liam Delap/FWD/79 Romeo Lavia/MID/79 Benoît Badiashile/DEF/78 Tosin Adarabioyo/DEF/78 Jamie Gittens/FWD/78 Andrey Santos/MID/78"],
-  ["Crystal Palace","CRY","#1B458F","#C4122E",79,"Dean Henderson/GK/82 Maxence Lacroix/DEF/81 Daniel Muñoz/DEF/81 Tyrick Mitchell/DEF/78 Chris Richards/DEF/78 Adam Wharton/MID/82 Daichi Kamada/MID/79 Jefferson Lerma/MID/77 Jean-Philippe Mateta/FWD/81 Ismaïla Sarr/FWD/81 Will Hughes/MID/76 Eddie Nketiah/FWD/77 Cheick Doucouré/MID/77 Chadi Riad/DEF/76 Borna Sosa/DEF/75"],
-  ["Everton","EVE","#003399","#FFFFFF",77,"Jordan Pickford/GK/83 James Tarkowski/DEF/80 Jake O'Brien/DEF/78 Vitaliy Mykolenko/DEF/78 James Garner/MID/79 Kiernan Dewsbury-Hall/MID/79 Idrissa Gueye/MID/77 Iliman Ndiaye/FWD/81 Thierno Barry/FWD/77 Beto/FWD/76 Michael Keane/DEF/76 Dwight McNeil/MID/78 Jack Harrison/MID/76 Jesper Lindstrøm/FWD/77 Tim Iroegbunam/MID/74"],
-  ["Fulham","FUL","#000000","#FFFFFF",78,"Bernd Leno/GK/81 Joachim Andersen/DEF/79 Antonee Robinson/DEF/79 Calvin Bassey/DEF/78 Emile Smith Rowe/MID/79 Alex Iwobi/MID/79 Sander Berge/MID/78 Saša Lukić/MID/78 Harry Wilson/FWD/78 Raúl Jiménez/FWD/77 Samuel Chukwueze/FWD/77 Tom Cairney/MID/76 Kenny Tete/DEF/77 Issa Diop/DEF/76 Adama Traoré/FWD/77 Rodrigo Muniz/FWD/77"],
-  ["Leeds United","LEE","#FFFFFF","#1D428A",75,"Lucas Perri/GK/77 Joe Rodon/DEF/77 Pascal Struijk/DEF/76 Jayden Bogle/DEF/75 Ethan Ampadu/MID/78 Anton Stach/MID/77 Brenden Aaronson/MID/76 Noah Okafor/FWD/77 Dominic Calvert-Lewin/FWD/77 Lukas Nmecha/FWD/75 Daniel James/FWD/76 Wilfried Gnonto/FWD/77 Manor Solomon/FWD/76 Ao Tanaka/MID/76 Sam Byram/DEF/73"],
-  ["Liverpool","LIV","#C8102E","#F6EB61",86,"Alisson/GK/86 Giorgi Mamardashvili/GK/82 Virgil van Dijk/DEF/87 Ibrahima Konaté/DEF/84 Jeremie Frimpong/DEF/82 Milos Kerkez/DEF/81 Alexis Mac Allister/MID/86 Florian Wirtz/MID/86 Ryan Gravenberch/MID/85 Dominik Szoboszlai/MID/85 Alexander Isak/FWD/86 Bradley Barcola/FWD/84 Hugo Ekitiké/FWD/83 Cody Gakpo/FWD/83 Curtis Jones/MID/81 Wataru Endo/MID/78 Federico Chiesa/FWD/78 Joe Gomez/DEF/79 Konstantinos Tsimikas/DEF/77"],
-  ["Manchester City","MCI","#6CABDD","#1C2C5B",87,"Gianluigi Donnarumma/GK/87 Rúben Dias/DEF/85 Joško Gvardiol/DEF/85 Marc Guéhi/DEF/84 Rayan Aït-Nouri/DEF/81 Rodri/MID/88 Enzo Fernández/MID/86 Elliot Anderson/MID/85 Phil Foden/MID/85 Tijjani Reijnders/MID/84 Rayan Cherki/MID/84 Ayyoub Bouaddi/MID/80 Erling Haaland/FWD/91 Antoine Semenyo/FWD/83 Jérémy Doku/FWD/82 Omar Marmoush/FWD/82 Bernardo Silva/MID/85 Matheus Nunes/MID/80 Nathan Aké/DEF/81 John Stones/DEF/82 Savinho/FWD/81 Rico Lewis/DEF/79"],
-  ["Manchester United","MUN","#DA291C","#FBE122",81,"Senne Lammens/GK/79 Lisandro Martínez/DEF/80 Matthijs de Ligt/DEF/80 Leny Yoro/DEF/79 Diogo Dalot/DEF/79 Bruno Fernandes/MID/86 Kobbie Mainoo/MID/79 Matheus Cunha/FWD/83 Bryan Mbeumo/FWD/83 Benjamin Šeško/FWD/81 Amad Diallo/FWD/80 Casemiro/MID/80 Mason Mount/MID/79 Manuel Ugarte/MID/79 Noussair Mazraoui/DEF/79 Harry Maguire/DEF/78 Joshua Zirkzee/FWD/78"],
-  ["Newcastle United","NEW","#241F20","#FFFFFF",82,"Nick Pope/GK/82 Sven Botman/DEF/81 Malick Thiaw/DEF/80 Lewis Hall/DEF/79 Fabian Schär/DEF/79 Bruno Guimarães/MID/86 Joelinton/MID/81 Jacob Ramsey/MID/78 Anthony Gordon/FWD/83 Nick Woltemade/FWD/81 Anthony Elanga/FWD/80 Yoane Wissa/FWD/79 Harvey Barnes/FWD/79 Jacob Murphy/FWD/78 Joe Willock/MID/78 Dan Burn/DEF/78 Tino Livramento/DEF/79 Kieran Trippier/DEF/78"],
-  ["Nottingham Forest","NFO","#DD0000","#FFFFFF",79,"Matz Sels/GK/80 Murillo/DEF/82 Nikola Milenković/DEF/81 Ola Aina/DEF/78 Morgan Gibbs-White/MID/83 Omari Hutchinson/MID/78 Ibrahim Sangaré/MID/77 Dan Ndoye/FWD/79 Callum Hudson-Odoi/FWD/79 Chris Wood/FWD/79 Ryan Yates/MID/76 Neco Williams/DEF/77 Nicolás Domínguez/MID/76 Taiwo Awoniyi/FWD/77 Morato/DEF/76"],
-  ["Sunderland","SUN","#EB172B","#FFFFFF",76,"Robin Roefs/GK/77 Omar Alderete/DEF/77 Nordi Mukiele/DEF/77 Dan Ballard/DEF/76 Trai Hume/DEF/76 Granit Xhaka/MID/81 Enzo Le Fée/MID/78 Habib Diarra/MID/77 Noah Sadiki/MID/77 Simon Adingra/FWD/77 Chemsdine Talbi/FWD/77 Wilson Isidor/FWD/76 Dennis Cirkin/DEF/75 Dan Neil/MID/76 Patrick Roberts/MID/75 Luke O'Nien/DEF/74 Chris Rigg/MID/74"],
-  ["Tottenham Hotspur","TOT","#132257","#FFFFFF",82,"Guglielmo Vicario/GK/82 Cristian Romero/DEF/84 Micky van de Ven/DEF/84 Pedro Porro/DEF/81 Destiny Udogie/DEF/79 Sandro Tonali/MID/85 Xavi Simons/MID/82 James Maddison/MID/81 Rodrigo Bentancur/MID/79 Mohammed Kudus/FWD/82 Brennan Johnson/FWD/80 Dominic Solanke/FWD/79 Richarlison/FWD/78 Dejan Kulusevski/MID/82 Pape Matar Sarr/MID/79 Yves Bissouma/MID/78 Wilson Odobert/FWD/77 Kevin Danso/DEF/78"],
-  ["Coventry City","COV","#59CBE8","#FFFFFF",73,"Ben Wilson/GK/72 Bobby Thomas/DEF/72 Jay Dasilva/DEF/72 Milan van Ewijk/DEF/73 Victor Torp/MID/74 Jack Rudoni/MID/74 Matt Grimes/MID/73 Haji Wright/FWD/75 Ellis Simms/FWD/74 Tatsuhiro Sakamoto/FWD/73 Ephron Mason-Clark/FWD/73 Josh Eccles/MID/72 Liam Kitching/DEF/72 Brandon Thomas-Asante/FWD/73"],
-  ["Ipswich Town","IPS","#0044A9","#FFFFFF",73,"Christian Walton/GK/72 Jacob Greaves/DEF/73 Leif Davis/DEF/75 Dara O'Shea/DEF/73 Jens Cajuste/MID/74 Jack Clarke/MID/75 Sammie Szmodics/MID/73 Jaden Philogene/FWD/75 George Hirst/FWD/73 Sam Morsy/MID/73 Wes Burns/FWD/72 Ben Johnson/DEF/72"],
-  ["Hull City","HUL","#F5A12D","#000000",72,"Ivor Pandur/GK/72 Charlie Hughes/DEF/71 Lewie Coyle/DEF/71 Regan Slater/MID/72 Matt Crooks/MID/72 Kyle Joseph/FWD/73 Oli McBurnie/FWD/72 Steven Alzate/MID/71 Joe Gelhardt/FWD/72"]
+  ["Arsenal", "ARS", "#EF0107", "#FFFFFF", 88, "David Raya/GK/88 Illan Meslier/GK/78 William Saliba/DEF/88 Gabriel Magalhães/DEF/87 Jurriën Timber/DEF/85 Piero Hincapié/DEF/83 Riccardo Calafiori/DEF/82 Ben White/DEF/81 Myles Lewis-Skelly/DEF/80 Declan Rice/MID/89 Martin Ødegaard/MID/87 Bruno Guimarães/MID/86 Martín Zubimendi/MID/86 Eberechi Eze/MID/84 Mikel Merino/MID/81 Bukayo Saka/FWD/89 Viktor Gyökeres/FWD/85 Noni Madueke/FWD/82 Kai Havertz/FWD/81 Gabriel Martinelli/FWD/81 Christos Tzolis/FWD/79"],
+  ["Aston Villa", "AVL", "#670E36", "#95BFE5", 81, "Emiliano Martínez/GK/84 Ezri Konsa/DEF/82 Pau Torres/DEF/81 Matty Cash/DEF/79 Aaron Wan-Bissaka/DEF/78 Lucas Digne/DEF/78 Ian Maatsen/DEF/78 Tyrone Mings/DEF/77 Taylor Harwood-Bellis/DEF/77 Modou Kéba Cissé/DEF/75 Boubacar Kamara/MID/81 João Gomes/MID/81 Johan Manzambi/MID/80 John McGinn/MID/80 Amadou Onana/MID/80 Ross Barkley/MID/77 Emiliano Buendía/MID/77 Ollie Watkins/FWD/84 Alejandro Garnacho/FWD/80 Ibrahim Mbaye/FWD/76"],
+  ["Bournemouth", "BOU", "#DA291C", "#000000", 78, "Đorđe Petrović/GK/79 Michele Di Gregorio/GK/78 António Silva/DEF/80 Adrien Truffert/DEF/78 Bafodé Diakité/DEF/78 Juanlu Sánchez/DEF/77 Tyler Adams/MID/79 Marcus Tavernier/MID/79 Alex Scott/MID/78 Lewis Cook/MID/77 Ryan Christie/MID/77 Justin Kluivert/FWD/80 Evanilson/FWD/80 David Brooks/FWD/76 Álvaro Rodríguez/FWD/76"],
+  ["Brentford", "BRE", "#E30613", "#FFFFFF", 78, "Caoimhín Kelleher/GK/81 Nathan Collins/DEF/80 Sepp van den Berg/DEF/78 Michael Kayode/DEF/77 El Hadji Malick Diouf/DEF/77 Kristoffer Ajer/DEF/76 Keane Lewis-Potter/DEF/76 Mikkel Damsgaard/MID/79 Mathias Jensen/MID/77 Yehor Yarmoliuk/MID/77 Fábio Carvalho/MID/76 Jannik Schuster/MID/76 Mamadou Sangaré/MID/76 Igor Thiago/FWD/82 Kevin Schade/FWD/79 Dango Ouattara/FWD/78 Callum Wilson/FWD/76 Jaidon Anthony/FWD/76 Reiss Nelson/FWD/76"],
+  ["Brighton", "BHA", "#0057B8", "#FFFFFF", 78, "Bart Verbruggen/GK/80 Pascal Struijk/DEF/78 Maxim De Cuyper/DEF/78 Lewis Dunk/DEF/77 Jaouen Hadjam/DEF/76 Costinha/DEF/76 Michal Svoboda/DEF/76 Mario Vušković/DEF/75 Diego Gómez/MID/78 Yasin Ayari/MID/78 Jack Hinshelwood/MID/77 Chema Andrés/MID/76 Kaoru Mitoma/FWD/81 Yankuba Minteh/FWD/80 Georginio Rutter/FWD/78 Brajan Gruda/FWD/77 Julio Enciso/FWD/76 Tom Watson/FWD/75 Miguel Azeez/MID/75"],
+  ["Chelsea", "CHE", "#034694", "#FFFFFF", 85, "Robert Sánchez/GK/81 Reece James/DEF/83 Levi Colwill/DEF/83 Marc Cucurella/DEF/83 Maxence Lacroix/DEF/82 Wesley Fofana/DEF/80 Malo Gusto/DEF/80 Marco Palestra/DEF/80 Benoît Badiashile/DEF/78 Denner/DEF/76 Moisés Caicedo/MID/89 Cole Palmer/MID/88 Morgan Rogers/MID/85 Romeo Lavia/MID/79 Jordan Henderson/MID/76 Estêvão/FWD/85 João Pedro/FWD/83 Pedro Neto/FWD/81 Geovany Quenda/FWD/81 Emanuel Emegha/FWD/79 Jamie Gittens/FWD/78"],
+  ["Crystal Palace", "CRY", "#1B458F", "#C4122E", 78, "Dean Henderson/GK/82 Takehiro Tomiyasu/DEF/79 Chris Richards/DEF/79 Tyrick Mitchell/DEF/78 Óscar Mingueza/DEF/78 Chadi Riad/DEF/76 Borna Sosa/DEF/75 Adam Wharton/MID/83 Daichi Kamada/MID/79 Dwight McNeil/MID/78 Jefferson Lerma/MID/77 Cheick Doucouré/MID/77 Will Hughes/MID/76 Jean-Philippe Mateta/FWD/81 Ismaïla Sarr/FWD/81 Eddie Nketiah/FWD/77 Evann Guessand/FWD/77 Anan Khalaili/FWD/76 Zavier Gozo/FWD/74"],
+  ["Everton", "EVE", "#003399", "#FFFFFF", 77, "Jordan Pickford/GK/83 James Tarkowski/DEF/80 Jake O'Brien/DEF/78 Vitaliy Mykolenko/DEF/78 Michael Keane/DEF/76 James Garner/MID/79 Kiernan Dewsbury-Hall/MID/79 Christian Nørgaard/MID/78 Hayden Hackney/MID/77 Jack Harrison/MID/75 Tim Iroegbunam/MID/74 Iliman Ndiaye/FWD/81 Brennan Johnson/FWD/80 Merlin Röhl/FWD/78 Thierno Barry/FWD/77 Beto/FWD/76 Tyrique George/FWD/76 Jesper Lindstrøm/FWD/76"],
+  ["Fulham", "FUL", "#000000", "#FFFFFF", 77, "Bernd Leno/GK/81 Joachim Andersen/DEF/79 Antonee Robinson/DEF/79 Calvin Bassey/DEF/78 Kenny Tete/DEF/77 Timothy Castagne/DEF/76 Ryan Sessegnon/DEF/76 Emile Smith Rowe/MID/79 Alex Iwobi/MID/79 Sander Berge/MID/78 Josh King/MID/75 Tom Cairney/MID/75 Gonzalo García/FWD/78 Samuel Chukwueze/FWD/77 Adama Traoré/FWD/77 Rodrigo Muniz/FWD/77 Jonah Kusi-Asare/FWD/74"],
+  ["Leeds United", "LEE", "#FFFFFF", "#1D428A", 76, "James Trafford/GK/80 Lucas Perri/GK/76 Tarik Muharemović/DEF/78 Joe Rodon/DEF/77 Nico Elvedi/DEF/77 Jayden Bogle/DEF/75 Gabriel Gudmundsson/DEF/75 Ethan Ampadu/MID/78 Anton Stach/MID/77 Brenden Aaronson/MID/76 Ao Tanaka/MID/76 Ilia Gruev/MID/75 Harry Wilson/FWD/78 Noah Okafor/FWD/77 Dominic Calvert-Lewin/FWD/77 Wilfried Gnonto/FWD/77 Daniel James/FWD/76 Lukas Nmecha/FWD/75"],
+  ["Liverpool", "LIV", "#C8102E", "#F6EB61", 85, "Alisson/GK/86 Giorgi Mamardashvili/GK/82 Virgil van Dijk/DEF/86 Jérémy Jacquet/DEF/83 Ronald Araújo/DEF/83 Jeremie Frimpong/DEF/82 Milos Kerkez/DEF/81 Joe Gomez/DEF/78 Konstantinos Tsimikas/DEF/77 Florian Wirtz/MID/87 Alexis Mac Allister/MID/86 Ryan Gravenberch/MID/86 Dominik Szoboszlai/MID/85 Curtis Jones/MID/81 Wataru Endo/MID/77 Alexander Isak/FWD/87 Hugo Ekitiké/FWD/84 Cody Gakpo/FWD/83 Víctor Muñoz/FWD/79 Federico Chiesa/FWD/78"],
+  ["Manchester City", "MCI", "#6CABDD", "#1C2C5B", 86, "Gianluigi Donnarumma/GK/88 Gerónimo Rulli/GK/81 Joško Gvardiol/DEF/86 Rúben Dias/DEF/85 Marc Guéhi/DEF/84 Rayan Aït-Nouri/DEF/81 Abdukodir Khusanov/DEF/80 Nico O'Reilly/DEF/80 Rico Lewis/DEF/79 Rodri/MID/88 Enzo Fernández/MID/86 Elliot Anderson/MID/86 Phil Foden/MID/85 Rayan Cherki/MID/84 Ayyoub Bouaddi/MID/80 Matheus Nunes/MID/79 Erling Haaland/FWD/92 Antoine Semenyo/FWD/84 Jérémy Doku/FWD/83 Omar Marmoush/FWD/82 Jeremy Monga/FWD/76"],
+  ["Manchester United", "MUN", "#DA291C", "#FBE122", 82, "Senne Lammens/GK/80 Karl Darlow/GK/75 Matthijs de Ligt/DEF/81 Lisandro Martínez/DEF/80 Leny Yoro/DEF/80 Diogo Dalot/DEF/79 Noussair Mazraoui/DEF/79 Harry Maguire/DEF/77 Bruno Fernandes/MID/85 Carlos Baleba/MID/82 Youri Tielemans/MID/82 Andrey Santos/MID/80 Kobbie Mainoo/MID/79 Mason Mount/MID/78 Manuel Ugarte/MID/78 Bryan Mbeumo/FWD/84 Matheus Cunha/FWD/83 Benjamin Šeško/FWD/82 Amad Diallo/FWD/80 Joshua Zirkzee/FWD/78"],
+  ["Newcastle United", "NEW", "#241F20", "#FFFFFF", 80, "Nick Pope/GK/82 Lukáš Horníček/GK/78 Ewen Jaouen/GK/77 Sven Botman/DEF/81 Malick Thiaw/DEF/80 Tino Livramento/DEF/80 Lewis Hall/DEF/79 Fabian Schär/DEF/78 Dan Burn/DEF/77 Nico González/MID/83 Joelinton/MID/81 Jacob Ramsey/MID/78 Joe Willock/MID/77 Lewis Miley/MID/76 Sean Steur/MID/74 Anthony Elanga/FWD/81 Matías Fernández-Pardo/FWD/80 Yoane Wissa/FWD/80 Bazoumana Touré/FWD/79 Harvey Barnes/FWD/79 Aladji Bamba/FWD/78 Jacob Murphy/FWD/78"],
+  ["Nottingham Forest", "NFO", "#DD0000", "#FFFFFF", 79, "Matz Sels/GK/80 Murillo/DEF/82 Nikola Milenković/DEF/81 Daniel Muñoz/DEF/81 Ousmane Diomande/DEF/80 Ola Aina/DEF/78 Neco Williams/DEF/77 Morato/DEF/76 Morgan Gibbs-White/MID/83 Omari Hutchinson/MID/79 Douglas Luiz/MID/78 Ibrahim Sangaré/MID/77 Nicolás Domínguez/MID/76 Ryan Yates/MID/76 Dan Ndoye/FWD/80 Callum Hudson-Odoi/FWD/79 Chris Wood/FWD/78 Igor Jesus/FWD/77 Arnaud Kalimuendo/FWD/77"],
+  ["Sunderland", "SUN", "#EB172B", "#FFFFFF", 75, "Robin Roefs/GK/78 Kevin Danso/DEF/78 Omar Alderete/DEF/77 Nordi Mukiele/DEF/77 Thomas Meunier/DEF/77 Dan Ballard/DEF/76 Trai Hume/DEF/76 Luke O'Nien/DEF/74 Granit Xhaka/MID/81 Enzo Le Fée/MID/78 Habib Diarra/MID/77 Noah Sadiki/MID/77 Dan Neil/MID/76 Chris Rigg/MID/75 Patrick Roberts/MID/75 Simon Adingra/FWD/77 Chemsdine Talbi/FWD/77 Wilson Isidor/FWD/76 Eliezer Mayenda/FWD/75 Nilson Angulo/FWD/74"],
+  ["Tottenham Hotspur", "TOT", "#132257", "#FFFFFF", 83, "Guglielmo Vicario/GK/82 Martin Dúbravka/GK/78 Micky van de Ven/DEF/85 Cristian Romero/DEF/84 Jan Paul van Hecke/DEF/81 Pedro Porro/DEF/81 Andy Robertson/DEF/80 Marcos Senesi/DEF/79 Destiny Udogie/DEF/79 Tosin Adarabioyo/DEF/78 Sandro Tonali/MID/86 Xavi Simons/MID/82 Dejan Kulusevski/MID/82 James Maddison/MID/81 Pape Matar Sarr/MID/80 Rodrigo Bentancur/MID/79 Yves Bissouma/MID/77 Mohammed Kudus/FWD/83 Savinho/FWD/81 Dominic Solanke/FWD/79 Richarlison/FWD/78 Wilson Odobert/FWD/77 Mykhailo Mudryk/FWD/76"],
+  ["Coventry City", "COV", "#59CBE8", "#FFFFFF", 74, "Carl Rushworth/GK/76 Ben Wilson/GK/71 Aurèle Amenda/DEF/76 Ethan Pinnock/DEF/75 Milan van Ewijk/DEF/73 Bobby Thomas/DEF/72 Liam Kitching/DEF/72 Jay Dasilva/DEF/71 Frank Onyeka/MID/76 Caleb Yirenkyi/MID/76 Yann Gboho/MID/75 Jack Rudoni/MID/75 Victor Torp/MID/74 Matt Grimes/MID/73 Josh Eccles/MID/72 Loum Tchaouna/FWD/76 Taiwo Awoniyi/FWD/76 Sidiki Cherif/FWD/75 Haji Wright/FWD/75 Ellis Simms/FWD/74 Tatsuhiro Sakamoto/FWD/74 Ephron Mason-Clark/FWD/73 Brandon Thomas-Asante/FWD/72"],
+  ["Hull City", "HUL", "#F5A12D", "#000000", 73, "Jack Butland/GK/75 Konstantinos Tzolakis/GK/75 Nobel Mendy/DEF/75 Matt Targett/DEF/74 Lucas Herrington/DEF/73 Charlie Hughes/DEF/72 Lewie Coyle/DEF/71 Hidemasa Morita/MID/76 Oscar Zambrano/MID/74 Lucas Gourna-Douath/MID/74 Jens Hjertø-Dahl/MID/73 Regan Slater/MID/72 Matt Crooks/MID/71 Steven Alzate/MID/71 Joe Gelhardt/FWD/74 Kyle Joseph/FWD/73 Oli McBurnie/FWD/72"]
 ];
 const POOL = [];
 CLUBS.forEach((c,ci)=>{ for(const m of c[5].matchAll(/\s*([^/]+?)\/(GK|DEF|MID|FWD)\/(\d+)/g)) POOL.push({rid:ci+":"+m[1],n:m[1],pos:m[2],ovr:+m[3],club:ci}) });
@@ -975,11 +987,11 @@ function academySeason(){
 // Third kit colour (by short code) for clubs that have one.
 const CLUB_C3 = {ARS:"#0A2A5E", AVL:"#F6E500", CRY:"#FFFFFF", LEE:"#FFCD00", MCI:"#FFFFFF", MUN:"#000000", FUL:"#CC0000", BOU:"#FFFFFF", SUN:"#111111"};
 // The club's emblem animal (or crest symbol), shown inside the shield badge.
-const CLUB_ANIMAL = {ARS:"\uD83D\uDCA3",AVL:"\uD83E\uDD81",BOU:"\uD83C\uDF52",BRE:"\uD83D\uDC1D",BHA:"\uD83D\uDD4A\uFE0F",CHE:"\uD83E\uDD81",CRY:"\uD83E\uDD85",EVE:"\uD83C\uDF6C",FUL:"\uD83C\uDFE0",LEE:"\uD83E\uDD9A",LIV:"\uD83D\uDC26",MCI:"\u26F5",MUN:"\uD83D\uDE08",NEW:"\uD83D\uDC26\u200D\u2B1B",NFO:"\uD83C\uDF33",SUN:"\uD83D\uDC08\u200D\u2B1B",TOT:"\uD83D\uDC13",COV:"\uD83D\uDC18",IPS:"\uD83D\uDC0E",HUL:"\uD83D\uDC2F"};
+const CLUB_ANIMAL = {ARS:"\uD83D\uDCA3",AVL:"\uD83E\uDD81",BOU:"\uD83C\uDF52",BRE:"\uD83D\uDC1D",BHA:"\uD83D\uDD4A\uFE0F",CHE:"\uD83E\uDD81",CRY:"\uD83E\uDD85",EVE:"\uD83C\uDF6C",FUL:"\uD83C\uDFE0",LEE:"\uD83E\uDD9A",LIV:"\uD83D\uDC26",MCI:"\u26F5",MUN:"\uD83D\uDE08",NEW:"\uD83D\uDC26\u200D\u2B1B",NFO:"\uD83C\uDF33",SUN:"\uD83D\uDC08\u200D\u2B1B",TOT:"\uD83D\uDC13",COV:"\uD83D\uDC18",HUL:"\uD83D\uDC2F"};
 function c3of(sh){ return CLUB_C3[sh]||"" }
 function animalOf(sh){ return CLUB_ANIMAL[sh]||"" }
 // Each club's home ground, by short code.
-const STADIUM = {ARS:"Emirates Stadium",AVL:"Villa Park",BOU:"Vitality Stadium",BRE:"Gtech Community Stadium",BHA:"Amex Stadium",CHE:"Stamford Bridge",CRY:"Selhurst Park",EVE:"Hill Dickinson Stadium",FUL:"Craven Cottage",LEE:"Elland Road",LIV:"Anfield",MCI:"Etihad Stadium",MUN:"Old Trafford",NEW:"St James' Park",NFO:"The City Ground",SUN:"Stadium of Light",TOT:"Tottenham Hotspur Stadium",COV:"Coventry Building Society Arena",IPS:"Portman Road",HUL:"MKM Stadium"};
+const STADIUM = {ARS:"Emirates Stadium",AVL:"Villa Park",BOU:"Vitality Stadium",BRE:"Gtech Community Stadium",BHA:"Amex Stadium",CHE:"Stamford Bridge",CRY:"Selhurst Park",EVE:"Hill Dickinson Stadium",FUL:"Craven Cottage",LEE:"Elland Road",LIV:"Anfield",MCI:"Etihad Stadium",MUN:"Old Trafford",NEW:"St James' Park",NFO:"The City Ground",SUN:"Stadium of Light",TOT:"Tottenham Hotspur Stadium",COV:"Coventry Building Society Arena",HUL:"MKM Stadium"};
 function stadiumFor(sh){ return STADIUM[sh]||"" }
 // What position a new pull should prefer so a full XI is covered within a few packs.
 function gapPos(){
@@ -1078,7 +1090,7 @@ function newGame(form){
   const squad=[];
   S = {v:2, manager:form.manager, club:{name:form.name,short:form.short,stadium:form.stadium,c1:form.c1,c2:form.c2}, h2h:{}, januaryDone:false, lastStar:null, records:{bestWin:null}, cupTrophies:0, schedFixed:true,
     budget:START_BUDGET, season:1, round:0, squad, formation:"4-3-3", xi:[], collected:[], repPts:0,
-    teams:newSeasonTeams(), fixtures:null, results:[], history:[], packs:0, trophies:0, euro:null, euroTrophies:0, proBump:true, academy:[], academyProspects:[], last:null, ended:false};
+    teams:newSeasonTeams(), fixtures:null, results:[], history:[], packs:0, trophies:0, euro:null, euroTrophies:0, proBump:true, academy:[], academyProspects:[], db2627:true, last:null, ended:false};
   S.fixtures = makeFixtures(["you"].concat(S.teams.map(t=>t.id)));
   S.cup = makeCup(4);
   academyStart();
@@ -1411,7 +1423,7 @@ function seasonEnd(tbl,pos){
   let bw=null;
   for(let r=0;r<S.fixtures.length;r++){ const fx=S.fixtures[r]; const i=fx.findIndex(x=>x.includes("you")); if(i<0) continue; const [h,a]=fx[i]; if(h==="bye"||a==="bye") continue; const sc=S.results[r]&&S.results[r][i]; if(!sc) continue; const home=h==="you", mine=home?sc[0]:sc[1], th=home?sc[1]:sc[0]; if(mine>th){ const mg=mine-th; if(!bw||mg>bw.margin||(mg===bw.margin&&mine>bw.me)) bw={short:teamInfo(home?a:h).short, me:mine, them:th, margin:mg}; } }
   const cup=S.cup, cupRes=cup?(cup.won?"League Cup WINNERS \ud83c\udfc6":cup.out?"Out in the "+cup.rounds[cup.idx].name:"Reached the "+cup.rounds[cup.idx].name):"\u2014";
-  const verdict = pos===1?"Champions of England!":pos<=4?"Top four \u2014 European nights await.":pos<=7?"A strong finish in the top half.":pos<=14?"A steady mid-table campaign.":pos<=N-4?"Survival secured \u2014 just.":"A finish in the drop zone \u2014 time to rebuild.";
+  const verdict = pos===1?"Champions of England!":pos<=4?"Top four \u2014 European nights await.":pos<=7?"A strong finish in the top half.":pos<=14?"A steady mid-table campaign.":pos<=N-4?"Survival secured \u2014 just.":"Relegated. The board will want a word \u2014 time to rebuild.";
   const zc = pos===1?"var(--flood)":pos<=4?"var(--win)":pos>=N-2?"var(--loss)":"var(--chalk)";
   return `<section class="stack" style="max-width:700px;margin:0 auto">
     <div class="panel stack" style="text-align:center;align-items:center;gap:8px">
@@ -1431,7 +1443,7 @@ function seasonEnd(tbl,pos){
       <div class="panel stack"><span class="eyebrow">League Cup</span><b style="font-family:var(--display);font-size:20px;text-transform:uppercase">${esc(cupRes)}</b>${bw?`<span class="eyebrow" style="margin-top:8px">Biggest win</span><b class="num" style="font-size:18px">${bw.me}\u2013${bw.them} vs ${esc(bw.short)}</b>`:""}</div>
     </div>
     <div class="panel stack"><span class="eyebrow">Champions this season</span><div class="row" style="justify-content:space-between"><span class="tn">${crest(champ.c1,champ.c2,champ.short,22)}<b>${esc(champ.name)}</b></span><span class="muted num">${tbl[0].pts} pts</span></div></div>
-    <div class="row" style="justify-content:center"><button class="btn primary" data-act="next-season">Start season ${S.season+1} \u25b6</button></div>
+    <div class="row" style="justify-content:center">${pos>=N-2?`<button class="btn primary" data-act="next-season" style="background:var(--loss);border-color:var(--loss)">Face the board \u2026</button>`:`<button class="btn primary" data-act="next-season">Start season ${S.season+1} \u25b6</button>`}</div>
     <div style="text-align:center"><a class="coffee-link" href="https://buymeacoffee.com/tictactoekai" target="_blank" rel="noopener">\u2615 Having fun? Buy the dev a coffee</a></div>
   </section>`;
 }
@@ -1531,7 +1543,10 @@ function vAdmin(){
 }
 function ordinalPos(n){ return n>0?ordinal(n):"\u2014"; }
 const CHANGELOG = [
-  {tag:"CHANGED", accent:"var(--flood)", date:"Latest", title:"Fresh look & tidier tabs",
+  {tag:"NEW", accent:"var(--flood)", date:"Latest", title:"26/27 database & the sack",
+   body:"Every squad brought up to date to mid-November 2026, Ipswich removed, and relegation now costs you your job.",
+   items:["All 19 Premier League clubs re-rated with their current squads, including summer and deadline-day moves (Bruno Guimarães to Arsenal, Elliot Anderson to City, Tonali to Spurs, and more).","Ipswich Town are gone: a 20-team league, 38 rounds, no more bye weeks. Any Ipswich cards in your squad have been released; Hull cards carry over.","Finish in the bottom three and the board sacks you — the save ends and you start again with a new club. Everything above the drop zone is unchanged.","Cards you already own keep their stored ratings."]},
+  {tag:"CHANGED", accent:"var(--flood)", date:"Recent", title:"Fresh look & tidier tabs",
    body:"A cleaner floodlit-stadium theme and a more logical tab order.",
    items:["New charcoal-and-gold broadcast look — a pitch-lit background and solid accents in place of the old glow.","Nav tabs reordered so your everyday screens (Club, Squad, Calendar, Packs) sit on the left, with reference screens to the right."]},
   {tag:"CHANGED", accent:"var(--c-orange)", date:"Recent", title:"Slower progression — reworked packs",
@@ -2057,6 +2072,7 @@ function recordWin(mine,theirs,oppId,comp){
 }
 function nextSeason(){
   const tbl=table(), pos=tbl.findIndex(r=>r.id==="you")+1, prize=prizeFor(pos);
+  if(pos>=tbl.length-2){ showSacked(pos, tbl[pos-1].pts); return; }
   const cup=S.cup, cupRes = cup? (cup.won?"Cup winners":cup.out?"Cup: out in "+cup.rounds[cup.idx].name:"Cup: reached "+cup.rounds[cup.idx].name) : "";
   S.history.push({season:S.season,pos,pts:tbl[pos-1].pts,cup:cupRes,title:pos===1});
   // reputation: how you finished the season is the biggest driver of stature
@@ -2210,6 +2226,22 @@ function showTrophy(o, onDone){
   document.body.appendChild(ov);
   const btn=ov.querySelector("#tcont");
   btn.addEventListener("click",()=>{ ov.remove(); onDone&&onDone(); });
+  btn.focus();
+}
+// Relegation ends the job: the board sacks you and the club is wound up.
+function showSacked(pos, pts){
+  const ov=document.createElement("div"); ov.className="overlay sackroom"; ov.setAttribute("role","dialog"); ov.setAttribute("aria-label","Sacked");
+  ov.innerHTML=`<div class="sack-card">
+      <span class="trophy-eyebrow" style="color:var(--loss)">Official club statement</span>
+      <h1 class="sack-name">SACKED</h1>
+      <p class="sack-sub">${esc(S.club.name)} can confirm that ${esc(S.manager)} has left the club with immediate effect following relegation from the Premier League. A ${ordinal(pos)}-place finish on ${pts} points fell well short of the board's expectations.</p>
+      <p class="sack-sub muted">The board thanks ${esc(S.manager)} for their service and wishes them well for the future. Your save ends here — a new club awaits.</p>
+      <div class="sack-stats"><div><b class="num">${S.season}</b><span>Season${S.season===1?"":"s"} in charge</span></div><div><b class="num">${S.trophies+S.cupTrophies+(S.euroTrophies||0)}</b><span>Trophies</span></div><div><b class="num">${S.packs}</b><span>Packs opened</span></div></div>
+      <button class="btn primary" id="sackgo">Clear your desk</button>
+    </div>`;
+  document.body.appendChild(ov);
+  const btn=ov.querySelector("#sackgo");
+  btn.addEventListener("click",()=>{ ov.remove(); resetClub(); });
   btn.focus();
 }
 const TROPHY_BONUS={title:60, ucl:50, uel:35, uecl:25, cup:25};
@@ -2779,6 +2811,22 @@ async function finishLoad(){
     for(let r=0;r<S.round;r++){ if(!myFixture(r).m.includes("bye")){ played=true; break } }
     if(!played){ S.round=0; S.results=[]; S.fixtures=makeFixtures(["you"].concat(S.teams.map(t=>t.id))); advanceByes(); }
     S.schedFixed=true; save();
+  }
+  // 26/27 database: Ipswich removed (old club 18), Hull moves 19 -> 18
+  if(S && S.v===2 && !S.db2627){
+    const rm=id=>id==="c18"?"bye":id==="c19"?"c18":id;
+    const alive=new Set();
+    S.squad=(S.squad||[]).filter(p=>!(p.rid&&p.rid.startsWith("18:")));
+    S.squad.forEach(p=>{ if(p.rid&&p.rid.startsWith("19:")){ p.rid="18:"+p.rid.slice(3); p.club=18; } alive.add(p.id); });
+    S.xi=(S.xi||[]).map(id=>alive.has(id)?id:null);
+    S.collected=(S.collected||[]).filter(r=>!r.startsWith("18:")).map(r=>r.startsWith("19:")?"18:"+r.slice(3):r);
+    if(S.teams){ S.teams=S.teams.filter(t=>t.id!=="c18").map(t=>{ const id=rm(t.id), c=CLUBS[+id.slice(1)]; return c?{id,name:c[0],short:c[1],c1:c[2],c2:c[3],str:t.str}:t; }); }
+    if(S.fixtures){ S.fixtures=S.fixtures.map(rd=>rd.map(([h,a])=>[rm(h),rm(a)]));
+      S.results=(S.results||[]).map((res,r)=>res&&res.map((sc,i)=>S.fixtures[r][i].includes("bye")?null:sc)); }
+    if(S.h2h){ const h={}; Object.keys(S.h2h).forEach(k=>{ if(k!=="c18") h[rm(k)]=S.h2h[k]; }); S.h2h=h; }
+    if(S.cup&&S.cup.rounds){ const used=new Set(S.cup.rounds.map(t=>rm(t.opp)));
+      S.cup.rounds.forEach(t=>{ if(t.opp==="c18"){ let o; do{ o="c"+ri(0,CLUBS.length-1); }while(used.has(o)); used.add(o); t.opp=o; } else t.opp=rm(t.opp); }); }
+    S.db2627=true; if(S.fixtures) advanceByes(); autoPick(); save();
   }
   render();
 }

@@ -139,7 +139,7 @@ function seasonEnd(tbl,pos){
   let bw=null;
   for(let r=0;r<S.fixtures.length;r++){ const fx=S.fixtures[r]; const i=fx.findIndex(x=>x.includes("you")); if(i<0) continue; const [h,a]=fx[i]; if(h==="bye"||a==="bye") continue; const sc=S.results[r]&&S.results[r][i]; if(!sc) continue; const home=h==="you", mine=home?sc[0]:sc[1], th=home?sc[1]:sc[0]; if(mine>th){ const mg=mine-th; if(!bw||mg>bw.margin||(mg===bw.margin&&mine>bw.me)) bw={short:teamInfo(home?a:h).short, me:mine, them:th, margin:mg}; } }
   const cup=S.cup, cupRes=cup?(cup.won?"League Cup WINNERS \ud83c\udfc6":cup.out?"Out in the "+cup.rounds[cup.idx].name:"Reached the "+cup.rounds[cup.idx].name):"\u2014";
-  const verdict = pos===1?"Champions of England!":pos<=4?"Top four \u2014 European nights await.":pos<=7?"A strong finish in the top half.":pos<=14?"A steady mid-table campaign.":pos<=N-4?"Survival secured \u2014 just.":"A finish in the drop zone \u2014 time to rebuild.";
+  const verdict = pos===1?"Champions of England!":pos<=4?"Top four \u2014 European nights await.":pos<=7?"A strong finish in the top half.":pos<=14?"A steady mid-table campaign.":pos<=N-4?"Survival secured \u2014 just.":"Relegated. The board will want a word \u2014 time to rebuild.";
   const zc = pos===1?"var(--flood)":pos<=4?"var(--win)":pos>=N-2?"var(--loss)":"var(--chalk)";
   return `<section class="stack" style="max-width:700px;margin:0 auto">
     <div class="panel stack" style="text-align:center;align-items:center;gap:8px">
@@ -159,7 +159,7 @@ function seasonEnd(tbl,pos){
       <div class="panel stack"><span class="eyebrow">League Cup</span><b style="font-family:var(--display);font-size:20px;text-transform:uppercase">${esc(cupRes)}</b>${bw?`<span class="eyebrow" style="margin-top:8px">Biggest win</span><b class="num" style="font-size:18px">${bw.me}\u2013${bw.them} vs ${esc(bw.short)}</b>`:""}</div>
     </div>
     <div class="panel stack"><span class="eyebrow">Champions this season</span><div class="row" style="justify-content:space-between"><span class="tn">${crest(champ.c1,champ.c2,champ.short,22)}<b>${esc(champ.name)}</b></span><span class="muted num">${tbl[0].pts} pts</span></div></div>
-    <div class="row" style="justify-content:center"><button class="btn primary" data-act="next-season">Start season ${S.season+1} \u25b6</button></div>
+    <div class="row" style="justify-content:center">${pos>=N-2?`<button class="btn primary" data-act="next-season" style="background:var(--loss);border-color:var(--loss)">Face the board \u2026</button>`:`<button class="btn primary" data-act="next-season">Start season ${S.season+1} \u25b6</button>`}</div>
     <div style="text-align:center"><a class="coffee-link" href="https://buymeacoffee.com/tictactoekai" target="_blank" rel="noopener">\u2615 Having fun? Buy the dev a coffee</a></div>
   </section>`;
 }
@@ -259,7 +259,10 @@ function vAdmin(){
 }
 function ordinalPos(n){ return n>0?ordinal(n):"\u2014"; }
 const CHANGELOG = [
-  {tag:"CHANGED", accent:"var(--flood)", date:"Latest", title:"Fresh look & tidier tabs",
+  {tag:"NEW", accent:"var(--flood)", date:"Latest", title:"26/27 database & the sack",
+   body:"Every squad brought up to date to mid-November 2026, Ipswich removed, and relegation now costs you your job.",
+   items:["All 19 Premier League clubs re-rated with their current squads, including summer and deadline-day moves (Bruno Guimarães to Arsenal, Elliot Anderson to City, Tonali to Spurs, and more).","Ipswich Town are gone: a 20-team league, 38 rounds, no more bye weeks. Any Ipswich cards in your squad have been released; Hull cards carry over.","Finish in the bottom three and the board sacks you — the save ends and you start again with a new club. Everything above the drop zone is unchanged.","Cards you already own keep their stored ratings."]},
+  {tag:"CHANGED", accent:"var(--flood)", date:"Recent", title:"Fresh look & tidier tabs",
    body:"A cleaner floodlit-stadium theme and a more logical tab order.",
    items:["New charcoal-and-gold broadcast look — a pitch-lit background and solid accents in place of the old glow.","Nav tabs reordered so your everyday screens (Club, Squad, Calendar, Packs) sit on the left, with reference screens to the right."]},
   {tag:"CHANGED", accent:"var(--c-orange)", date:"Recent", title:"Slower progression — reworked packs",

@@ -89,11 +89,11 @@ function academySeason(){
 // Third kit colour (by short code) for clubs that have one.
 const CLUB_C3 = {ARS:"#0A2A5E", AVL:"#F6E500", CRY:"#FFFFFF", LEE:"#FFCD00", MCI:"#FFFFFF", MUN:"#000000", FUL:"#CC0000", BOU:"#FFFFFF", SUN:"#111111"};
 // The club's emblem animal (or crest symbol), shown inside the shield badge.
-const CLUB_ANIMAL = {ARS:"\uD83D\uDCA3",AVL:"\uD83E\uDD81",BOU:"\uD83C\uDF52",BRE:"\uD83D\uDC1D",BHA:"\uD83D\uDD4A\uFE0F",CHE:"\uD83E\uDD81",CRY:"\uD83E\uDD85",EVE:"\uD83C\uDF6C",FUL:"\uD83C\uDFE0",LEE:"\uD83E\uDD9A",LIV:"\uD83D\uDC26",MCI:"\u26F5",MUN:"\uD83D\uDE08",NEW:"\uD83D\uDC26\u200D\u2B1B",NFO:"\uD83C\uDF33",SUN:"\uD83D\uDC08\u200D\u2B1B",TOT:"\uD83D\uDC13",COV:"\uD83D\uDC18",IPS:"\uD83D\uDC0E",HUL:"\uD83D\uDC2F"};
+const CLUB_ANIMAL = {ARS:"\uD83D\uDCA3",AVL:"\uD83E\uDD81",BOU:"\uD83C\uDF52",BRE:"\uD83D\uDC1D",BHA:"\uD83D\uDD4A\uFE0F",CHE:"\uD83E\uDD81",CRY:"\uD83E\uDD85",EVE:"\uD83C\uDF6C",FUL:"\uD83C\uDFE0",LEE:"\uD83E\uDD9A",LIV:"\uD83D\uDC26",MCI:"\u26F5",MUN:"\uD83D\uDE08",NEW:"\uD83D\uDC26\u200D\u2B1B",NFO:"\uD83C\uDF33",SUN:"\uD83D\uDC08\u200D\u2B1B",TOT:"\uD83D\uDC13",COV:"\uD83D\uDC18",HUL:"\uD83D\uDC2F"};
 function c3of(sh){ return CLUB_C3[sh]||"" }
 function animalOf(sh){ return CLUB_ANIMAL[sh]||"" }
 // Each club's home ground, by short code.
-const STADIUM = {ARS:"Emirates Stadium",AVL:"Villa Park",BOU:"Vitality Stadium",BRE:"Gtech Community Stadium",BHA:"Amex Stadium",CHE:"Stamford Bridge",CRY:"Selhurst Park",EVE:"Hill Dickinson Stadium",FUL:"Craven Cottage",LEE:"Elland Road",LIV:"Anfield",MCI:"Etihad Stadium",MUN:"Old Trafford",NEW:"St James' Park",NFO:"The City Ground",SUN:"Stadium of Light",TOT:"Tottenham Hotspur Stadium",COV:"Coventry Building Society Arena",IPS:"Portman Road",HUL:"MKM Stadium"};
+const STADIUM = {ARS:"Emirates Stadium",AVL:"Villa Park",BOU:"Vitality Stadium",BRE:"Gtech Community Stadium",BHA:"Amex Stadium",CHE:"Stamford Bridge",CRY:"Selhurst Park",EVE:"Hill Dickinson Stadium",FUL:"Craven Cottage",LEE:"Elland Road",LIV:"Anfield",MCI:"Etihad Stadium",MUN:"Old Trafford",NEW:"St James' Park",NFO:"The City Ground",SUN:"Stadium of Light",TOT:"Tottenham Hotspur Stadium",COV:"Coventry Building Society Arena",HUL:"MKM Stadium"};
 function stadiumFor(sh){ return STADIUM[sh]||"" }
 // What position a new pull should prefer so a full XI is covered within a few packs.
 function gapPos(){
@@ -192,7 +192,7 @@ function newGame(form){
   const squad=[];
   S = {v:2, manager:form.manager, club:{name:form.name,short:form.short,stadium:form.stadium,c1:form.c1,c2:form.c2}, h2h:{}, januaryDone:false, lastStar:null, records:{bestWin:null}, cupTrophies:0, schedFixed:true,
     budget:START_BUDGET, season:1, round:0, squad, formation:"4-3-3", xi:[], collected:[], repPts:0,
-    teams:newSeasonTeams(), fixtures:null, results:[], history:[], packs:0, trophies:0, euro:null, euroTrophies:0, proBump:true, academy:[], academyProspects:[], last:null, ended:false};
+    teams:newSeasonTeams(), fixtures:null, results:[], history:[], packs:0, trophies:0, euro:null, euroTrophies:0, proBump:true, academy:[], academyProspects:[], db2627:true, last:null, ended:false};
   S.fixtures = makeFixtures(["you"].concat(S.teams.map(t=>t.id)));
   S.cup = makeCup(4);
   academyStart();
