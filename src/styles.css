@@ -783,3 +783,10 @@ input[type=text]{background:var(--night);border:1px solid var(--line);border-rad
   .fsteps{display:flex;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;scroll-snap-type:x proximity}
   .fsteps li{flex:0 0 178px;scroll-snap-align:start}
 }
+
+/* duplicates */
+.card .tag.dupe{color:#ff8a6a;border-color:#ff8a6a}
+.chip.dupe{border-color:#ff8a6a;color:#ff8a6a}
+.chip.dupe[aria-pressed="true"]{background:#ff8a6a;color:var(--night)}
+.dupebar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 12px;border:1px solid #ff8a6a;border-radius:10px;background:rgba(255,138,106,.08);font-size:13px}
+.dupebar b{color:#ff8a6a}

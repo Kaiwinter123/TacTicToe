@@ -23,6 +23,8 @@ function handle(act,el){
     case "pcard": {
       const id=el.dataset.id;
       if(ui.slot!==null){
+        const np0=byId(id);
+        if(np0&&np0.rid&&S.xi.some((x,k)=>x&&k!==ui.slot&&x!==id&&byId(x)&&byId(x).rid===np0.rid)){ toast(`${surname(np0.n)} is already in your XI \u2014 sell the duplicate instead.`); return; }
         const prev=S.xi.indexOf(id);
         if(prev>=0) S.xi[prev]=S.xi[ui.slot];
         S.xi[ui.slot]=id; ui.slot=null; ui.sel=null; save();
@@ -33,6 +35,7 @@ function handle(act,el){
     case "subin": {
       const p=byId(el.dataset.id); if(!p) return;
       if(isInjured(p)){ toast(`${surname(p.n)} is injured and can't be selected.`); return; }
+      if(p.rid && S.xi.some(id=>id&&byId(id)&&byId(id).rid===p.rid)){ toast(`${surname(p.n)} is already in your XI \u2014 sell the duplicate instead.`); return; }
       const sls=slots();
       let idx = sls.findIndex(([pos],i)=>!S.xi[i] && pos===p.pos);
       if(idx<0) idx = sls.findIndex((x,i)=>!S.xi[i]);
@@ -52,6 +55,7 @@ function handle(act,el){
       toast(`Sold ${surname(pl.n)} for ${money(fee)} \u2014 straight into the bank.`); break;
     }
     case "filter": ui.filter=el.dataset.f; render(); break;
+    case "sell-dupes": { let n=0, fee=0; const keep=[]; const seen=new Set(); S.squad.slice().sort((a,b)=>b.ovr-a.ovr).forEach(p=>{ if(p.rid&&seen.has(p.rid)&&!S.xi.includes(p.id)){ n++; fee+=value(p.ovr); } else { keep.push(p.id); if(p.rid) seen.add(p.rid); } }); if(!n){ toast("No duplicates to sell."); break; } S.squad=S.squad.filter(p=>keep.includes(p.id)); S.budget+=fee; save(); render(); toast(`Sold ${n} duplicate${n>1?"s":""} for ${money(fee)}.`); break; }
     case "collfilter": ui.collFilter=el.dataset.f; render(); window.scrollTo(0,0); break;
     case "reset": ui.confirmReset=true; render(); break;
     case "reset-no": ui.confirmReset=false; render(); break;
@@ -147,8 +151,8 @@ function openPack(pk){
     seal.classList.add("shake");
     setTimeout(()=>{
       ov.innerHTML=`<span class="eyebrow">${pk.name} pack · ${got.length} players</span>
-        <div class="reveal">${got.map((p,i)=>`<div class="flip" data-i="${i}"><div class="in"><div class="back ${pk.foil}"><span>?</span></div><div class="front">${card(p)}</div></div></div>`).join("")}</div>
-        <div class="row" id="pkact" hidden><button class="btn primary" id="done">Add to squad</button></div>
+        <div class="reveal">${got.map((p,i)=>`<div class="flip" data-i="${i}"><div class="in"><div class="back ${pk.foil}"><span>?</span></div><div class="front">${card(p,{tag:isDupe(p)?"DUPLICATE":null})}</div></div></div>`).join("")}</div>
+        <div class="row" id="pkact" hidden><button class="btn primary" id="done">Send to the bench</button></div>
         <p class="muted" id="pkmsg" style="margin:0"></p>`;
       const flips=[...ov.querySelectorAll(".flip")];
       const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -158,7 +162,7 @@ function openPack(pk){
         const b=top, ucp=got.find(x=>x.ucl), prp=got.find(x=>x.prospect); ov.querySelector("#pkmsg").textContent = ucp?`\u2b50 EUROPE\u2019S FINEST card! ${ucp.n} (${ucp.ovr} ${ucp.pos}) \u2014 a European superstar joins you!`:prp?`\u2b50 Future prospect signed: ${prp.n} \u2014 starts ${prp.ovr}, rises +1 every season!`:b.ovr>=86?`Elite signing: ${b.n}, rated ${b.ovr}.`:`Best pull: ${b.n} (${b.ovr} ${b.pos}).`;
         ov.querySelector("#done").focus();
       }, reduce?50:350+flips.length*520+600);
-      ov.querySelector("#done").addEventListener("click",()=>{ov.remove();autoPickIfBetter();render()});
+      ov.querySelector("#done").addEventListener("click",()=>{ov.remove();render();const d=got.filter(isDupe).length;toast(d?`${got.length} new cards on the bench \u2014 ${d} duplicate${d>1?"s":""} to sell from the Squad tab.`:`${got.length} new cards on the bench. Pick them on the Squad tab.`)});
     }, matchMedia("(prefers-reduced-motion: reduce)").matches?0:480);
   });
 }

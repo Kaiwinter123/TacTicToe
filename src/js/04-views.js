@@ -189,7 +189,7 @@ function vSquad(){
   const bench = S.squad.filter(p=>!inXI.has(p.id));
   const injured = bench.filter(isInjured);
   const benchFit = bench.filter(p=>!isInjured(p));
-  const list = benchFit.filter(p=>ui.filter==="ALL"||p.pos===ui.filter).sort((a,b)=>POS.indexOf(a.pos)-POS.indexOf(b.pos)||b.ovr-a.ovr);
+  const list = benchFit.filter(p=>ui.filter==="ALL"||(ui.filter==="DUPE"?isDupe(p):p.pos===ui.filter)).sort((a,b)=>POS.indexOf(a.pos)-POS.indexOf(b.pos)||b.ovr-a.ovr);
   const sel = ui.sel && byId(ui.sel);
   return `<div class="grid2">
     <section class="panel stack pitchpanel">
@@ -228,7 +228,8 @@ function vSquad(){
         <div class="row"><button class="btn small primary" data-act="subin" data-id="${sel.id}" style="font-size:14px;padding:8px 14px">Bring into XI</button><button class="btn small danger" data-act="sell" data-id="${sel.id}" ${S.squad.length<=11?"disabled":""}>Sell for ${money(value(sel.ovr))}</button><button class="btn small" data-act="desel">Close</button></div></div></div>`:""}
       <div class="panel stack">
         <div class="row" style="justify-content:space-between"><span class="eyebrow">${subMode?"Tap a substitute":"Substitutes"} · ${benchFit.length} available</span>
-        <div class="filters">${["ALL"].concat(POS).map(f=>`<button class="chip" data-act="filter" data-f="${f}" aria-pressed="${ui.filter===f}">${f==="ALL"?"All":f}</button>`).join("")}</div></div>
+        <div class="filters">${["ALL"].concat(POS).map(f=>`<button class="chip" data-act="filter" data-f="${f}" aria-pressed="${ui.filter===f}">${f==="ALL"?"All":f}</button>`).join("")}${dupeCount()?`<button class="chip dupe" data-act="filter" data-f="DUPE" aria-pressed="${ui.filter==="DUPE"}">Dupes · ${dupeCount()}</button>`:""}</div></div>
+      ${dupeCount()?`<div class="dupebar"><span>You hold <b>${dupeCount()}</b> duplicate card${dupeCount()>1?"s":""}. Duplicates sit on the bench and can’t join the XI alongside the original — sell them for their value.</span><button class="btn small" data-act="sell-dupes">Sell all duplicates</button></div>`:""}
         <div class="squadgrid">${list.map(p=>card(p,{sm:true,act:"pcard",sel:ui.sel===p.id,subin:subMode})).join("")||`<p class="muted">${bench.length?"No subs in this position.":"Everyone is in your starting XI. Open packs to add depth."}</p>`}</div>
         <p class="muted" style="margin:0;font-size:12px">${S.squad.length}/${MAX_SQUAD} players signed · 11 in your XI, ${benchFit.length} on the bench${injured.length?` · ${injured.length} injured`:""}</p>
       </div>
@@ -260,7 +261,10 @@ function vAdmin(){
 }
 function ordinalPos(n){ return n>0?ordinal(n):"\u2014"; }
 const CHANGELOG = [
-  {tag:"NEW", accent:"#4f7cff", date:"Latest", title:"Two-legged European ties & the Carabao Cup",
+  {tag:"CHANGED", accent:"var(--c-orange)", date:"Latest", title:"Packs go to the bench",
+   body:"New cards no longer walk straight into your XI, and duplicates are now a thing.",
+   items:["Every pack pull lands on the bench. Use Pick team or the Best XI button on the Squad tab to promote them.","Packs can now hand you a player you already own. Duplicates are badged DUPE, can’t start alongside the original, and sell for their full value.","Squad tab gets a Dupes filter and a one-tap Sell all duplicates button."]},
+  {tag:"NEW", accent:"#4f7cff", date:"Recent", title:"Two-legged European ties & the Carabao Cup",
    body:"Europe now plays home and away, and the domestic cup carries its proper name.",
    items:["Champions League, Europa League and Conference League knockout rounds are two legs — one at home, one away — with the final still a one-off. Aggregate score decides, penalties if it's level.","Both legs appear on the calendar and in the bracket, with the first-leg score shown before the return.","The League Cup is now the Carabao Cup everywhere in the game.","On phones the club header no longer pins to the top — it scrolls away with the page so each screen gets the full height.","Home-grown academy players now improve +3 overall every season (up from +1), still capped at their ceiling.","The create-a-club page has been redesigned: a big wordmark, a live founding board that paints your crest, shirt and name in your colours as you type, a three-step form, and a scrolling ticker of the cards in the packs.","Player names now show as initial plus surname everywhere — B. Saka, V. van Dijk, E. Haaland."]},
   {tag:"NEW", accent:"var(--flood)", date:"Recent", title:"26/27 database & the sack",

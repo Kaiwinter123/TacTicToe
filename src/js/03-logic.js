@@ -4,16 +4,19 @@ const isInjured = p => !!(p && p.inj && p.inj.games>0);
 const injuredSquad = () => S.squad.filter(isInjured);
 function slots(){ return FORMATIONS[S.formation] }
 function effective(p,slotPos){ if(!p) return 0; return p.pos===slotPos? p.ovr : p.ovr - (p.pos==="GK"||slotPos==="GK"?35:12) }
+// A card is a duplicate when an earlier card in the squad has the same real-player id.
+function isDupe(p){ if(!p||!p.rid) return false; const first=S.squad.find(x=>x.rid===p.rid); return !!first && first.id!==p.id; }
+function dupeCount(){ return S.squad.filter(isDupe).length; }
 function autoPick(){
-  const used=new Set(), sl=slots(), xi=sl.map(()=>null), fit=p=>!used.has(p.id)&&!isInjured(p);
+  const used=new Set(), usedRid=new Set(), sl=slots(), xi=sl.map(()=>null), fit=p=>!used.has(p.id)&&!isInjured(p)&&!(p.rid&&usedRid.has(p.rid));
   sl.forEach(([pos],i)=>{
     const best=S.squad.filter(p=>fit(p)&&p.pos===pos).sort((a,b)=>b.ovr-a.ovr)[0];
-    if(best){used.add(best.id); xi[i]=best.id}
+    if(best){used.add(best.id); if(best.rid) usedRid.add(best.rid); xi[i]=best.id}
   });
   sl.forEach(([pos],i)=>{
     if(xi[i]) return;
     const best=S.squad.filter(fit).sort((a,b)=>effective(b,pos)-effective(a,pos))[0];
-    if(best){used.add(best.id); xi[i]=best.id}
+    if(best){used.add(best.id); if(best.rid) usedRid.add(best.rid); xi[i]=best.id}
   });
   S.xi = xi;
 }
@@ -124,7 +127,7 @@ function card(p,opts={}){
     ${(p.prospect||p.ucl||acad)&&!opts.sm?`<div class="pnote">${p.prospect?"\u2605 Future prospect \u00b7 +1 OVR every season":p.ucl?"\u2605 Europe\u2019s Finest \u00b7 continental elite":`\ud83c\udf93 Home-grown \u00b7 +3 OVR every season${p.potential?" \u00b7 ceiling "+p.potential:""}`}</div>`:""}
     <div class="attrs">${at.map(([k,v])=>`<div><b>${v}</b><span>${k}</span></div>`).join("")}</div>
     <div class="foot"><span>${p.ucl?esc(p.cname):c?esc(c[0]):(S?esc(S.club.name)+" Academy":"Academy")}</span></div>
-    ${opts.tag?`<span class="tag">${opts.tag}</span>`:""}
+    ${opts.tag?`<span class="tag">${opts.tag}</span>`:(S&&isDupe(p))?`<span class="tag dupe">DUPE</span>`:""}
   </button>`;
 }
 let toastT;

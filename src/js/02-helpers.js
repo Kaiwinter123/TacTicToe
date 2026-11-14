@@ -29,8 +29,8 @@ function makePlayer(ovr,pos){
 }
 // Draw a real player near the target rating that the club doesn't already own.
 function drawReal(target,lo,hi,minOvr,pos){
-  const owned=new Set(S.squad.map(p=>p.rid).filter(Boolean));
-  let free=POOL.filter(p=>!owned.has(p.rid)&&p.ovr>=Math.max(lo,minOvr||0)&&p.ovr<=hi);
+  // duplicates are allowed: packs don't know what you already own, so copies land on the bench to be sold
+  let free=POOL.filter(p=>p.ovr>=Math.max(lo,minOvr||0)&&p.ovr<=hi);
   if(pos){ const fp=free.filter(p=>p.pos===pos); if(fp.length) free=fp; }
   if(!free.length) return null;
   let best=null;
@@ -39,7 +39,7 @@ function drawReal(target,lo,hi,minOvr,pos){
   p.n=best.n; p.rid=best.rid; p.club=best.club; p.a=attrsFor(best.ovr,best.pos,best.rid);
   return p;
 }
-// A pack always returns a REAL player: strict draw, then nearest unowned real player.
+// A pack always returns a REAL player: strict draw, then nearest real player.
 function drawRealPack(target,lo,hi,minOvr,pos){
   return drawReal(target,lo,hi,minOvr,pos) || drawReal(target,0,99,0,pos) || drawReal(target,0,99,0) || null;
 }
@@ -105,8 +105,7 @@ function gapPos(){
 }
 function clubOf(p){ return p.club!=null ? CLUBS[p.club] : null }
 function drawProspect(){
-  const owned=new Set(S.squad.map(p=>p.rid).filter(Boolean));
-  const free=PROSPECTS.filter(x=>x.club>=0 && !owned.has(x.rid));
+  const free=PROSPECTS.filter(x=>x.club>=0);
   if(!free.length) return null;
   const b=pick(free), q=makePlayer(PROSPECT_BASE,b.pos);
   q.n=b.n; q.rid=b.rid; q.club=b.club; q.prospect=true; q.baseSeason=S.season;
@@ -114,8 +113,7 @@ function drawProspect(){
   return q;
 }
 function drawUCL(){
-  const owned=new Set(S.squad.map(p=>p.rid).filter(Boolean));
-  const free=UCL.filter(x=>!owned.has(x.rid));
+  const free=UCL.slice();
   if(!free.length) return null;
   const b=pick(free), q=makePlayer(b.ovr,b.pos);
   q.n=b.n; q.rid=b.rid; q.ucl=true; q.k1=b.k1; q.k2=b.k2; q.csh=b.csh; q.cname=b.cname; q.club=null;
