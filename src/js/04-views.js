@@ -31,7 +31,8 @@ function vClub(tbl,pos){
   if(!ne) return seasonEnd(tbl,pos);
   const isCup = ne.type==="cup", cupRound = isCup?ne.tie.name:"";
   let home, oppId, compLabel, roundLabel;
-  if(isCup){ const t=ne.tie; oppId=t.opp; home=(t.name==="Final")?true:t.home; compLabel="League Cup"; roundLabel=t.name; }
+  if(isCup){ const t=ne.tie; oppId=t.opp; home=(t.name==="Final")?true:t.home; compLabel="Carabao Cup"; roundLabel=t.name; }
+  else if(ne.type==="euro"){ const t=ne.tie; oppId=t.opp; home=euroLegHome(t,euroLegIdx(t)); compLabel=S.euro.name; roundLabel=t.name+(euroLegged(t)?(euroLegIdx(t)?" · 2nd leg":" · 1st leg"):""); }
   else { const mm=myFixture(S.round).m; home=mm[0]==="you"; oppId=home?mm[1]:mm[0]; compLabel="Premier League"; roundLabel="Matchday "+(S.round+1); }
   const opp=teamInfo(oppId), O=ratingsFor(oppId);
   const me=tbl.find(r=>r.id==="you"), filled=S.xi.filter(Boolean).length;
@@ -138,7 +139,7 @@ function seasonEnd(tbl,pos){
   const me=tbl[pos-1], prize=prizeFor(pos), champ=teamInfo(tbl[0].id), N=tbl.length;
   let bw=null;
   for(let r=0;r<S.fixtures.length;r++){ const fx=S.fixtures[r]; const i=fx.findIndex(x=>x.includes("you")); if(i<0) continue; const [h,a]=fx[i]; if(h==="bye"||a==="bye") continue; const sc=S.results[r]&&S.results[r][i]; if(!sc) continue; const home=h==="you", mine=home?sc[0]:sc[1], th=home?sc[1]:sc[0]; if(mine>th){ const mg=mine-th; if(!bw||mg>bw.margin||(mg===bw.margin&&mine>bw.me)) bw={short:teamInfo(home?a:h).short, me:mine, them:th, margin:mg}; } }
-  const cup=S.cup, cupRes=cup?(cup.won?"League Cup WINNERS \ud83c\udfc6":cup.out?"Out in the "+cup.rounds[cup.idx].name:"Reached the "+cup.rounds[cup.idx].name):"\u2014";
+  const cup=S.cup, cupRes=cup?(cup.won?"Carabao Cup WINNERS \ud83c\udfc6":cup.out?"Out in the "+cup.rounds[cup.idx].name:"Reached the "+cup.rounds[cup.idx].name):"\u2014";
   const verdict = pos===1?"Champions of England!":pos<=4?"Top four \u2014 European nights await.":pos<=7?"A strong finish in the top half.":pos<=14?"A steady mid-table campaign.":pos<=N-4?"Survival secured \u2014 just.":"Relegated. The board will want a word \u2014 time to rebuild.";
   const zc = pos===1?"var(--flood)":pos<=4?"var(--win)":pos>=N-2?"var(--loss)":"var(--chalk)";
   return `<section class="stack" style="max-width:700px;margin:0 auto">
@@ -156,7 +157,7 @@ function seasonEnd(tbl,pos){
     </div>
     <div class="split">
       <div class="panel stack"><span class="eyebrow">Prize money \u00b7 ${ordinal(pos)} place</span><b class="num" style="font-size:32px;color:var(--flood);line-height:1">${money(prize)}</b><span class="muted" style="font-size:12px">Every position pays out \u2014 the higher you finish, the more you bank, plus a £50m summer transfer budget. Added when you start next season.</span></div>
-      <div class="panel stack"><span class="eyebrow">League Cup</span><b style="font-family:var(--display);font-size:20px;text-transform:uppercase">${esc(cupRes)}</b>${bw?`<span class="eyebrow" style="margin-top:8px">Biggest win</span><b class="num" style="font-size:18px">${bw.me}\u2013${bw.them} vs ${esc(bw.short)}</b>`:""}</div>
+      <div class="panel stack"><span class="eyebrow">Carabao Cup</span><b style="font-family:var(--display);font-size:20px;text-transform:uppercase">${esc(cupRes)}</b>${bw?`<span class="eyebrow" style="margin-top:8px">Biggest win</span><b class="num" style="font-size:18px">${bw.me}\u2013${bw.them} vs ${esc(bw.short)}</b>`:""}</div>
     </div>
     <div class="panel stack"><span class="eyebrow">Champions this season</span><div class="row" style="justify-content:space-between"><span class="tn">${crest(champ.c1,champ.c2,champ.short,22)}<b>${esc(champ.name)}</b></span><span class="muted num">${tbl[0].pts} pts</span></div></div>
     <div class="row" style="justify-content:center">${pos>=N-2?`<button class="btn primary" data-act="next-season" style="background:var(--loss);border-color:var(--loss)">Face the board \u2026</button>`:`<button class="btn primary" data-act="next-season">Start season ${S.season+1} \u25b6</button>`}</div>
@@ -259,7 +260,10 @@ function vAdmin(){
 }
 function ordinalPos(n){ return n>0?ordinal(n):"\u2014"; }
 const CHANGELOG = [
-  {tag:"NEW", accent:"var(--flood)", date:"Latest", title:"26/27 database & the sack",
+  {tag:"NEW", accent:"#4f7cff", date:"Latest", title:"Two-legged European ties & the Carabao Cup",
+   body:"Europe now plays home and away, and the domestic cup carries its proper name.",
+   items:["Champions League, Europa League and Conference League knockout rounds are two legs — one at home, one away — with the final still a one-off. Aggregate score decides, penalties if it's level.","Both legs appear on the calendar and in the bracket, with the first-leg score shown before the return.","The League Cup is now the Carabao Cup everywhere in the game.","On phones the club header no longer pins to the top — it scrolls away with the page so each screen gets the full height."]},
+  {tag:"NEW", accent:"var(--flood)", date:"Recent", title:"26/27 database & the sack",
    body:"Every squad brought up to date to mid-November 2026, Ipswich removed, and relegation now costs you your job.",
    items:["All 19 Premier League clubs re-rated with their current squads, including summer and deadline-day moves (Bruno Guimarães to Arsenal, Elliot Anderson to City, Tonali to Spurs, and more).","Ipswich Town are gone: a 20-team league, 38 rounds, no more bye weeks. Any Ipswich cards in your squad have been released; Hull cards carry over.","Finish in the bottom three and the board sacks you — the save ends and you start again with a new club. Everything above the drop zone is unchanged.","Cards you already own keep their stored ratings."]},
   {tag:"CHANGED", accent:"var(--flood)", date:"Recent", title:"Fresh look & tidier tabs",
@@ -458,8 +462,10 @@ function bracketGraph(c, accent){
   const nodes=c.rounds.map((t,i)=>{
     const played=t.played, isNext=(i===c.idx && !c.out && !c.won && !played), opp=teamInfo(t.opp);
     const st=played?(t.won?"won":"lost"):isNext?"next":"up";
-    const ha=t.name==="Final"?"N":t.home?"H":"A";
-    const res=played?`${t.score[0]}–${t.score[1]}${t.pens?" p":""}`:isNext?"NEXT":"–";
+    const legged=typeof euroLegged==="function"&&euroLegged(t);
+    const ha=t.name==="Final"?"N":legged?(t.home?"H/A":"A/H"):t.home?"H":"A";
+    const legTxt=legged?t.legs.map(l=>l.home?`${l.score[0]}–${l.score[1]}`:`${l.score[1]}–${l.score[0]}`).join(", "):"";
+    const res=played?(legged?`${t.score[0]}–${t.score[1]} agg${t.pens?" p":""}`:`${t.score[0]}–${t.score[1]}${t.pens?" p":""}`):isNext?(legged&&t.legs.length?`${legTxt} · 2nd leg`:"NEXT"):"–";
     return `<div class="brd ${st}" title="${esc(t.name)} vs ${esc(opp.name)}"><span class="brround">${esc(shortRound(t.name))} · ${ha}</span><div class="brnode">${crest(opp.c1,opp.c2,opp.short,18)}<span class="bropp">${esc(opp.short)}</span></div><span class="brres">${res}</span></div>`;
   }).join('<span class="brline"></span>');
   const trophy=`<span class="brline"></span><div class="brd trophy ${c.won?"won":c.out?"out":""}"><span class="brtroph">${c.won?"🏆":"🌟"}</span><span class="brround">${c.won?"Winners":c.out?"Out":"Trophy"}</span></div>`;
@@ -480,12 +486,12 @@ function vCompetitions(tbl){
   const header = e
     ? (()=>{ const m=EURO_META[e.comp]; const st=e.won?`${m.name} winners! 🏆`:e.out?`Knocked out in the ${e.rounds[e.idx].name}.`:`Still in it — ${e.rounds[e.idx].name}.`;
         return `<div class="ehead ${e.theme}"><span class="ebadge">🏆</span><div><h2 style="margin:0;font-size:34px">${esc(m.name)}</h2><span class="estatus">${esc(st)}</span></div><span class="etag ${e.theme}">${m.short}</span></div>`; })()
-    : `<div class="ehead none"><span class="ebadge">🌍</span><div><h2 style="margin:0;font-size:34px">Competitions</h2><span class="muted">${S.round>0&&onCourseComp?`On course for the ${EURO_META[onCourseComp].name} next season.`:"Track your knockout runs — League Cup and Europe."}</span></div></div>`;
+    : `<div class="ehead none"><span class="ebadge">🌍</span><div><h2 style="margin:0;font-size:34px">Competitions</h2><span class="muted">${S.round>0&&onCourseComp?`On course for the ${EURO_META[onCourseComp].name} next season.`:"Track your knockout runs — Carabao Cup and Europe."}</span></div></div>`;
   const cupNext=ne&&ne.type==="cup", euroNext=ne&&ne.type==="euro";
   const cupStatus=cup?(cup.won?"Winners 🏆":cup.out?"Knocked out":"In the "+cup.rounds[cup.idx].name):"";
-  const cupSection=`<div class="panel stack"><div class="row" style="justify-content:space-between;align-items:center"><span class="eyebrow">League Cup · ${esc(cupStatus)}</span>${cupNext?`<button class="btn small primary" data-act="play">Play ${esc(cup.rounds[cup.idx].name)} ▶</button>`:""}</div>${bracketGraph(cup,"var(--win)")}</div>`;
+  const cupSection=`<div class="panel stack"><div class="row" style="justify-content:space-between;align-items:center"><span class="eyebrow">Carabao Cup · ${esc(cupStatus)}</span>${cupNext?`<button class="btn small primary" data-act="play">Play ${esc(cup.rounds[cup.idx].name)} ▶</button>`:""}</div>${bracketGraph(cup,"var(--win)")}</div>`;
   const euroSection = e?`<div class="panel stack"><div class="row" style="justify-content:space-between;align-items:center"><span class="eyebrow">${esc(EURO_META[e.comp].name)} · your run to the final</span>${euroNext?`<button class="btn small primary" data-act="play">Play ${esc(e.rounds[e.idx].name)} ▶</button>`:""}</div>${bracketGraph(e,EUROCOL[e.comp])}</div>`:"";
-  const honours = (S.cupTrophies||S.euroTrophies)?`<div class="panel"><span class="eyebrow">Honours</span><p style="margin:6px 0 0">${S.cupTrophies?`🏆 ${S.cupTrophies} League Cup${S.cupTrophies===1?"":"s"}. `:""}${S.euroTrophies?`⭐ ${S.euroTrophies} European troph${S.euroTrophies===1?"y":"ies"} won.`:""}</p></div>`:"";
+  const honours = (S.cupTrophies||S.euroTrophies)?`<div class="panel"><span class="eyebrow">Honours</span><p style="margin:6px 0 0">${S.cupTrophies?`🏆 ${S.cupTrophies} Carabao Cup${S.cupTrophies===1?"":"s"}. `:""}${S.euroTrophies?`⭐ ${S.euroTrophies} European troph${S.euroTrophies===1?"y":"ies"} won.`:""}</p></div>`:"";
   return `<section class="stack">
     ${header}
     ${cupSection}
@@ -536,7 +542,7 @@ function vHistory(tbl,pos){
   const bw=S.records&&S.records.bestWin;
   const ach=[
     ["League titles", titles, "\ud83c\udfc6"],
-    ["League Cups", cups, "\ud83c\udfc5"],
+    ["Carabao Cups", cups, "\ud83c\udfc5"],
     ["Seasons", seasons, "\ud83d\udcc5"],
     ["Best finish", best<99?ordinal(best):"\u2014", "\u2b50"]
   ];
@@ -575,6 +581,15 @@ function calEvents(){
   if(S.euro){ S.euro.rounds.forEach((t,idx)=>{
     const show = t.played || (idx===S.euro.idx && !S.euro.out && !S.euro.won);
     if(!show) return;
+    if(euroLegged(t)){
+      const next=(ne&&ne.type==="euro"&&idx===S.euro.idx);
+      [0,1].forEach(li=>{ const leg=t.legs[li], home=euroLegHome(t,li);
+        if(!leg && !(next && euroLegIdx(t)===li)) return;
+        let result=null,k=null; if(leg){ result=leg.score; const me=home?leg.score[0]:leg.score[1], th=home?leg.score[1]:leg.score[0]; k=me>th?"W":me<th?"L":"D"; }
+        ev[dkey(new Date(euroDate(t.week+li)))]={comp:"euro",theme:S.euro.theme,tag:EURO_META[S.euro.comp].short,compName:S.euro.name,oppId:t.opp,home,result,k,round:t.name+(li?" · 2nd leg":" · 1st leg"),isNext:(next&&euroLegIdx(t)===li)};
+      });
+      return;
+    }
     let result=null,k=null; if(t.played){ result=t.score; k=t.won?"W":"L"; }
     ev[dkey(new Date(euroDate(t.week)))]={comp:"euro",theme:S.euro.theme,tag:EURO_META[S.euro.comp].short,compName:S.euro.name,oppId:t.opp,home:(t.name==="Final"?null:t.home),result,k,round:t.name,isNext:(ne&&ne.type==="euro"&&idx===S.euro.idx)};
   }); }
@@ -591,7 +606,7 @@ function monthGrid(y,mo,ev,nowDay){
     if(!e){ cells+=`<div class="cday${past?" past":""}"><span class="cdn">${dn}</span></div>`; continue; }
     const t=teamInfo(e.oppId), ha=e.home==null?"N":e.home?"H":"A";
     const compClass=e.comp==="euro"?"euro "+e.theme:e.comp;
-    const compTitle=e.comp==="cup"?"League Cup":e.comp==="euro"?e.compName:"Premier League";
+    const compTitle=e.comp==="cup"?"Carabao Cup":e.comp==="euro"?e.compName:"Premier League";
     const tagClass=e.comp==="euro"?e.theme:e.comp, tagTxt=e.comp==="cup"?"CUP":e.comp==="euro"?e.tag:"LGE";
     cells+=`<div class="cday match ${compClass}${e.isNext?" next":""}${e.k?" r"+e.k:""}${past?" past":""}" title="${esc(t.name)} (${esc(compTitle)})">
       <span class="ctop"><span class="cdn">${dn}</span><span class="ctag ${tagClass}">${tagTxt}</span></span>
@@ -608,10 +623,10 @@ function vCalendar(tbl){
     head=`<div class="calhead done"><div><span class="eyebrow">Season ${S.season} finished</span><div class="cal-next">${pos===1?"Champions of England":ordinal(pos)+" in the league"}</div></div><button class="btn primary" data-act="next-season">Start season ${S.season+1}</button></div>`;
   } else {
     const isCup=ne.type==="cup", isEuro=ne.type==="euro", t=(isCup||isEuro)?ne.tie:null;
-    const home=t?(t.name==="Final"?true:t.home):(myFixture(S.round).m[0]==="you");
+    const home=t?(isEuro?euroLegHome(t,euroLegIdx(t)):(t.name==="Final"?true:t.home)):(myFixture(S.round).m[0]==="you");
     const oppId=t?t.opp:(home?myFixture(S.round).m[1]:myFixture(S.round).m[0]);
-    const opp=teamInfo(oppId), d=isEuro?new Date(euroDate(t.week)):isCup?new Date(cupDate(t.week)):mDateObj(S.round);
-    const comp=isEuro?(S.euro.name+" \u00b7 "+t.name):isCup?("League Cup \u00b7 "+t.name):("Matchday "+(S.round+1));
+    const opp=teamInfo(oppId), d=isEuro?new Date(euroTieDate(t)):isCup?new Date(cupDate(t.week)):mDateObj(S.round);
+    const comp=isEuro?(S.euro.name+" \u00b7 "+t.name+(euroLegged(t)?(euroLegIdx(t)?" \u00b7 2nd leg":" \u00b7 1st leg"):"")):isCup?("Carabao Cup \u00b7 "+t.name):("Matchday "+(S.round+1));
     const accent=isEuro?({ucl:"#4f7cff",uel:"#ff8a2a",uecl:"#36d97a"})[S.euro.theme]:isCup?"var(--elite)":"var(--flood)";
     const filled=S.xi.filter(Boolean).length;
     head=`<div class="calhead ${isEuro?S.euro.theme+"head":isCup?"cuphead":""}"><div style="min-width:0"><span class="eyebrow">Next up \u00b7 ${CAL_WD[d.getUTCDay()]} ${d.getUTCDate()} ${CAL_MO[d.getUTCMonth()]} \u00b7 <b style="color:${accent}">${esc(comp)}</b></span>
@@ -626,12 +641,12 @@ function vCalendar(tbl){
   let grids="";
   for(let d=new Date(Date.UTC(startD.getUTCFullYear(),startD.getUTCMonth(),1)); d<=lastD; d=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,1)))
     grids+=monthGrid(d.getUTCFullYear(),d.getUTCMonth(),ev,nowDay);
-  const cup=S.cup, cupLine = cup? (cup.won?"\ud83c\udfc6 League Cup WINNERS":cup.out?"League Cup \u00b7 knocked out ("+cup.rounds[cup.idx].name+")":"League Cup \u00b7 "+cup.rounds[cup.idx].name) : "";
+  const cup=S.cup, cupLine = cup? (cup.won?"\ud83c\udfc6 Carabao Cup WINNERS":cup.out?"Carabao Cup \u00b7 knocked out ("+cup.rounds[cup.idx].name+")":"Carabao Cup \u00b7 "+cup.rounds[cup.idx].name) : "";
   const eu=S.euro, euLine = eu? (eu.won?"\ud83c\udfc6 "+eu.name+" WINNERS":eu.out?eu.name+" \u00b7 knocked out ("+eu.rounds[eu.idx].name+")":eu.name+" \u00b7 "+eu.rounds[eu.idx].name) : "";
   return `<section class="stack">
     <div class="row" style="justify-content:space-between"><h2 style="font-size:36px">Calendar</h2><span class="muted">Season ${S.season} \u00b7 ${2025+S.season}/${String(26+S.season).padStart(2,"0")}</span></div>
     ${head}
-    <div class="callegend"><span><i class="lg league"></i>League</span><span><i class="lg cup"></i>League Cup</span>${eu?`<span><i class="lg euro ${eu.theme}"></i>${esc(EURO_META[eu.comp].name)}</span>`:""}<span>${esc(cupLine)}</span>${eu?`<span>${esc(euLine)}</span>`:""}</div>
+    <div class="callegend"><span><i class="lg league"></i>League</span><span><i class="lg cup"></i>Carabao Cup</span>${eu?`<span><i class="lg euro ${eu.theme}"></i>${esc(EURO_META[eu.comp].name)}</span>`:""}<span>${esc(cupLine)}</span>${eu?`<span>${esc(euLine)}</span>`:""}</div>
     <div class="calmonths">${grids}</div>
   </section>`;
 }
@@ -659,7 +674,7 @@ function gate(){
         <li><b>Open packs</b> to sign <b>real Premier League players</b>. You start with ${money(START_BUDGET)} for a modest squad.</li>
         <li><b>Pick your team</b> \u2014 choose a formation, set your XI, make subs and sell players you don't need.</li>
         <li><b>Play the season</b> \u2014 every other club home and away, watched live with momentum and fan reactions.</li>
-        <li><b>Win the League Cup</b> too \u2014 midweek knockout ties on the way to Wembley.</li>
+        <li><b>Win the Carabao Cup</b> too \u2014 midweek knockout ties on the way to Wembley.</li>
         <li><b>Earn & grow</b> \u2014 prize money for every finish, plus a <b>\u00a330m January top-up</b>, plus a £50m summer budget each season.</li>
         <li><b>Build a legacy</b> \u2014 it takes a few seasons to challenge for the title. Track your trophies and records in History.</li>
       </ul>

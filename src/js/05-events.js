@@ -77,7 +77,7 @@ function recordWin(mine,theirs,oppId,comp){
   if(mine<=theirs) return;
   // reputation: a win, worth more against a stronger team and by a bigger margin
   const oppStr=(ratingsFor(oppId).ovr)||75;
-  addRep(1.4 + Math.max(0,oppStr-76)*0.8 + Math.max(0,(mine-theirs)-1)*0.35 + (comp==="League Cup"?0.6:0));
+  addRep(1.4 + Math.max(0,oppStr-76)*0.8 + Math.max(0,(mine-theirs)-1)*0.35 + (comp==="Carabao Cup"?0.6:0));
   if(!S.records) S.records={bestWin:null};
   const margin=mine-theirs, bw=S.records.bestWin;
   if(!bw || margin>bw.margin || (margin===bw.margin && mine>bw.me))

@@ -498,7 +498,7 @@ function cupDate(week){ return seasonStart()+(week*7+3)*864e5; }
 function playCup(){
   const c=S.cup, tie=c.rounds[c.idx], isFinal=tie.name==="Final";
   const h=tie.home?"you":tie.opp, a=tie.home?tie.opp:"you", home=tie.home, oppId=tie.opp;
-  const info=previewInfo({comp:"League Cup", roundLabel:tie.name, date:new Date(cupDate(tie.week)), home, oppId, theme:"cup", finalNeutral:isFinal});
+  const info=previewInfo({comp:"Carabao Cup", roundLabel:tie.name, date:new Date(cupDate(tie.week)), home, oppId, theme:"cup", finalNeutral:isFinal});
   const kick=(ment)=>{
     const sim=simMatch(h,a,ment);
     const {gh,ga,events,lh,la,poss,motm}=sim;
@@ -509,18 +509,18 @@ function playCup(){
     tie.played=true; tie.score=[gh,ga]; tie.won=won; tie.pens=pens; tie.pshome=home;
     S.budget+=earn;
     if(won){ if(isFinal){ c.won=true; S.cupTrophies=(S.cupTrophies||0)+1; S.budget+=30; addRep(20); } else c.idx++; } else c.out=true;
-    recordWin(mine,theirs,oppId,"League Cup");
+    recordWin(mine,theirs,oppId,"Carabao Cup");
     const injRes=processInjuries(sim);
     save();
     const venue=isFinal?"Wembley Stadium (neutral)":(home?"Home \u00b7 "+S.club.stadium:"Away \u00b7 "+(stadiumFor(teamInfo(oppId).short)||teamInfo(oppId).name));
-    const title="League Cup \u00b7 "+tie.name+" \u00b7 "+venue;
+    const title="Carabao Cup \u00b7 "+tie.name+" \u00b7 "+venue;
     const word=won?(isFinal?"CUP WINNERS \ud83c\udfc6":"Through \u2714"):"Knocked out";
     const color=won?"var(--win)":"var(--loss)";
     const pensTxt=pens?(won?"Won "+pens[0]+"\u2013"+pens[1]+" on pens \u00b7 ":"Lost "+pens[1]+"\u2013"+pens[0]+" on pens \u00b7 "):"";
     const social={win:won?1:-1, score:gh+"\u2013"+ga, scorers:events.filter(e=>e.type==="goal"&&e.team==="you").map(e=>e.who), opp:teamInfo(oppId).name, oppShort:teamInfo(oppId).short, cup:{won, final:isFinal, round:tie.name}, motm:motm&&won?motm.n:null, injury:injRes.injured?injRes.injured.who:null, recovered:injRes.recovered};
     const cupWon=won&&isFinal;
     showMatchOverlay({h,a,lh,la,events,gh,ga,poss,motm,title,word,color,note:pensTxt+"+"+money(earn),social,theme:"cup"}, ()=>{
-      if(cupWon){ S.budget+=TROPHY_BONUS.cup; save(); showTrophy({name:"League Cup Winners",eyebrow:"Champions",sub:`${S.club.name} lift the League Cup — silverware in the cabinet!`,color:"#2bc46e",reward:TROPHY_BONUS.cup}, ()=>{ render(); injuryToast(injRes); }); }
+      if(cupWon){ S.budget+=TROPHY_BONUS.cup; save(); showTrophy({name:"Carabao Cup Winners",eyebrow:"Champions",sub:`${S.club.name} lift the Carabao Cup — silverware in the cabinet!`,color:"#2bc46e",reward:TROPHY_BONUS.cup}, ()=>{ render(); injuryToast(injRes); }); }
       else { render(); injuryToast(injRes); }
     });
   };
@@ -533,40 +533,64 @@ const EURO_META={
   uecl:{name:"Conference League",short:"UECL",theme:"uecl",prize:[3,5,8,15]}
 };
 const EURO_ROUNDS=["Round of 16","Quarter-final","Semi-final","Final"];
-const EURO_WEEKS=[7,12,21,30];
+const EURO_WEEKS=[6,11,20,30];
 function makeEuro(comp){
   const pool=EURO_POOL[comp].slice(), used=new Set();
   const rounds=EURO_ROUNDS.map((n,i)=>{ let sh; do{ sh=pick(pool); }while(used.has(sh)&&used.size<pool.length); used.add(sh);
-    return {name:n, week:EURO_WEEKS[i], opp:"e:"+sh, home:(n==="Final")?true:Math.random()<0.5, played:false, score:null, won:null, pens:null}; });
+    return {name:n, week:EURO_WEEKS[i], opp:"e:"+sh, home:(n==="Final")?true:Math.random()<0.5, legs:(n==="Final")?null:[], played:false, score:null, won:null, pens:null}; });
   return {comp, name:EURO_META[comp].name, theme:EURO_META[comp].theme, rounds, idx:0, out:false, won:false};
 }
 function euroTie(){ const e=S.euro; if(!e||e.out||e.won||e.idx>=e.rounds.length) return null; const t=e.rounds[e.idx]; return t.played?null:t; }
 function euroDate(week){ return seasonStart()+(week*7+3)*864e5; }
+// Two-legged ties: every round before the final is played home and away, aggregate score decides.
+function euroLegged(t){ return !!(t && t.legs); }
+function euroLegIdx(t){ return euroLegged(t)?t.legs.length:0; }   // 0 = first leg next, 1 = second leg next
+function euroLegHome(t,li){ return euroLegged(t)?(li===0?t.home:!t.home):(t.name==="Final"?true:t.home); }
+function euroTieDate(t){ return euroDate(t.week + (euroLegged(t)&&euroLegIdx(t)===1?1:0)); }
+function euroAgg(t){ // [mine, theirs] across the legs played so far
+  let me=0, them=0; (t.legs||[]).forEach(l=>{ me+=l.home?l.score[0]:l.score[1]; them+=l.home?l.score[1]:l.score[0]; }); return [me,them];
+}
 function playEuro(){
   const e=S.euro, tie=e.rounds[e.idx], isFinal=tie.name==="Final";
-  const h=tie.home?"you":tie.opp, a=tie.home?tie.opp:"you", home=tie.home, oppId=tie.opp;
-  const info=previewInfo({comp:e.name, roundLabel:tie.name, date:new Date(euroDate(tie.week)), home, oppId, theme:e.theme, finalNeutral:isFinal});
+  const legged=euroLegged(tie), li=euroLegIdx(tie), legLabel=legged?(li===0?"1st leg":"2nd leg"):"";
+  const home=euroLegHome(tie,li), oppId=tie.opp;
+  const h=home?"you":tie.opp, a=home?tie.opp:"you";
+  const info=previewInfo({comp:e.name, roundLabel:tie.name+(legged?" · "+legLabel:""), date:new Date(euroTieDate(tie)), home, oppId, theme:e.theme, finalNeutral:isFinal});
   const kick=(ment)=>{
     const sim=simMatch(h,a,ment);
     const {gh,ga,events,lh,la,poss,motm}=sim;
     const mine=home?gh:ga, theirs=home?ga:gh;
-    let won=mine>theirs, pens=null;
-    if(mine===theirs){ const Rm=teamRatings().ovr, Ro=ratingsFor(oppId).ovr; won=Math.random()<Rm/(Rm+Ro); pens=won?[ri(4,5),ri(2,4)]:[ri(2,4),ri(4,5)]; if(pens[0]===pens[1]) pens[won?0:1]++; }
-    const prize=EURO_META[e.comp].prize[e.idx], earn=prize+(won?prize:0);
-    tie.played=true; tie.score=[gh,ga]; tie.won=won; tie.pens=pens;
+    const prize=EURO_META[e.comp].prize[e.idx];
+    let won, pens=null, earn, word, color, note, settled=true, aggTxt="";
+    if(legged){ tie.legs.push({home,score:[gh,ga]}); }
+    if(legged && li===0){
+      // first leg: nothing decided yet
+      settled=false; won=mine>theirs; earn=Math.round(prize/2);
+      word=mine>theirs?"First-leg lead":mine<theirs?"Work to do":"All square";
+      color=mine>theirs?"var(--win)":mine<theirs?"var(--loss)":"var(--draw)";
+      note="Second leg to come · +"+money(earn);
+    } else {
+      const [am,at]=legged?euroAgg(tie):[mine,theirs];
+      won=am>at;
+      if(am===at){ const Rm=teamRatings().ovr, Ro=ratingsFor(oppId).ovr; won=Math.random()<Rm/(Rm+Ro); pens=won?[ri(4,5),ri(2,4)]:[ri(2,4),ri(4,5)]; if(pens[0]===pens[1]) pens[won?0:1]++; }
+      earn=(legged?Math.round(prize/2):prize)+(won?prize:0);
+      tie.played=true; tie.score=legged?[am,at]:[gh,ga]; tie.agg=legged; tie.won=won; tie.pens=pens;
+      if(won){ if(isFinal){ e.won=true; S.euroTrophies=(S.euroTrophies||0)+1; S.budget+=prize*1.5; addRep(e.comp==="ucl"?30:e.comp==="uel"?18:12); } else e.idx++; } else e.out=true;
+      aggTxt=legged?am+"–"+at+" on aggregate · ":"";
+      word=won?(isFinal?"EUROPEAN CHAMPIONS 🏆":"Through ✔"):"Knocked out";
+      color=won?"var(--win)":"var(--loss)";
+      const pensTxt=pens?(won?"Won "+pens[0]+"–"+pens[1]+" on pens · ":"Lost "+pens[1]+"–"+pens[0]+" on pens · "):"";
+      note=aggTxt+pensTxt+"+"+money(earn);
+    }
     S.budget+=earn;
-    if(won){ if(isFinal){ e.won=true; S.euroTrophies=(S.euroTrophies||0)+1; S.budget+=prize*1.5; addRep(e.comp==="ucl"?30:e.comp==="uel"?18:12); } else e.idx++; } else e.out=true;
     recordWin(mine,theirs,oppId,e.name);
     const injRes=processInjuries(sim);
     save();
     const venue=isFinal?"the Final (neutral)":(home?"Home · "+S.club.stadium:"Away · "+teamInfo(oppId).name);
-    const title=e.name+" · "+tie.name+" · "+venue;
-    const word=won?(isFinal?"EUROPEAN CHAMPIONS 🏆":"Through ✔"):"Knocked out";
-    const color=won?"var(--win)":"var(--loss)";
-    const pensTxt=pens?(won?"Won "+pens[0]+"–"+pens[1]+" on pens · ":"Lost "+pens[1]+"–"+pens[0]+" on pens · "):"";
-    const social={win:won?1:-1, score:gh+"–"+ga, scorers:events.filter(x=>x.type==="goal"&&x.team==="you").map(x=>x.who), opp:teamInfo(oppId).name, oppShort:teamInfo(oppId).short, euro:{won,final:isFinal,round:tie.name,name:e.name}, theme:e.theme, motm:motm&&won?motm.n:null, injury:injRes.injured?injRes.injured.who:null, recovered:injRes.recovered};
+    const title=e.name+" · "+tie.name+(legged?" · "+legLabel:"")+" · "+venue;
+    const social={win:mine>theirs?1:mine<theirs?-1:0, score:gh+"–"+ga, scorers:events.filter(x=>x.type==="goal"&&x.team==="you").map(x=>x.who), opp:teamInfo(oppId).name, oppShort:teamInfo(oppId).short, euro:settled?{won,final:isFinal,round:tie.name,name:e.name}:null, theme:e.theme, motm:motm&&won?motm.n:null, injury:injRes.injured?injRes.injured.who:null, recovered:injRes.recovered};
     const euroWon=won&&isFinal;
-    showMatchOverlay({h,a,lh,la,events,gh,ga,poss,motm,title,word,color,note:pensTxt+"+"+money(earn),social,theme:e.theme}, ()=>{
+    showMatchOverlay({h,a,lh,la,events,gh,ga,poss,motm,title,word,color,note,social,theme:e.theme}, ()=>{
       if(euroWon){ const bonus=TROPHY_BONUS[e.comp]; S.budget+=bonus; save(); showTrophy({name:EURO_META[e.comp].name+" Winners",eyebrow:"Champions of Europe",sub:`${S.club.name} are kings of Europe — ${EURO_META[e.comp].name} winners!`,color:({ucl:"#4f7cff",uel:"#ff8a2a",uecl:"#36d97a"})[e.comp],reward:bonus}, ()=>{ render(); injuryToast(injRes); }); }
       else { render(); injuryToast(injRes); }
     });
@@ -578,7 +602,7 @@ function nextEvent(){
   const tie=cupTie(), et=euroTie();
   const leagueDate = leagueOver?Infinity:mDateObj(S.round).getTime();
   const cupD = tie?cupDate(tie.week):Infinity;
-  const euroD = et?euroDate(et.week):Infinity;
+  const euroD = et?euroTieDate(et):Infinity;
   const m=Math.min(leagueDate,cupD,euroD);
   if(m===Infinity) return null;
   if(euroD===m && et) return {type:"euro", tie:et};

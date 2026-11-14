@@ -722,3 +722,6 @@ input[type=text]{background:var(--night);border:1px solid var(--line);border-rad
 .sack-stats span{font-family:var(--num);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .sackroom .btn.primary{margin-top:8px;background:var(--loss);border-color:var(--loss)}
 @media (prefers-reduced-motion:reduce){.sack-name{animation:none;transform:rotate(-3deg)}}
+
+/* mobile: the club bar is ~320px tall, so it scrolls away with the page instead of pinning */
+@media (max-width:760px){.bar{position:static;top:auto;backdrop-filter:none}.pitchpanel{position:static}}
