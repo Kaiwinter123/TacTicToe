@@ -726,38 +726,46 @@ input[type=text]{background:var(--night);border:1px solid var(--line);border-rad
 /* mobile: the club bar is ~320px tall, so it scrolls away with the page instead of pinning */
 @media (max-width:760px){.bar{position:static;top:auto;backdrop-filter:none}.pitchpanel{position:static}}
 
-/* create-club page v2 */
-.gate2{display:flex;flex-direction:column;gap:26px;padding-block:28px 48px;width:min(1120px,100%);margin-inline:auto}
-.gatehero{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px}
-.gatehero h1{font-size:clamp(60px,13vw,120px);line-height:.82;margin:0}
-.gatehero h1 em{font-style:normal;color:var(--flood)}
-.gatetag{margin:0;max-width:62ch;font-size:16px;color:var(--chalk);line-height:1.5}
-.gatetag b{color:var(--flood)}
-.showcase{position:relative;background:linear-gradient(180deg,rgba(244,200,75,.06),transparent 60%),var(--stand);border:1px solid var(--line);border-radius:16px;padding:18px 14px 16px;overflow:hidden}
-.showcase::before{content:"";position:absolute;inset:auto 0 -40% 0;height:80%;background:radial-gradient(ellipse at 50% 100%,rgba(244,200,75,.22),transparent 60%);pointer-events:none}
-.showhead{display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;margin-bottom:14px}
-.showrow{display:flex;justify-content:center;align-items:flex-start;gap:14px;flex-wrap:wrap;position:relative;z-index:1}
-.showcard{margin:0;display:flex;flex-direction:column;align-items:center;gap:8px;width:168px;transform:rotate(calc((var(--i) - 2) * 2.2deg)) translateY(calc(abs(var(--i) - 2) * 6px));transition:transform .25s cubic-bezier(.2,.9,.3,1.3);animation:showIn .6s cubic-bezier(.2,1.1,.3,1) both;animation-delay:calc(var(--i) * 90ms)}
-.showcard:hover{transform:rotate(0) translateY(-10px) scale(1.04);z-index:3}
-.showcard .card{pointer-events:none;box-shadow:0 18px 40px rgba(0,0,0,.5)}
-.showcard figcaption{display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}
-.showcard figcaption b{font-family:var(--num);font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--flood)}
-.showcard figcaption span{font-size:11.5px;color:var(--muted);line-height:1.3;max-width:168px}
-@keyframes showIn{0%{opacity:0;transform:translateY(40px) rotate(0)}}
-.gatecols2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:18px;align-items:start}
-.hw-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.hw{display:flex;flex-direction:column;gap:3px;padding:12px;background:var(--stand2);border:1px solid var(--line);border-radius:10px;font-size:13px;color:var(--muted);line-height:1.4}
-.hw b{color:var(--chalk);font-family:var(--display);text-transform:uppercase;font-size:17px;letter-spacing:.02em}
-.hw-ico{font-size:22px;line-height:1}
-.createbox{border-color:color-mix(in srgb,var(--flood) 45%,var(--line))}
+
+/* create-club page v3: the founding board */
+.found{display:flex;flex-direction:column;gap:22px;padding:14px 0 40px;width:min(1180px,100%);margin-inline:auto}
+.found-top{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:6px 0 10px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.found-main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:22px;align-items:stretch}
+.board{position:relative;overflow:hidden;border-radius:18px;border:1px solid var(--line);padding:26px 24px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px;min-height:460px;
+  background:linear-gradient(160deg,color-mix(in srgb,var(--b1,#e63946) 55%,#0a0e0c) 0%,color-mix(in srgb,var(--b1,#e63946) 22%,#0a0e0c) 45%,#0a0e0c 100%)}
+.board::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 44px,rgba(255,255,255,.025) 44px 88px);pointer-events:none}
+.board-glow{position:absolute;width:420px;height:420px;border-radius:50%;top:-120px;background:radial-gradient(circle,color-mix(in srgb,var(--b2,#111) 60%,transparent),transparent 65%);filter:blur(30px);opacity:.6;pointer-events:none}
+.board>:not(.board-glow){position:relative;z-index:1}
+.board-kit{display:flex;align-items:center;gap:26px}
+.board-shirt{position:relative;width:170px;filter:drop-shadow(0 14px 24px rgba(0,0,0,.55))}
+.board-shirt svg{width:100%;height:auto}
+.board-shirt b{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);font-family:var(--num);font-weight:700;font-size:26px;letter-spacing:.08em;opacity:.9}
+.board-name{font-family:var(--display);font-size:clamp(38px,6vw,64px);line-height:.9;margin:0;text-transform:uppercase;color:#fff;text-shadow:0 4px 18px rgba(0,0,0,.5);word-break:break-word}
+.board-meta{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;font-size:14px;color:rgba(255,255,255,.85)}
+.founder{display:flex;flex-direction:column;gap:14px;background:linear-gradient(180deg,var(--stand2),var(--stand));border:1px solid var(--line);border-radius:18px;padding:22px}
+.fstep{display:grid;grid-template-columns:44px 1fr;gap:14px;padding:6px 0 16px;border-bottom:1px solid var(--line)}
+.fstep:last-of-type{border-bottom:0}
+.fnum{font-family:var(--num);font-weight:700;font-size:28px;color:var(--flood);line-height:1;padding-top:2px}
+.fbody{display:flex;flex-direction:column;gap:10px;min-width:0}
+.fbody h2{font-size:24px;margin:0}
+.fgo{display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-size:13px}
 .btn.big{font-size:19px;padding:14px 26px}
-@media (max-width:900px){.gatecols2{grid-template-columns:1fr}.createbox{order:-1}.hw-grid{grid-template-columns:1fr 1fr}}
-@media (max-width:760px){
-  .showrow{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 4px 10px;gap:12px;scrollbar-width:none}
-  .showcard{flex:0 0 150px;width:150px;scroll-snap-align:center;transform:none}
-  .showcard .card{width:150px}
-  .showcard:hover{transform:none}
-  .showhead{align-items:flex-start;text-align:left}
-}
-@media (max-width:460px){.hw-grid{grid-template-columns:1fr}}
-@media (prefers-reduced-motion:reduce){.showcard{animation:none}}
+.ticker{border:1px solid var(--line);border-radius:14px;background:var(--stand);padding:12px 0 10px;overflow:hidden}
+.tickhead{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:0 16px 10px;flex-wrap:wrap}
+.tickkinds{display:flex;align-items:center;gap:6px 12px;flex-wrap:wrap;font-family:var(--num);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.tickkinds .k{width:10px;height:10px;border-radius:3px;display:inline-block}
+.tickkinds .k.ucl{background:#3a7bff}.tickkinds .k.elite{background:var(--flood)}.tickkinds .k.prospect{background:#9b5cff}.tickkinds .k.academy{background:#2bc46e}.tickkinds .k.gold{background:#d9a441}
+.tickwin{overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.ticktrack{display:flex;gap:14px;width:max-content;padding:4px 0 6px;animation:tickscroll 48s linear infinite}
+.ticktrack .card{width:150px;flex:0 0 150px;pointer-events:none}
+.ticker:hover .ticktrack{animation-play-state:paused}
+@keyframes tickscroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,1fr);gap:10px;counter-reset:st}
+.steps li{position:relative;display:flex;flex-direction:column;gap:2px;padding:12px 12px 12px 44px;background:var(--stand);border:1px solid var(--line);border-radius:10px;font-size:12px;color:var(--muted);counter-increment:st}
+.steps li::before{content:counter(st);position:absolute;left:12px;top:12px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--flood);color:var(--night);font-family:var(--num);font-weight:700;font-size:12px}
+.steps li b{color:var(--chalk);font-family:var(--display);text-transform:uppercase;font-size:16px;letter-spacing:.02em}
+@media (max-width:900px){.found-main{grid-template-columns:1fr}.board{min-height:0;padding:20px 16px;gap:10px}.board-shirt{width:120px}.board-shirt b{font-size:18px}.steps{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.board-kit{gap:16px}.fstep{grid-template-columns:32px 1fr;gap:10px}.fnum{font-size:22px}.founder{padding:16px}.steps{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.ticktrack{animation:none}}
+@media (max-width:900px){.found{padding-inline:16px;box-sizing:border-box}}
+@media (max-width:560px){.found-top .eyebrow{display:none}}

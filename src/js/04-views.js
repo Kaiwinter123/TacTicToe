@@ -262,7 +262,7 @@ function ordinalPos(n){ return n>0?ordinal(n):"\u2014"; }
 const CHANGELOG = [
   {tag:"NEW", accent:"#4f7cff", date:"Latest", title:"Two-legged European ties & the Carabao Cup",
    body:"Europe now plays home and away, and the domestic cup carries its proper name.",
-   items:["Champions League, Europa League and Conference League knockout rounds are two legs — one at home, one away — with the final still a one-off. Aggregate score decides, penalties if it's level.","Both legs appear on the calendar and in the bracket, with the first-leg score shown before the return.","The League Cup is now the Carabao Cup everywhere in the game.","On phones the club header no longer pins to the top — it scrolls away with the page so each screen gets the full height.","Home-grown academy players now improve +3 overall every season (up from +1), still capped at their ceiling.","The create-a-club page has been redesigned: a big wordmark, a showcase of all five card types (Europe’s Finest, Elite, Future Prospect, Academy, Gold), a how-it-works grid and a cleaner founding form."]},
+   items:["Champions League, Europa League and Conference League knockout rounds are two legs — one at home, one away — with the final still a one-off. Aggregate score decides, penalties if it's level.","Both legs appear on the calendar and in the bracket, with the first-leg score shown before the return.","The League Cup is now the Carabao Cup everywhere in the game.","On phones the club header no longer pins to the top — it scrolls away with the page so each screen gets the full height.","Home-grown academy players now improve +3 overall every season (up from +1), still capped at their ceiling.","The create-a-club page has been redesigned: a big wordmark, a live founding board that paints your crest, shirt and name in your colours as you type, a three-step form, and a scrolling ticker of the cards in the packs."]},
   {tag:"NEW", accent:"var(--flood)", date:"Recent", title:"26/27 database & the sack",
    body:"Every squad brought up to date to mid-November 2026, Ipswich removed, and relegation now costs you your job.",
    items:["All 19 Premier League clubs re-rated with their current squads, including summer and deadline-day moves (Bruno Guimarães to Arsenal, Elliot Anderson to City, Tonali to Spurs, and more).","Ipswich Town are gone: a 20-team league, 38 rounds, no more bye weeks. Any Ipswich cards in your squad have been released; Hull cards carry over.","Finish in the bottom three and the board sacks you — the save ends and you start again with a new club. Everything above the drop zone is unchanged.","Cards you already own keep their stored ratings."]},
@@ -661,76 +661,79 @@ function vFixtures(){
 /* ---------- gate (sign in + create club) ---------- */
 let draft = {manager:"",name:"",short:"",stadium:"",c1:"#e63946",c2:"#111111"};
 let gateShow=null;
-// The five card types you can pull, shown off on the create-club page.
+// Cards for the pack ticker on the create-club page: one of each type, plus a few more stars.
 function showcaseCards(){
   if(gateShow) return gateShow;
   const real=n=>{ const p=POOL.find(x=>x.n===n)||POOL.filter(x=>x.ovr>=86)[0]; const q=makePlayer(p.ovr,p.pos); q.n=p.n; q.rid=p.rid; q.club=p.club; q.a=attrsFor(p.ovr,p.pos,p.rid); return q; };
-  const u=UCL.find(x=>/Mbapp/.test(x.n))||UCL[0]; const uq=makePlayer(u.ovr,u.pos); Object.assign(uq,{n:u.n,rid:u.rid,ucl:true,k1:u.k1,k2:u.k2,csh:u.csh,cname:u.cname,club:null,a:attrsFor(u.ovr,u.pos,u.rid)});
-  const pr=PROSPECTS.find(x=>x.club>=0)||PROSPECTS[0]; const pq=makePlayer(PROSPECT_BASE,pr.pos); Object.assign(pq,{n:pr.n,rid:pr.rid,club:pr.club,prospect:true,a:attrsFor(PROSPECT_BASE,pr.pos,pr.rid)});
+  const ucl=n=>{ const u=UCL.find(x=>x.n.includes(n))||UCL[0]; const q=makePlayer(u.ovr,u.pos); Object.assign(q,{n:u.n,rid:u.rid,ucl:true,k1:u.k1,k2:u.k2,csh:u.csh,cname:u.cname,club:null,a:attrsFor(u.ovr,u.pos,u.rid)}); return q; };
+  const pro=n=>{ const pr=PROSPECTS.find(x=>x.n.includes(n)&&x.club>=0)||PROSPECTS.find(x=>x.club>=0); const q=makePlayer(PROSPECT_BASE,pr.pos); Object.assign(q,{n:pr.n,rid:pr.rid,club:pr.club,prospect:true,a:attrsFor(PROSPECT_BASE,pr.pos,pr.rid)}); return q; };
   const np=makeProspect(16); const aq=makePlayer(Math.max(np.ovr,74),np.pos); Object.assign(aq,{n:np.n,academy:true,potential:Math.max(np.potential,88),a:attrsFor(aq.ovr,np.pos)});
-  gateShow=[
-    {p:uq, tag:"Europe’s Finest", note:"Continental superstars · 1-in-5 from an Elite pack"},
-    {p:real("Erling Haaland"), tag:"Elite", note:"The Premier League’s best · Elite packs"},
-    {p:pq, tag:"Future Prospect", note:"Starts 85 · +1 overall every season"},
-    {p:aq, tag:"Academy graduate", note:"Home-grown · +3 overall every season"},
-    {p:real("Cole Palmer"), tag:"Gold", note:"Proven quality · Gold & Elite packs"}
-  ];
+  gateShow=[ucl("Mbapp"), real("Erling Haaland"), pro("Dowman"), aq, real("Cole Palmer"), ucl("Yamal"), real("Bukayo Saka"), pro("Ngumoha"), real("Mohamed Salah")||real("Declan Rice"), ucl("Bellingham")];
   return gateShow;
 }
 function gate(){
   const who = store.me;
   const show=showcaseCards();
-  return `<div class="gate2">
-    <section class="gatehero">
-      <span class="eyebrow">Premier League 2026/27 · pack-and-season football manager</span>
-      <h1>Tac<em>Tic</em>Toe</h1>
-      <p class="gatetag">Build a club from nothing. Open packs for <b>real Premier League players</b>, pick your XI, and chase titles, cups and European nights across many seasons.</p>
-      ${store.kind==="db"&&who?`<div class="who"><img src="${esc(who.avatarUrl)}" alt=""><span>Signed in${who.name?" as <b>"+esc(who.name)+"</b>":""}. Your club saves to your account.</span></div>`
-        :`<p class="muted" style="margin:0;font-size:13px">${store.kind==="local"?"You're not signed in to claude.ai, so your club saves in this browser only.":"Connecting to your account…"}</p>`}
-    </section>
+  const ticker=show.map(p=>card(p)).join("");
+  return `<div class="found">
+    <header class="found-top">
+      <div class="brandname">Tac<span>Tic</span>Toe</div>
+      <span class="eyebrow">Premier League 2026/27 · Founding a new club</span>
+      ${store.kind==="db"&&who?`<span class="who"><img src="${esc(who.avatarUrl)}" alt=""><span>${who.name?esc(who.name):"Signed in"}</span></span>`:`<span class="muted" style="font-size:12px">${store.kind==="local"?"Saves in this browser":"Connecting…"}</span>`}
+    </header>
 
-    <section class="showcase" aria-label="The cards you can pull">
-      <div class="showhead"><span class="eyebrow">Who could you pull?</span><span class="muted" style="font-size:13px">Five kinds of card live in the packs — from Bronze squad fillers to Europe’s Finest.</span></div>
-      <div class="showrow">${show.map((s,i)=>`<figure class="showcard" style="--i:${i}">${card(s.p)}<figcaption><b>${esc(s.tag)}</b><span>${esc(s.note)}</span></figcaption></figure>`).join("")}</div>
-    </section>
+    <div class="found-main">
+      <section class="board" id="pv" aria-live="polite"></section>
 
-    <div class="gatecols2">
-      <section class="panel stack howworks">
-        <span class="eyebrow">How it works</span>
-        <div class="hw-grid">
-          <div class="hw"><span class="hw-ico">🏟️</span><b>Found your club</b><span>Name it, pick your colours and stadium.</span></div>
-          <div class="hw"><span class="hw-ico">🃏</span><b>Open packs</b><span>Sign real Premier League players. You start with ${money(START_BUDGET)}.</span></div>
-          <div class="hw"><span class="hw-ico">📋</span><b>Pick your team</b><span>Formation, XI, subs — and sell who you don’t need.</span></div>
-          <div class="hw"><span class="hw-ico">⚽</span><b>Play the season</b><span>38 games watched live with momentum and fan reactions.</span></div>
-          <div class="hw"><span class="hw-ico">🏆</span><b>Cups & Europe</b><span>Carabao Cup runs, then Champions League nights if you finish top five.</span></div>
-          <div class="hw"><span class="hw-ico">🎓</span><b>Grow a legacy</b><span>Academy graduates, prize money, reputation — and the sack if you go down.</span></div>
-        </div>
-      </section>
-      <section class="panel stack createbox">
-        <span class="eyebrow">Found your club</span>
-        <form id="create" class="stack" novalidate>
-          <label for="mgr">Your name (manager)<input type="text" id="mgr" maxlength="24" value="${esc(draft.manager||(who&&who.name)||"")}" required></label>
+      <form id="create" class="founder" novalidate>
+        <div class="fstep"><span class="fnum">01</span><div class="fbody">
+          <h2>The manager</h2>
+          <label for="mgr">Your name<input type="text" id="mgr" maxlength="24" value="${esc(draft.manager||(who&&who.name)||"")}" required autocomplete="off"></label>
+        </div></div>
+        <div class="fstep"><span class="fnum">02</span><div class="fbody">
+          <h2>The club</h2>
+          <label for="cname">Club name<input type="text" id="cname" maxlength="26" placeholder="Harbour Lane FC" value="${esc(draft.name)}" required autocomplete="off"></label>
           <div class="formrow">
-            <label for="cname">Club name<input type="text" id="cname" maxlength="26" placeholder="e.g. Harbour Lane FC" value="${esc(draft.name)}" required></label>
-            <label for="cshort">Short name (3 letters)<input type="text" id="cshort" maxlength="3" placeholder="HLF" value="${esc(draft.short)}"></label>
+            <label for="cshort">Three-letter code<input type="text" id="cshort" maxlength="3" placeholder="HLF" value="${esc(draft.short)}" autocomplete="off"></label>
+            <label for="cstad">Stadium<input type="text" id="cstad" maxlength="34" placeholder="Harbour Park" value="${esc(draft.stadium)}" autocomplete="off"></label>
           </div>
-          <label for="cstad">Stadium name<input type="text" id="cstad" maxlength="34" placeholder="e.g. Harbour Park" value="${esc(draft.stadium)}"></label>
+        </div></div>
+        <div class="fstep"><span class="fnum">03</span><div class="fbody">
+          <h2>The colours</h2>
           <div class="formrow">
-            <div class="stack" style="gap:6px"><span class="eyebrow">Home colour</span><div class="swatches">${SWATCHES.map(c=>`<button type="button" class="sw" style="background:${c}" data-c="c1" data-v="${c}" aria-label="Home colour ${c}" aria-pressed="${draft.c1===c}"></button>`).join("")}</div></div>
-            <div class="stack" style="gap:6px"><span class="eyebrow">Second colour</span><div class="swatches">${SWATCHES.map(c=>`<button type="button" class="sw" style="background:${c}" data-c="c2" data-v="${c}" aria-label="Second colour ${c}" aria-pressed="${draft.c2===c}"></button>`).join("")}</div></div>
+            <div class="stack" style="gap:6px"><span class="eyebrow">Home</span><div class="swatches">${SWATCHES.map(c=>`<button type="button" class="sw" style="background:${c}" data-c="c1" data-v="${c}" aria-label="Home colour ${c}" aria-pressed="${draft.c1===c}"></button>`).join("")}</div></div>
+            <div class="stack" style="gap:6px"><span class="eyebrow">Trim</span><div class="swatches">${SWATCHES.map(c=>`<button type="button" class="sw" style="background:${c}" data-c="c2" data-v="${c}" aria-label="Second colour ${c}" aria-pressed="${draft.c2===c}"></button>`).join("")}</div></div>
           </div>
-          <div class="preview" id="pv"></div>
-          <p id="err" class="muted" style="margin:0;color:var(--loss)" hidden></p>
-          <div><button class="btn primary big" type="submit">Found the club →</button></div>
-        </form>
-      </section>
+        </div></div>
+        <p id="err" class="muted" style="margin:0;color:var(--loss)" hidden></p>
+        <div class="fgo"><button class="btn primary big" type="submit">Found the club →</button><span class="muted">You start with ${money(START_BUDGET)} to open packs. Everything else you earn.</span></div>
+      </form>
     </div>
+
+    <section class="ticker" aria-label="Cards in the packs">
+      <div class="tickhead"><span class="eyebrow">In the packs</span><span class="tickkinds"><i class="k ucl"></i>Europe’s Finest <i class="k elite"></i>Elite <i class="k prospect"></i>Future Prospect <i class="k academy"></i>Academy <i class="k gold"></i>Gold</span></div>
+      <div class="tickwin"><div class="ticktrack">${ticker}${ticker}</div></div>
+    </section>
+
+    <ol class="steps" aria-label="How it works">
+      <li><b>Open packs</b><span>real Premier League players</span></li>
+      <li><b>Pick your XI</b><span>formation, subs, sales</span></li>
+      <li><b>Play 38 games</b><span>live, with fan reaction</span></li>
+      <li><b>Win cups & Europe</b><span>Carabao Cup, UCL nights</span></li>
+      <li><b>Build a legacy</b><span>academy, reputation, trophies</span></li>
+    </ol>
   </div>`;
 }
-function shortFrom(n){const w=n.trim().split(/\s+/).filter(Boolean);return (w.length>1?w.map(x=>x[0]).join(""):n.replace(/\s/g,"")).slice(0,3).toUpperCase()}
+function shortFrom(n){const w=n.trim().split(/\s+/).filter(Boolean);return (w.length>=2?w.map(x=>x[0]).join(""):n.replace(/\s+/g,"")).slice(0,3).toUpperCase()||"CLB"}
 function paintPreview(){
-  const n=draft.name.trim()||"Your Club", s=(draft.short||shortFrom(n)).toUpperCase();
-  $("#pv").innerHTML = `${crest(draft.c1,draft.c2,s,52)}<div><b>${esc(n)}</b><div class="muted">${esc(s)} · Season 1</div></div>`;
+  const n=draft.name.trim()||"Your Club", s=(draft.short||shortFrom(n)).toUpperCase(), st=draft.stadium.trim()||(draft.name.trim()?draft.name.trim()+" Stadium":"Your stadium"), m=draft.manager.trim()||"You";
+  const pv=$("#pv"); if(!pv) return;
+  pv.style.setProperty("--b1",draft.c1); pv.style.setProperty("--b2",draft.c2);
+  pv.innerHTML = `<div class="board-glow"></div>
+    <span class="eyebrow">Founded 2026 · Season 1</span>
+    <div class="board-kit">${crest(draft.c1,draft.c2,s,110)}<div class="board-shirt">${shirt(draft.c1,draft.c2)}<b style="color:${readable(draft.c1)}">${esc(s)}</b></div></div>
+    <h1 class="board-name">${esc(n)}</h1>
+    <div class="board-meta"><span>🏟️ ${esc(st)}</span><span>🧑‍💼 Manager ${esc(m)}</span></div>`;
 }
 function bindGate(){
   const f=$("#create"); if(!f) return;
